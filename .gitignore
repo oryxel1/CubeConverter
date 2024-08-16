@@ -1,0 +1,7 @@
+/.idea/*
+!/.idea/copyright/
+.gradle/
+build/
+/out/
+/run/
+/target/*
