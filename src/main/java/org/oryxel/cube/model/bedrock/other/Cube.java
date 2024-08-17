@@ -27,7 +27,7 @@ public class Cube {
     private final double[] size;
     private final double[] pivot;
     private final double[] rotation;
-    private double inflate = Double.MAX_VALUE;
+    private double inflate = 0;
     private boolean mirror;
 
     public Cube(double[] origin, double[] size, double[] pivot, double[] rotation) {
@@ -37,7 +37,7 @@ public class Cube {
         this.rotation = rotation;
     }
 
-    public class PerFaceCube extends Cube {
+    public static class PerFaceCube extends Cube {
         private final Map<Direction, double[]> uvMap = new HashMap<>();
 
         public PerFaceCube(double[] origin, double[] size, double[] pivot, double[] rotation) {
@@ -49,7 +49,7 @@ public class Cube {
         }
     }
 
-    public class BoxCube extends Cube {
+    public static class BoxCube extends Cube {
         private final double[] uvOffset;
 
         public BoxCube(double[] origin, double[] size, double[] pivot, double[] rotation, double[] uvOffset) {
@@ -60,6 +60,38 @@ public class Cube {
         public double[] uvOffset() {
             return uvOffset;
         }
+    }
+
+    public double[] rotation() {
+        return rotation;
+    }
+
+    public double[] origin() {
+        return origin;
+    }
+
+    public double[] size() {
+        return size;
+    }
+
+    public double[] pivot() {
+        return pivot;
+    }
+
+    public double inflate() {
+        return inflate;
+    }
+
+    public void inflate(double inflate) {
+        this.inflate = inflate;
+    }
+
+    public boolean mirror() {
+        return mirror;
+    }
+
+    public void mirror(boolean mirror) {
+        this.mirror = mirror;
     }
 
 }

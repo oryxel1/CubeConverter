@@ -1,3 +1,8 @@
+package org.oryxel.cube.model.java.other;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
  * Copyright (C) 2023-2024 Oryxel and contributors
@@ -15,6 +20,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.oryxel.cube.model.bedrock;
+public class Group {
 
-public record EntityModelData(String identifier, String material, String textures, String geometry) {}
+    private final String name;
+    private final double[] origin;
+    private final int color;
+
+    private final Map<Integer, Element> children = new HashMap<>();
+
+    public Group(String name, double[] origin, int color) {
+        this.name = name;
+        this.origin = origin;
+        this.color = color;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public double[] origin() {
+        return origin;
+    }
+
+    public int color() {
+        return color;
+    }
+
+    public Map<Integer, Element> children() {
+        return children;
+    }
+
+}

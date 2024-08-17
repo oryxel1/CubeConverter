@@ -1,3 +1,5 @@
+package org.oryxel.cube.util;
+
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
  * Copyright (C) 2023-2024 Oryxel and contributors
@@ -15,6 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.oryxel.cube.model.bedrock;
+public class MathUtil {
 
-public record EntityModelData(String identifier, String material, String textures, String geometry) {}
+    public static float clamp(float num, float min, float max) {
+        return num < min ? min : (num > max ? max : num);
+    }
+
+    public static double clamp(double num, double min, double max) {
+        return num < min ? min : (num > max ? max : num);
+    }
+
+}

@@ -1,6 +1,7 @@
-package org.oryxel.cube.model.bedrock;
+package org.oryxel.cube.model.java;
 
-import org.oryxel.cube.model.bedrock.other.Bone;
+import org.oryxel.cube.model.java.other.Element;
+import org.oryxel.cube.model.java.other.Group;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,23 +23,23 @@ import java.util.List;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class EntityGeometry {
+public class ItemModelData {
 
-    private final String identifier;
+    private final String textures;
     private final int textureWidth, textureHeight;
+    private double[] positionOffset = new double[3];
 
-    private String path;
+    private final List<Group> groups = new ArrayList<>();
+    private final List<Element> elements = new ArrayList<>();
 
-    private final List<Bone> bones = new ArrayList<>();
-
-    public EntityGeometry(String identifier, int textureWidth, int textureHeight) {
-        this.identifier = identifier;
+    public ItemModelData(String textures, int textureWidth, int textureHeight) {
+        this.textures = textures;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
     }
 
-    public String identifier() {
-        return identifier;
+    public String textures() {
+        return textures;
     }
 
     public int textureWidth() {
@@ -49,16 +50,20 @@ public class EntityGeometry {
         return textureHeight;
     }
 
-    public List<Bone> bones() {
-        return bones;
+    public double[] positionOffset() {
+        return positionOffset;
     }
 
-    public String path() {
-        return path;
+    public void positionOffset(double[] positionOffset) {
+        this.positionOffset = positionOffset;
     }
 
-    public void path(String path) {
-        this.path = path;
+    public List<Group> groups() {
+        return groups;
+    }
+
+    public List<Element> elements() {
+        return elements;
     }
 
 }
