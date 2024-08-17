@@ -34,7 +34,7 @@
         <repository>
             <id>github</id>
             <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/Oryxel/CubeConverter</url>
+            <url>https://maven.pkg.github.com/oryxel/cubeconverter</url>
         </repository>
     </distributionManagement>
 
