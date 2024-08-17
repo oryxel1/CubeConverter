@@ -98,19 +98,19 @@ public class FormatConverter {
         }
 
         elements.forEach(element -> {
-//            for (int i = 0; i < cubeOffset.length; i++) {
-//                if (cubeOffset[i] == 0)
-//                    continue;
-//
-//                element.to()[i] = element.to()[i] + cubeOffset[i];
-//                element.from()[i] = element.from()[i] + cubeOffset[i];
-//            }
-//
-//            double[] lastFrom = ArrayUtil.clone(element.from()), lastTo = ArrayUtil.clone(element.to());
-//            element.to(ArrayUtil.clamp(element.to(), 32, -16));
-//            element.from(ArrayUtil.clamp(element.from(), 32, -16));
-//            element.to()[1] = MathUtil.clamp(lastTo[1], -16, 32);
-//            element.from()[1] = MathUtil.clamp(lastFrom[1], -16, 32 - element.size()[1]);
+            for (int i = 0; i < cubeOffset.length; i++) {
+                if (cubeOffset[i] == 0)
+                    continue;
+
+                element.to()[i] = element.to()[i] + cubeOffset[i];
+                element.from()[i] = element.from()[i] + cubeOffset[i];
+            }
+
+            double[] lastFrom = ArrayUtil.clone(element.from()), lastTo = ArrayUtil.clone(element.to());
+            element.to(ArrayUtil.clamp(element.to(), 32, -16));
+            element.from(ArrayUtil.clamp(element.from(), 32, -16));
+            element.to()[1] = MathUtil.clamp(lastTo[1], -16, 32);
+            element.from()[1] = MathUtil.clamp(lastFrom[1], -16, 32 - element.size()[1]);
         });
 
         // TODO: implement children/parent group
