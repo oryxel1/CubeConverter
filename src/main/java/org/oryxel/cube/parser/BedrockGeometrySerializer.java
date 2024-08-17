@@ -7,6 +7,7 @@ import com.viaversion.viaversion.util.GsonUtil;
 import org.oryxel.cube.model.bedrock.EntityGeometry;
 import org.oryxel.cube.model.bedrock.other.Bone;
 import org.oryxel.cube.model.bedrock.other.Cube;
+import org.oryxel.cube.util.ArrayUtil;
 import org.oryxel.cube.util.Direction;
 
 import java.util.ArrayList;
@@ -78,8 +79,9 @@ public class BedrockGeometrySerializer {
             JsonObject boneObject = boneElement.getAsJsonObject();
             String name = boneObject.get("name").getAsString();
 
-            double[] pivot = getAsArray(boneObject.getAsJsonArray("pivot"));
-            Bone bone = new Bone(name, pivot);
+            double[] pivot = ArrayUtil.getAsArray(boneObject.getAsJsonArray("pivot"));
+            double[] boneRotation = ArrayUtil.getAsArray(boneObject.getAsJsonArray("rotation"));
+            Bone bone = new Bone(name, pivot, boneRotation);
 
             if (!boneObject.has("cubes")) {
                 bones.add(bone);
@@ -89,10 +91,10 @@ public class BedrockGeometrySerializer {
             JsonArray cubeElements = boneObject.getAsJsonArray("cubes");
             for (JsonElement cubeElement : cubeElements) {
                 JsonObject cubeObject = cubeElement.getAsJsonObject();
-                double[] origin = getAsArray(cubeObject.getAsJsonArray("origin"));
-                double[] size = getAsArray(cubeObject.getAsJsonArray("size"));
-                double[] cubePivot = getAsArray(cubeObject.getAsJsonArray("pivot"));
-                double[] rotation = getAsArray(cubeObject.getAsJsonArray("rotation"));
+                double[] origin = ArrayUtil.getAsArray(cubeObject.getAsJsonArray("origin"));
+                double[] size = ArrayUtil. getAsArray(cubeObject.getAsJsonArray("size"));
+                double[] cubePivot = ArrayUtil.getAsArray(cubeObject.getAsJsonArray("pivot"));
+                double[] rotation = ArrayUtil.getAsArray(cubeObject.getAsJsonArray("rotation"));
 
                 Cube cube;
                 if (cubeObject.get("uv") instanceof JsonArray) {
@@ -109,6 +111,9 @@ public class BedrockGeometrySerializer {
                     putIfExist(Direction.UP, uv, (Cube.PerFaceCube) cube);
                     putIfExist(Direction.DOWN, uv, (Cube.PerFaceCube) cube);
                 }
+
+                if (cubeObject.has("parent")) // xD
+                    cube.parent(cubeObject.getAsJsonObject("parent").getAsString());
 
                 if (cubeObject.has("inflate"))
                     cube.inflate(cubeObject.getAsJsonPrimitive("inflate").getAsDouble());
@@ -141,13 +146,6 @@ public class BedrockGeometrySerializer {
         JsonArray arrayUv = object.getAsJsonArray("uv");
         JsonArray arrayUvSize = object.getAsJsonArray("uv_size");
         return new double[] { arrayUv.get(0).getAsDouble(), arrayUv.get(1).getAsDouble(), arrayUvSize.get(0).getAsDouble(), arrayUvSize.get(1).getAsDouble() };
-    }
-
-    private static double[] getAsArray(JsonArray array) {
-        if (array == null)
-            return new double[] { 0D, 0D, 0D };
-
-        return new double[] { array.get(0).getAsDouble(), array.get(1).getAsDouble(), array.get(2).getAsDouble() };
     }
 
 }

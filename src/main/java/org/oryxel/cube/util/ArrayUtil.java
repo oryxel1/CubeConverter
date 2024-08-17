@@ -1,5 +1,7 @@
 package org.oryxel.cube.util;
 
+import com.viaversion.viaversion.libs.gson.JsonArray;
+
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
  * Copyright (C) 2023-2024 Oryxel and contributors
@@ -18,6 +20,10 @@ package org.oryxel.cube.util;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class ArrayUtil {
+
+    public static long pack(double[] array) {
+        return ((long) ((int)array[0]) << 32) | ((long) ((int)array[1]) << 16) | (long) ((int)array[2]);
+    }
 
     public static double[] build(double d, double d1) {
         return new double[] { d, d1 };
@@ -39,6 +45,13 @@ public class ArrayUtil {
         return d;
     }
 
+    public static double[] getAsArray(JsonArray array) {
+        if (array == null)
+            return new double[] { 0D, 0D, 0D };
+
+        return new double[] { array.get(0).getAsDouble(), array.get(1).getAsDouble(), array.get(2).getAsDouble() };
+    }
+
     public static double[] addOffsetToArray(double[] array, double offset) {
         for (var i = 0; i < 3; i++) {
             array[i] = array[i] + offset;
@@ -53,6 +66,43 @@ public class ArrayUtil {
 
     public static double[] combineArray(double[] array, double[] array1) {
         return new double[] { array[0] + array1[0], array[1] + array1[1], array[2] + array1[2] };
+    }
+
+    public static boolean isCloseEnough(double[] array, double v, int exception) {
+        for (int i = 0; i < array.length; i++) {
+            if (i == exception)
+                continue;
+
+            double distance = Math.abs(array[i] - v);
+            if (distance > 4)
+                return false;
+        }
+
+        return true;
+    }
+
+    public static boolean isAllCloseEnough(double[] array, double v) {
+        return isAllCloseEnough(array, 12, v);
+    }
+
+    public static boolean isAllCloseEnough(double[] array, double close, double v) {
+        for (double a : array) {
+            double distance = Math.abs(a - v);
+            if (distance > close)
+                return false;
+        }
+
+        return true;
+    }
+
+    public static boolean isAllCloseEnough(double[] array, double[] array1, double close) {
+        for (int i = 0; i < array.length; i++) {
+            double distance = Math.abs(array[i] - array1[i]);
+            if (distance > close)
+                return false;
+        }
+
+        return true;
     }
 
 }

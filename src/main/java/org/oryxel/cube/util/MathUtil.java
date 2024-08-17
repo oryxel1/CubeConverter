@@ -27,4 +27,17 @@ public class MathUtil {
         return num < min ? min : (num > max ? max : num);
     }
 
+    public static double wrapDegrees(double degrees) {
+        double e = degrees % 360.0;
+        if (e >= 180.0) {
+            e -= 360.0;
+        }
+
+        if (e < -180.0) {
+            e += 360.0;
+        }
+
+        return e;
+    }
+
 }

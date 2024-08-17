@@ -27,9 +27,9 @@ public class EntityGeometry {
     private final String identifier;
     private final int textureWidth, textureHeight;
 
-    private String path;
-
     private final List<Bone> bones = new ArrayList<>();
+
+    private String path;
 
     public EntityGeometry(String identifier, int textureWidth, int textureHeight) {
         this.identifier = identifier;

@@ -30,6 +30,8 @@ public class Cube {
     private double inflate = 0;
     private boolean mirror;
 
+    private String parent = "";
+
     public Cube(double[] origin, double[] size, double[] pivot, double[] rotation) {
         this.origin = origin;
         this.size = size;
@@ -92,6 +94,14 @@ public class Cube {
 
     public void mirror(boolean mirror) {
         this.mirror = mirror;
+    }
+
+    public String parent() {
+        return parent;
+    }
+
+    public void parent(String parent) {
+        this.parent = parent;
     }
 
 }

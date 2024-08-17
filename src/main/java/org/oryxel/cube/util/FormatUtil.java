@@ -1,7 +1,5 @@
-package org.oryxel.cube.model.bedrock.other;
+package org.oryxel.cube.util;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
@@ -20,32 +18,6 @@ import java.util.List;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class Bone {
-    private final List<Cube> cubes = new ArrayList<>();
+public class FormatUtil {
 
-    private final String name;
-    private final double[] pivot;
-    private final double[] rotation;
-
-    public Bone(String name, double[] pivot, double[] rotation) {
-        this.name = name;
-        this.pivot = pivot;
-        this.rotation = rotation;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public double[] pivot() {
-        return pivot;
-    }
-
-    public double[] rotation() {
-        return rotation;
-    }
-
-    public List<Cube> cubes() {
-        return cubes;
-    }
 }

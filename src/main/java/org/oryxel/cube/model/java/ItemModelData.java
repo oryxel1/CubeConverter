@@ -28,6 +28,7 @@ public class ItemModelData {
     private final String textures;
     private final int textureWidth, textureHeight;
     private double[] positionOffset = new double[3];
+    private double[] rotation = new double[3];
 
     private final List<Group> groups = new ArrayList<>();
     private final List<Element> elements = new ArrayList<>();
@@ -48,6 +49,14 @@ public class ItemModelData {
 
     public int textureHeight() {
         return textureHeight;
+    }
+
+    public double[] rotation() {
+        return rotation;
+    }
+
+    public void rotation(double[] rotation) {
+        this.rotation = rotation;
     }
 
     public double[] positionOffset() {

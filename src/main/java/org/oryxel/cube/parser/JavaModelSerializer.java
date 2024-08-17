@@ -7,7 +7,6 @@ import org.oryxel.cube.model.java.other.Element;
 import org.oryxel.cube.model.java.other.Group;
 import org.oryxel.cube.util.Direction;
 
-import java.util.List;
 import java.util.Map;
 
 /*

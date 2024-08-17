@@ -1,15 +1,13 @@
 package org.oryxel.cube.converter;
 
+import com.viaversion.viaversion.util.Pair;
 import org.oryxel.cube.model.bedrock.EntityGeometry;
 import org.oryxel.cube.model.bedrock.other.Bone;
 import org.oryxel.cube.model.bedrock.other.Cube;
 import org.oryxel.cube.model.java.ItemModelData;
 import org.oryxel.cube.model.java.other.Element;
 import org.oryxel.cube.model.java.other.Group;
-import org.oryxel.cube.util.ArrayUtil;
-import org.oryxel.cube.util.Direction;
-import org.oryxel.cube.util.MathUtil;
-import org.oryxel.cube.util.UVUtil;
+import org.oryxel.cube.util.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +32,164 @@ import java.util.Map;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class FormatConverter {
+
+    public static List<ItemModelData> bedrockToJavaModels(String texture, EntityGeometry geometry) {
+        List<ItemModelData> list = new ArrayList<>();
+
+        ItemModelData rotation000 = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
+
+        for (Bone bone : geometry.bones()) {
+            final Map<Long, ItemModelData> modelDataMap = new HashMap<>();
+            final List<ItemModelData> overlapped = new ArrayList<>();
+
+            for (Cube cube : bone.cubes()) {
+                double[] from = ArrayUtil.getArrayWithOffset(cube.origin());
+                double[] to = ArrayUtil.combineArray(from, cube.size());
+                double[] origin = ArrayUtil.getArrayWithOffset(cube.pivot());
+                double[] actualRotation = ArrayUtil.combineArray(cube.rotation(), bone.rotation());
+
+                int axisIndex = getAxis(actualRotation);
+                float rawAngle = (float) actualRotation[axisIndex];
+                String axis = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
+                float axisAngle = (float) (Math.round(rawAngle / 22.5) * 22.5);
+                float angle = MathUtil.clamp(axisAngle, -45, 45);
+
+                double angleDiff = Math.abs(rawAngle - angle);
+
+                double[] lastFrom = ArrayUtil.clone(from), lastTo = ArrayUtil.clone(to);
+                double[] tempFrom = ArrayUtil.clone(from), tempTo = ArrayUtil.clone(to);
+                tempTo = ArrayUtil.clamp(tempTo, 32, -16);
+                tempFrom = ArrayUtil.clamp(tempFrom, 32, -16);
+                tempTo[1] = MathUtil.clamp(lastTo[1], -16, 32);
+                tempFrom[1] = MathUtil.clamp(lastFrom[1], -16, 32 - cube.size()[1]);
+
+                // ;(
+                if (!ArrayUtil.isAllCloseEnough(lastFrom, tempFrom, 10)) {
+                    // I will implement this tomorrow, pain in the ass ngl.
+                } else {
+                    // close enough, just clamp it!
+                    to = tempTo;
+                    from = tempFrom;
+                }
+
+                // the angle is close enough, ignore!
+                if (ArrayUtil.isCloseEnough(cube.rotation(), 0, axisIndex) && angleDiff < 10) {
+                    Element element = new Element(bone.name(), angle, rawAngle, axis, origin, cube.size(), cube.mirror());
+                    element.from(from);
+                    element.to(to);
+
+                    Map<Direction, double[]> uv = new HashMap<>();
+                    if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
+                        uv = UVUtil.portUv(perface.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
+                    } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
+                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
+                    }
+                    element.uvMap().putAll(uv);
+
+                    rotation000.elements().add(element);
+                    continue;
+                }
+
+                // if it's small enough then ignore!
+                if (ArrayUtil.pack(cube.size()) <= 10) {
+                    Element element = new Element(bone.name(), 0, rawAngle, "x", origin, cube.size(), cube.mirror());
+                    element.from(from);
+                    element.to(to);
+
+                    Map<Direction, double[]> uv = new HashMap<>();
+                    if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
+                        uv = UVUtil.portUv(perface.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
+                    } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
+                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
+                    }
+                    element.uvMap().putAll(uv);
+
+                    rotation000.elements().add(element);
+                    continue;
+                }
+
+                if (ArrayUtil.isAllCloseEnough(cube.rotation(), 0)) {
+                    Element element = new Element(bone.name(), 0, rawAngle, "x", origin, cube.size(), cube.mirror());
+                    element.from(from);
+                    element.to(to);
+
+                    Map<Direction, double[]> uv = new HashMap<>();
+                    if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
+                        uv = UVUtil.portUv(perface.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
+                    } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
+                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
+                    }
+                    element.uvMap().putAll(uv);
+                    if (ArrayUtil.isAllCloseEnough(bone.rotation(), 0)) {
+                        rotation000.elements().add(element);
+                    } else {
+                        ItemModelData model;
+                        double[] rotation = ArrayUtil.combineArray(cube.rotation(), bone.rotation());
+                        Map.Entry<Long, ItemModelData> entry = getModel(modelDataMap, ArrayUtil.pack(rotation));
+                        if (entry == null) {
+                            model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
+                            model.rotation(rotation);
+
+                            modelDataMap.put(ArrayUtil.pack(rotation), model);
+                        } else {
+                            model = entry.getValue();
+                        }
+
+                        model.elements().add(element);
+                    }
+                } else {
+                    ItemModelData model;
+                    double[] rotation = ArrayUtil.combineArray(cube.rotation(), bone.rotation());
+                    Map.Entry<Long, ItemModelData> entry = getModel(modelDataMap, ArrayUtil.pack(rotation));
+                    if (entry == null) {
+                        model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
+                        model.rotation(rotation);
+
+                        modelDataMap.put(ArrayUtil.pack(rotation), model);
+                    } else {
+                        model = entry.getValue();
+                    }
+
+                    Element element = new Element(bone.name(), 0, rawAngle, "x", origin, cube.size(), cube.mirror());
+                    element.from(from);
+                    element.to(to);
+
+                    Map<Direction, double[]> uv = new HashMap<>();
+                    if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
+                        uv = UVUtil.portUv(perface.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
+                    } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
+                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
+                    }
+                    element.uvMap().putAll(uv);
+
+                    model.elements().add(element);
+                }
+            }
+
+            for (Map.Entry<Long, ItemModelData> entry : modelDataMap.entrySet()) {
+                list.add(entry.getValue());
+            }
+
+            list.addAll(overlapped);
+        }
+
+        if (!rotation000.elements().isEmpty()) {
+            list.add(rotation000);
+        }
+
+        return list;
+    }
+
+    public static Map.Entry<Long, ItemModelData> getModel(Map<Long, ItemModelData> map, long l) {
+        for (Map.Entry<Long, ItemModelData> entry : map.entrySet()) {
+            long diff = Math.abs(entry.getKey() - l);
+            if (diff < 12) { // won't be much different...
+                return entry;
+            }
+        }
+
+        return null;
+    }
 
     public static ItemModelData bedrockToJava(String texture, EntityGeometry geometry) {
         int childrenCount = 0;
