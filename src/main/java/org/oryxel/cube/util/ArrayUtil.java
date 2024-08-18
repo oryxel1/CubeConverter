@@ -159,7 +159,7 @@ public class ArrayUtil {
     }
 
     public static double[] addOffsetToArray(double[] array, double offset) {
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < array.length; i++) {
             array[i] = array[i] + offset;
         }
 
