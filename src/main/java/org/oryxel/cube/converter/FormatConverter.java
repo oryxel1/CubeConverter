@@ -40,8 +40,8 @@ public class FormatConverter {
 
         double[] minFrom = new double[] { Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE },
                     maxTo = new double[3];
+        final Map<Long, ItemModelData> modelDataMap = new HashMap<>();
         for (Bone bone : geometry.bones()) {
-            final Map<Long, ItemModelData> modelDataMap = new HashMap<>();
 //            final Map<Long, Pair<Double, ItemModelData>> overlapped = new HashMap<>();
 
             for (Cube cube : bone.cubes()) {
@@ -89,7 +89,7 @@ public class FormatConverter {
                 }
 
                 // the angle is close enough, ignore!
-                if (ArrayUtil.isCloseEnough(cube.rotation(), 0, axisIndex) && angleDiff < 8) {
+                if (ArrayUtil.isCloseEnough(cube.rotation(), 0, axisIndex) && angleDiff <= 5) {
                     Element element = new Element(bone.name(), angle, rawAngle, axis, origin, cube.size(), cube.mirror());
                     element.from(from);
                     element.to(to);
@@ -181,16 +181,14 @@ public class FormatConverter {
                     model.elements().add(element);
                 }
             }
+        }
 
+        if (!rotation000.elements().isEmpty()) {
             list.add(rotation000);
+        }
 
-            for (Map.Entry<Long, ItemModelData> entry : modelDataMap.entrySet()) {
-                list.add(entry.getValue());
-            }
-
-//            for (Map.Entry<Long, Pair<Double, ItemModelData>> entry : overlapped.entrySet()) {
-//                list.add(entry.getValue().value());
-//            }
+        for (Map.Entry<Long, ItemModelData> entry : modelDataMap.entrySet()) {
+            list.add(entry.getValue());
         }
 
         double[] totalSize = ArrayUtil.size(maxTo, minFrom);
