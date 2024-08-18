@@ -41,9 +41,10 @@ public class FormatConverter {
         double[] minFrom = new double[] { Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE },
                     maxTo = new double[3];
         final Map<Long, ItemModelData> modelDataMap = new HashMap<>();
-        for (Bone bone : geometry.bones()) {
-//            final Map<Long, Pair<Double, ItemModelData>> overlapped = new HashMap<>();
 
+        double oldScale = 0;
+
+        for (Bone bone : geometry.bones()) {
             for (Cube cube : bone.cubes()) {
                 double[] from = ArrayUtil.getArrayWithOffset(cube.origin());
                 double[] to = ArrayUtil.combineArray(from, cube.size());
@@ -69,6 +70,17 @@ public class FormatConverter {
                     minFrom = ArrayUtil.clone(from);
                 } else if (ArrayUtil.isBigger(to, maxTo) && ArrayUtil.isBigger(to, minFrom)) {
                     maxTo = ArrayUtil.clone(to);
+                }
+
+                double[] clonedFrom = ArrayUtil.clone(from);
+                clonedFrom[1] = MathUtil.clamp(clonedFrom[1], -16, 32 - cube.size()[1]);
+                if (clonedFrom[1] != from[1]) {
+                    double offset = clonedFrom[1] - from[1];
+                    double newOffset = Math.abs(offset) / 48;
+
+                    if (newOffset > 0 && oldScale < newOffset) {
+                        oldScale = newOffset;
+                    }
                 }
 
                 // the angle is close enough, ignore!
@@ -152,6 +164,7 @@ public class FormatConverter {
                     Element element = new Element(bone.name(), 0, rawAngle, "x", origin, cube.size(), cube.mirror());
                     element.from(from);
                     element.to(to);
+                    element.inflate(cube.inflate());
 
                     Map<Direction, double[]> uv = new HashMap<>();
                     if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
@@ -177,12 +190,19 @@ public class FormatConverter {
         double[] totalSize = ArrayUtil.size(maxTo, minFrom);
         double[] scaled = ArrayUtil.divide(totalSize, new double[] { 48, 48, 48 });
         scaled = ArrayUtil.min(scaled, 1);
-        double scale = ArrayUtil.largest(scaled);
+        double scale = 1 / ArrayUtil.largest(scaled);
+
+        scale -= oldScale;
 
         for (ItemModelData model : list) {
             for (Element element : model.elements()) {
-                element.from(ArrayUtil.divide(element.from(), scale));
-                element.to(ArrayUtil.divide(element.to(), scale));
+                for (int i = 0; i < element.origin().length; i++) {
+                    double origin = element.origin()[i];
+                    element.from()[i] = (element.from()[i] - element.inflate() - origin) * scale;
+                    element.from()[i] = element.from()[i] + element.inflate() + origin;
+                    element.to()[i] = (element.to()[i] + element.inflate() - origin) * scale;
+                    element.to()[i] = element.to()[i] - element.inflate() + origin;
+                }
             }
 
             model.scale(scale);

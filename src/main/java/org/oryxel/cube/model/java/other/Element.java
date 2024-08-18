@@ -30,6 +30,7 @@ public class Element {
     private final String axis;
     private double[] origin, size;
     private final boolean mirror;
+    private double inflate;
 
     private final Map<Direction, double[]> uvMap = new HashMap<>();
 
@@ -89,6 +90,14 @@ public class Element {
 
     public boolean mirror() {
         return mirror;
+    }
+
+    public double inflate() {
+        return inflate;
+    }
+
+    public void inflate(double inflate) {
+        this.inflate = inflate;
     }
 
     public Map<Direction, double[]> uvMap() {
