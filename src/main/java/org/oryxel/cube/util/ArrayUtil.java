@@ -37,6 +37,102 @@ public class ArrayUtil {
         return new double[] { d[0], d[1] };
     }
 
+    public static double[] size(double[] to, double[] from) {
+        double x = to[0] - from[0], y = to[1] - from[1], z = to[2] - from[2];
+        return new double[] { x, y, z };
+    }
+
+    public static double largest(double[] d) {
+        double largest = d[0];
+
+        for (int i = 0; i < d.length; i++) {
+            if (d[i] > largest)
+                largest = d[i];
+        }
+
+        return largest;
+    }
+
+    public static double smallest(double[] d) {
+        double smallest = d[0];
+
+        for (int i = 0; i < d.length; i++) {
+            if (d[i] < smallest)
+                smallest = d[i];
+        }
+
+        return smallest;
+    }
+
+    public static double[] multiply(double[] d, double v[]) {
+        double[] cloned = clone(d);
+
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = cloned[i] * v[i];
+        }
+
+        return cloned;
+    }
+
+    public static double[] multiply(double[] d, double v) {
+        double[] cloned = clone(d);
+
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = cloned[i] * v;
+        }
+
+        return cloned;
+    }
+
+
+    public static double[] divide(double[] d, double v) {
+        double[] cloned = clone(d);
+
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = cloned[i] / v;
+        }
+
+        return cloned;
+    }
+
+    public static double[] divide(double[] d, double v[]) {
+        double[] cloned = clone(d);
+
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = cloned[i] / v[i];
+        }
+
+        return cloned;
+    }
+
+    public static double[] max(double[] d, double max) {
+        double[] cloned = clone(d);
+
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = cloned[i] > max ? max : cloned[i];
+        }
+
+        return cloned;
+    }
+
+    public static boolean isSmaller(double[] array, double[] array1) {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] > array1[i])
+                return false;
+        }
+
+        return true;
+    }
+
+    public static boolean isBigger(double[] array, double[] array1) {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] < array1[i])
+                return false;
+        }
+
+        return true;
+    }
+
     public static double[] clamp(double[] d, double max, double min) {
         for (int i = 0; i < d.length; i++) {
             d[i] = MathUtil.clamp(d[i], min, max);

@@ -6,7 +6,7 @@
 
     <groupId>org.oryxel.cube</groupId>
     <artifactId>cubeconverter</artifactId>
-    <version>1.0.2-beta</version>
+    <version>1.0.2-beta1</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

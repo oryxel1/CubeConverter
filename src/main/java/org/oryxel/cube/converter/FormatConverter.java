@@ -38,9 +38,11 @@ public class FormatConverter {
 
         ItemModelData rotation000 = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
 
+        double[] minFrom = new double[] { Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE },
+                    maxTo = new double[3];
         for (Bone bone : geometry.bones()) {
             final Map<Long, ItemModelData> modelDataMap = new HashMap<>();
-            final List<ItemModelData> overlapped = new ArrayList<>();
+//            final Map<Long, Pair<Double, ItemModelData>> overlapped = new HashMap<>();
 
             for (Cube cube : bone.cubes()) {
                 double[] from = ArrayUtil.getArrayWithOffset(cube.origin());
@@ -63,9 +65,23 @@ public class FormatConverter {
                 tempTo[1] = MathUtil.clamp(lastTo[1], -16, 32);
                 tempFrom[1] = MathUtil.clamp(lastFrom[1], -16, 32 - cube.size()[1]);
 
-                // ;(
-                if (!ArrayUtil.isAllCloseEnough(lastFrom, tempFrom, 10)) {
-                    // I will implement this tomorrow, pain in the ass ngl.
+                if (ArrayUtil.isSmaller(from, minFrom)) {
+                    minFrom = ArrayUtil.clone(from);
+                } else if (ArrayUtil.isBigger(to, maxTo) && ArrayUtil.isBigger(to, minFrom)) {
+                    maxTo = ArrayUtil.clone(to);
+                }
+
+                if (!ArrayUtil.isAllCloseEnough(lastFrom, tempFrom, 2)) {
+                    // This comment code is for in case you want to split it to multiple entity
+//                    double diffToX = lastTo[0] == 0 ? 1 : tempTo[0] / lastTo[0],
+//                            diffToY = lastTo[1] == 0 ? 1 : tempTo[1] / lastTo[1],
+//                            diffToZ = lastTo[2] == 0 ? 1 : tempTo[2] / lastTo[2];
+//                    double diffFromX = lastFrom[0] == 0 ? 1 : tempFrom[0] / lastFrom[0],
+//                            diffFromY = lastFrom[1] == 0 ? 1 : tempFrom[1] / lastFrom[1],
+//                            diffFromZ = lastFrom[2] == 0 ? 1 : tempFrom[2] / lastFrom[2];
+//
+//                    double[] from = ArrayUtil.multiply(from, new double[] { diffFromX, diffFromY, diffFromZ });
+//                    double[] to = ArrayUtil.multiply(to, new double[] { diffToX, diffToY, diffToZ });
                 } else {
                     // close enough, just clamp it!
                     to = tempTo;
@@ -73,16 +89,16 @@ public class FormatConverter {
                 }
 
                 // the angle is close enough, ignore!
-                if (ArrayUtil.isCloseEnough(cube.rotation(), 0, axisIndex) && angleDiff < 10) {
+                if (ArrayUtil.isCloseEnough(cube.rotation(), 0, axisIndex) && angleDiff < 8) {
                     Element element = new Element(bone.name(), angle, rawAngle, axis, origin, cube.size(), cube.mirror());
                     element.from(from);
                     element.to(to);
 
                     Map<Direction, double[]> uv = new HashMap<>();
                     if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
-                        uv = UVUtil.portUv(perface.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
+                        uv = UVUtil.portUv(perface.uvMap(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
                     } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
-                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
+                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight());
                     }
                     element.uvMap().putAll(uv);
 
@@ -98,9 +114,9 @@ public class FormatConverter {
 
                     Map<Direction, double[]> uv = new HashMap<>();
                     if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
-                        uv = UVUtil.portUv(perface.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
+                        uv = UVUtil.portUv(perface.uvMap(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
                     } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
-                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
+                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight());
                     }
                     element.uvMap().putAll(uv);
 
@@ -166,15 +182,29 @@ public class FormatConverter {
                 }
             }
 
+            list.add(rotation000);
+
             for (Map.Entry<Long, ItemModelData> entry : modelDataMap.entrySet()) {
                 list.add(entry.getValue());
             }
 
-            list.addAll(overlapped);
+//            for (Map.Entry<Long, Pair<Double, ItemModelData>> entry : overlapped.entrySet()) {
+//                list.add(entry.getValue().value());
+//            }
         }
 
-        if (!rotation000.elements().isEmpty()) {
-            list.add(rotation000);
+        double[] totalSize = ArrayUtil.size(maxTo, minFrom);
+        double[] scaled = ArrayUtil.divide(totalSize, new double[] { 48, 48, 48 });
+        scaled = ArrayUtil.max(scaled, 1);
+        double scale = ArrayUtil.smallest(scaled);
+
+        for (ItemModelData model : list) {
+            for (Element element : model.elements()) {
+                element.from(ArrayUtil.multiply(element.from(), scale));
+                element.to(ArrayUtil.multiply(element.to(), scale));
+            }
+
+            model.scale(scale);
         }
 
         return list;
@@ -183,7 +213,7 @@ public class FormatConverter {
     public static Map.Entry<Long, ItemModelData> getModel(Map<Long, ItemModelData> map, long l) {
         for (Map.Entry<Long, ItemModelData> entry : map.entrySet()) {
             long diff = Math.abs(entry.getKey() - l);
-            if (diff < 12) { // won't be much different...
+            if (diff < 12) {
                 return entry;
             }
         }

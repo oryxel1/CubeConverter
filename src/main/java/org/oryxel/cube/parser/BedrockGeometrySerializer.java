@@ -145,6 +145,7 @@ public class BedrockGeometrySerializer {
 
         JsonArray arrayUv = object.getAsJsonArray("uv");
         JsonArray arrayUvSize = object.getAsJsonArray("uv_size");
+
         return new double[] { arrayUv.get(0).getAsDouble(), arrayUv.get(1).getAsDouble(), arrayUvSize.get(0).getAsDouble(), arrayUvSize.get(1).getAsDouble() };
     }
 

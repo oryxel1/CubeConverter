@@ -29,11 +29,8 @@ public class UVUtil {
         Map<Direction, double[]> map = new HashMap<>();
 
         for (Map.Entry<Direction, double[]> entry : cubes.entrySet()) {
-            if (entry.getValue()[2] == 0 && entry.getValue()[3] == 0) {
-                continue;
-            }
-
             double[] uv = entry.getValue();
+
             if (!boxUv) {
                 switch (entry.getKey()) {
                     case NORTH, SOUTH -> uv = autoUV(entry.getValue(), new double[] { size(0, to, from), size(1, to, from) }, rawAngle, tW, tH );
@@ -41,9 +38,7 @@ public class UVUtil {
                     case UP, DOWN -> uv = autoUV(entry.getValue(), new double[] { size(0, to, from), size(2, to, from) }, rawAngle, tW, tH );
                 }
 
-                if (entry.getKey() == Direction.UP || entry.getKey() == Direction.DOWN) {
-                    uv = new double[] { uv[2], uv[3], uv[0], uv[1] };
-                }
+                uv = new double[] { uv[0], uv[1], uv[0] + entry.getValue()[2], uv[1] + entry.getValue()[3] };
             }
 
             for (int i = 0; i < uv.length; i++) {
@@ -86,7 +81,7 @@ public class UVUtil {
     }
 
     private static List<Face> faces(double[] from, double[] to) {
-        double[] size = size(to, from);
+        double[] size = ArrayUtil.size(to, from);
         final List<Face> faces = Arrays.asList(
                 new Face(Direction.DOWN, ArrayUtil.build(size[2] + size[0] * 2, 0), ArrayUtil.build(-size[0], size[2])),
                 new Face(Direction.UP, ArrayUtil.build(size[2] + size[0], size[2]), ArrayUtil.build( -size[0], -size[2])),
@@ -144,11 +139,6 @@ public class UVUtil {
 
     public static double size(int axis, double[] to, double[] from) {
         return to[axis] - from[axis];
-    }
-
-    public static double[] size(double[] to, double[] from) {
-        double x = to[0] - from[0], y = to[1] - from[1], z = to[2] - from[2];
-        return new double[] { x, y, z };
     }
 
 }
