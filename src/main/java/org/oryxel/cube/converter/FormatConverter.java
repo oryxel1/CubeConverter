@@ -43,7 +43,6 @@ public class FormatConverter {
         final Map<Long, ItemModelData> modelDataMap = new HashMap<>();
 
         double oldScale = 0;
-
         for (Bone bone : geometry.bones()) {
             for (Cube cube : bone.cubes()) {
                 double[] from = ArrayUtil.getArrayWithOffset(cube.origin());
@@ -76,7 +75,7 @@ public class FormatConverter {
                 clonedFrom[1] = MathUtil.clamp(clonedFrom[1], -16, 32 - cube.size()[1]);
                 if (clonedFrom[1] != from[1]) {
                     double offset = clonedFrom[1] - from[1];
-                    double newOffset = Math.abs(offset) / 32;
+                    double newOffset = Math.abs(offset) / (32 - cube.size()[1]);
 
                     if (newOffset > 0 && oldScale < newOffset) {
                         oldScale = newOffset;
@@ -196,13 +195,13 @@ public class FormatConverter {
 
         for (ItemModelData model : list) {
             for (Element element : model.elements()) {
-                for (int i = 0; i < element.origin().length; i++) {
-                    double origin = element.origin()[i];
-                    element.from()[i] = (element.from()[i] - element.inflate() - origin) * scale;
-                    element.from()[i] = element.from()[i] + element.inflate() + origin;
-                    element.to()[i] = (element.to()[i] + element.inflate() - origin) * scale;
-                    element.to()[i] = element.to()[i] - element.inflate() + origin;
+                for (int i = 0; i < 3; i++) {
+                    element.from()[i] = element.from()[i] * scale;
+                    element.to()[i] = element.to()[i] * scale;
                 }
+
+                element.from(ArrayUtil.addOffsetToArray(element.from(), -element.inflate()));
+                element.to(ArrayUtil.addOffsetToArray(element.to(), element.inflate()));
             }
 
             model.scale(scale);
@@ -211,7 +210,7 @@ public class FormatConverter {
         return list;
     }
 
-    public static Map.Entry<Long, ItemModelData> getModel(Map<Long, ItemModelData> map, long l) {
+    private static Map.Entry<Long, ItemModelData> getModel(Map<Long, ItemModelData> map, long l) {
         for (Map.Entry<Long, ItemModelData> entry : map.entrySet()) {
             long diff = Math.abs(entry.getKey() - l);
             if (diff < 12) {
