@@ -76,7 +76,7 @@ public class FormatConverter {
                 clonedFrom[1] = MathUtil.clamp(clonedFrom[1], -16, 32 - cube.size()[1]);
                 if (clonedFrom[1] != from[1]) {
                     double offset = clonedFrom[1] - from[1];
-                    double newOffset = Math.abs(offset) / 48;
+                    double newOffset = Math.abs(offset) / 32;
 
                     if (newOffset > 0 && oldScale < newOffset) {
                         oldScale = newOffset;
