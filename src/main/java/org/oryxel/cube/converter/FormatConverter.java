@@ -71,23 +71,6 @@ public class FormatConverter {
                     maxTo = ArrayUtil.clone(to);
                 }
 
-                if (!ArrayUtil.isAllCloseEnough(lastFrom, tempFrom, 2)) {
-                    // This comment code is for in case you want to split it to multiple entity
-//                    double diffToX = lastTo[0] == 0 ? 1 : tempTo[0] / lastTo[0],
-//                            diffToY = lastTo[1] == 0 ? 1 : tempTo[1] / lastTo[1],
-//                            diffToZ = lastTo[2] == 0 ? 1 : tempTo[2] / lastTo[2];
-//                    double diffFromX = lastFrom[0] == 0 ? 1 : tempFrom[0] / lastFrom[0],
-//                            diffFromY = lastFrom[1] == 0 ? 1 : tempFrom[1] / lastFrom[1],
-//                            diffFromZ = lastFrom[2] == 0 ? 1 : tempFrom[2] / lastFrom[2];
-//
-//                    double[] from = ArrayUtil.multiply(from, new double[] { diffFromX, diffFromY, diffFromZ });
-//                    double[] to = ArrayUtil.multiply(to, new double[] { diffToX, diffToY, diffToZ });
-                } else {
-                    // close enough, just clamp it!
-                    to = tempTo;
-                    from = tempFrom;
-                }
-
                 // the angle is close enough, ignore!
                 if (ArrayUtil.isCloseEnough(cube.rotation(), 0, axisIndex) && angleDiff <= 5) {
                     Element element = new Element(bone.name(), angle, rawAngle, axis, origin, cube.size(), cube.mirror());
@@ -193,13 +176,13 @@ public class FormatConverter {
 
         double[] totalSize = ArrayUtil.size(maxTo, minFrom);
         double[] scaled = ArrayUtil.divide(totalSize, new double[] { 48, 48, 48 });
-        scaled = ArrayUtil.max(scaled, 1);
-        double scale = ArrayUtil.smallest(scaled);
+        scaled = ArrayUtil.min(scaled, 1);
+        double scale = ArrayUtil.largest(scaled);
 
         for (ItemModelData model : list) {
             for (Element element : model.elements()) {
-                element.from(ArrayUtil.multiply(element.from(), scale));
-                element.to(ArrayUtil.multiply(element.to(), scale));
+                element.from(ArrayUtil.divide(element.from(), scale));
+                element.to(ArrayUtil.divide(element.to(), scale));
             }
 
             model.scale(scale);

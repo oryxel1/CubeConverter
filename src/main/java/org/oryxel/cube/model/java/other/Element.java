@@ -28,7 +28,7 @@ public class Element {
     private double[] from, to;
     private final float angle, rawAngle;
     private final String axis;
-    private final double[] origin, size;
+    private double[] origin, size;
     private final boolean mirror;
 
     private final Map<Direction, double[]> uvMap = new HashMap<>();
@@ -77,6 +77,10 @@ public class Element {
 
     public double[] origin() {
         return origin;
+    }
+
+    public void origin(double[] origin) {
+        this.origin = origin;
     }
 
     public double[] size() {

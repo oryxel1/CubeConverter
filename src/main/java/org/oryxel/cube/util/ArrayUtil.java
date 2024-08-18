@@ -115,6 +115,16 @@ public class ArrayUtil {
         return cloned;
     }
 
+    public static double[] min(double[] d, double min) {
+        double[] cloned = clone(d);
+
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = cloned[i] < min ? min : cloned[i];
+        }
+
+        return cloned;
+    }
+
     public static boolean isSmaller(double[] array, double[] array1) {
         for (int i = 0; i < array.length; i++) {
             if (array[i] > array1[i])
