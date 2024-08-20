@@ -27,6 +27,8 @@ public class Bone {
     private final double[] pivot;
     private final double[] rotation;
 
+    private String parent;
+
     public Bone(String name, double[] pivot, double[] rotation) {
         this.name = name;
         this.pivot = pivot;
@@ -43,6 +45,14 @@ public class Bone {
 
     public double[] rotation() {
         return rotation;
+    }
+
+    public String parent() {
+        return parent;
+    }
+
+    public void parent(String parent) {
+        this.parent = parent;
     }
 
     public List<Cube> cubes() {

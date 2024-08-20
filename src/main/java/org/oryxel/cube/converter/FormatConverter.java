@@ -34,16 +34,18 @@ import java.util.Map;
 public class FormatConverter {
 
     public static List<ItemModelData> bedrockToJavaModels(String texture, EntityGeometry geometry) {
-        List<ItemModelData> list = new ArrayList<>();
+        final List<ItemModelData> list = new ArrayList<>();
 
         ItemModelData rotation000 = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
 
         double[] minFrom = new double[] { Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE },
                     maxTo = new double[3];
         final Map<Long, ItemModelData> modelDataMap = new HashMap<>();
+        final Map<String, Bone> bones = new HashMap<>();
 
-        double oldScale = 0;
         for (Bone bone : geometry.bones()) {
+            bones.put(bone.name(), bone);
+
             for (Cube cube : bone.cubes()) {
                 double[] from = ArrayUtil.getArrayWithOffset(cube.origin());
                 double[] to = ArrayUtil.combineArray(from, cube.size());
@@ -71,55 +73,29 @@ public class FormatConverter {
                     maxTo = ArrayUtil.clone(to);
                 }
 
-                double[] clonedFrom = ArrayUtil.clone(from);
-                clonedFrom[1] = MathUtil.clamp(clonedFrom[1], -16, 32 - cube.size()[1]);
-                if (clonedFrom[1] != from[1]) {
-                    double offset = clonedFrom[1] - from[1];
-                    double newOffset = Math.abs(offset) / (32 - cube.size()[1]);
-
-                    if (newOffset > 0 && oldScale < newOffset) {
-                        oldScale = newOffset;
-                    }
-                }
-
                 // the angle is close enough, ignore!
-                if (ArrayUtil.isCloseEnough(cube.rotation(), 0, axisIndex) && angleDiff <= 5) {
-                    Element element = new Element(bone.name(), angle, rawAngle, axis, origin, cube.size(), cube.mirror());
-                    element.from(from);
-                    element.to(to);
-
-                    Map<Direction, double[]> uv = new HashMap<>();
-                    if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
-                        uv = UVUtil.portUv(perface.uvMap(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
-                    } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
-                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight());
-                    }
-                    element.uvMap().putAll(uv);
-
-                    rotation000.elements().add(element);
-                    continue;
-                }
-
-                // if it's small enough then ignore!
-                if (ArrayUtil.pack(cube.size()) <= 10) {
-                    Element element = new Element(bone.name(), 0, rawAngle, "x", origin, cube.size(), cube.mirror());
-                    element.from(from);
-                    element.to(to);
-
-                    Map<Direction, double[]> uv = new HashMap<>();
-                    if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
-                        uv = UVUtil.portUv(perface.uvMap(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
-                    } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
-                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight());
-                    }
-                    element.uvMap().putAll(uv);
-
-                    rotation000.elements().add(element);
-                    continue;
-                }
+                // nope, broken.
+//                if (ArrayUtil.isCloseEnough(cube.rotation(), 0, axisIndex) && angleDiff <= 5) {
+//                    Element element = new Element(bone.name(), angle, rawAngle, axis, origin, cube.size(), cube.mirror());
+//                    element.parent(cube.parent());
+//                    element.from(from);
+//                    element.to(to);
+//
+//                    Map<Direction, double[]> uv = new HashMap<>();
+//                    if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
+//                        uv = UVUtil.portUv(perface.uvMap(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
+//                    } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
+//                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight());
+//                    }
+//                    element.uvMap().putAll(uv);
+//
+//                    rotation000.elements().add(element);
+//                    continue;
+//                }
 
                 if (ArrayUtil.isAllCloseEnough(cube.rotation(), 0)) {
                     Element element = new Element(bone.name(), 0, rawAngle, "x", origin, cube.size(), cube.mirror());
+                    element.parent(cube.parent());
                     element.from(from);
                     element.to(to);
 
@@ -161,6 +137,7 @@ public class FormatConverter {
                     }
 
                     Element element = new Element(bone.name(), 0, rawAngle, "x", origin, cube.size(), cube.mirror());
+                    element.parent(cube.parent());
                     element.from(from);
                     element.to(to);
                     element.inflate(cube.inflate());
@@ -187,17 +164,57 @@ public class FormatConverter {
         }
 
         double[] totalSize = ArrayUtil.size(maxTo, minFrom);
-        double[] scaled = ArrayUtil.divide(totalSize, new double[] { 48, 48, 48 });
-        scaled = ArrayUtil.min(scaled, 1);
-        double scale = 1 / ArrayUtil.largest(scaled);
 
-        scale -= oldScale;
+        double[] overlappedMin = ArrayUtil.getOverlapSize(minFrom, totalSize), overlappedMax =
+                ArrayUtil.getOverlapSize(maxTo, new double[3]);
+
+        double[] totalOverlappedSize = ArrayUtil.combineArrayAbs(overlappedMin, overlappedMax);
+        double[] maxSize = ArrayUtil.combineArrayAbs(totalOverlappedSize, new double[] { 48, 48, 48 });
+        double maxOverlapSize = Math.max(maxSize[0], Math.max(maxSize[1], maxSize[2]));
+        double scale = (1 / (maxOverlapSize / 48)) / 2;
+
+        double[] cubeOffset = new double[3];
+
+        // safe to offset, we already scale the size.
+        list.forEach(model -> model.elements().forEach(element -> {
+            double[] clonedFrom = ArrayUtil.clone(element.from());
+            clonedFrom[0] = MathUtil.clamp(clonedFrom[0], -16, 32 - element.size()[0] * scale);
+            clonedFrom[1] = MathUtil.clamp(clonedFrom[1], -16, 32 - element.size()[1] * scale);
+            clonedFrom[2] = MathUtil.clamp(clonedFrom[2], -16, 32 - element.size()[2] * scale);
+
+            for (int i = 0; i < 3; i++) {
+                double offset = clonedFrom[i] - element.from()[i];
+                if (offset == 0)
+                    continue;
+
+                if (Math.abs(offset) > Math.abs(cubeOffset[i])) {
+                    cubeOffset[i] = offset;
+                }
+            }
+        }));
 
         for (ItemModelData model : list) {
             for (Element element : model.elements()) {
+                double[] pivot = new double[3];
+                if (!element.parent().isEmpty()) {
+                    Bone parent = bones.get(element.parent());
+                    while (parent != null) {
+                        if (parent != null)
+                            pivot = parent.pivot();
+
+                        if (parent.name().isEmpty()) {
+                            break;
+                        } else {
+                            parent = bones.get(parent.parent());
+                        }
+                    }
+                }
+
                 for (int i = 0; i < 3; i++) {
-                    element.from()[i] = element.from()[i] * scale;
-                    element.to()[i] = element.to()[i] * scale;
+                    element.from()[i] = (element.from()[i] + cubeOffset[i] - pivot[i]) * scale;
+                    element.from()[i] = element.from()[i] + pivot[i];
+                    element.to()[i] = (element.to()[i] + cubeOffset[i] - pivot[i]) * scale;
+                    element.to()[i] = element.to()[i] + pivot[i];
                 }
 
                 element.from(ArrayUtil.addOffsetToArray(element.from(), -element.inflate()));
@@ -205,6 +222,7 @@ public class FormatConverter {
             }
 
             model.scale(scale);
+            model.positionOffset(cubeOffset);
         }
 
         return list;

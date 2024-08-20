@@ -32,6 +32,8 @@ public class Element {
     private final boolean mirror;
     private double inflate;
 
+    private String parent;
+
     private final Map<Direction, double[]> uvMap = new HashMap<>();
 
     public Element(String name, float angle, float rawAngle, String axis, double[] origin, double[] size, boolean mirror) {
@@ -98,6 +100,14 @@ public class Element {
 
     public void inflate(double inflate) {
         this.inflate = inflate;
+    }
+
+    public String parent() {
+        return parent;
+    }
+
+    public void parent(String parent) {
+        this.parent = parent;
     }
 
     public Map<Direction, double[]> uvMap() {
