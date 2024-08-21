@@ -60,6 +60,11 @@ public class ArrayUtil {
         return new double[] { x, y, z };
     }
 
+    public static double[] sizeAbs(double[] to, double[] from) {
+        double x = Math.abs(to[0] - from[0]), y = Math.abs(to[1] - from[1]), z = Math.abs(to[2] - from[2]);
+        return new double[] { x, y, z };
+    }
+
     public static double largest(double[] d) {
         double largest = d[0];
 
@@ -102,6 +107,15 @@ public class ArrayUtil {
         return cloned;
     }
 
+    public static double[] minus(double[] d, double v[]) {
+        double[] cloned = clone(d);
+
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = cloned[i] - v[i];
+        }
+
+        return cloned;
+    }
 
     public static double[] divide(double[] d, double v) {
         double[] cloned = clone(d);

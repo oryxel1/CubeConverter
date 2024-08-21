@@ -49,7 +49,7 @@ public class FormatConverter {
             for (Cube cube : bone.cubes()) {
                 double[] from = ArrayUtil.getArrayWithOffset(cube.origin());
                 double[] to = ArrayUtil.combineArray(from, cube.size());
-                double[] origin = ArrayUtil.getArrayWithOffset(cube.pivot());
+                double[] origin = ArrayUtil.clone(cube.pivot());
                 double[] actualRotation = ArrayUtil.combineArray(cube.rotation(), bone.rotation());
 
                 int axisIndex = getAxis(actualRotation);
@@ -166,63 +166,45 @@ public class FormatConverter {
         double[] totalSize = ArrayUtil.size(maxTo, minFrom);
 
         double[] overlappedMin = ArrayUtil.getOverlapSize(minFrom, totalSize), overlappedMax =
-                ArrayUtil.getOverlapSize(maxTo, new double[3]);
+                ArrayUtil.getOverlapSize(maxTo, totalSize);
 
         double[] totalOverlappedSize = ArrayUtil.combineArrayAbs(overlappedMin, overlappedMax);
         double[] maxSize = ArrayUtil.combineArrayAbs(totalOverlappedSize, new double[] { 48, 48, 48 });
         double maxOverlapSize = Math.max(maxSize[0], Math.max(maxSize[1], maxSize[2]));
         double scale = (1 / (maxOverlapSize / 48)) / 2;
 
-        double[] cubeOffset = new double[3];
-
-        // safe to offset, we already scale the size.
-        list.forEach(model -> model.elements().forEach(element -> {
-            double[] clonedFrom = ArrayUtil.clone(element.from());
-            clonedFrom[0] = MathUtil.clamp(clonedFrom[0], -16, 32 - element.size()[0] * scale);
-            clonedFrom[1] = MathUtil.clamp(clonedFrom[1], -16, 32 - element.size()[1] * scale);
-            clonedFrom[2] = MathUtil.clamp(clonedFrom[2], -16, 32 - element.size()[2] * scale);
-
-            for (int i = 0; i < 3; i++) {
-                double offset = clonedFrom[i] - element.from()[i];
-                if (offset == 0)
-                    continue;
-
-                if (Math.abs(offset) > Math.abs(cubeOffset[i])) {
-                    cubeOffset[i] = offset;
-                }
-            }
-        }));
+        scale -= 0.02;
 
         for (ItemModelData model : list) {
             for (Element element : model.elements()) {
                 double[] pivot = new double[3];
-                if (!element.parent().isEmpty()) {
-                    Bone parent = bones.get(element.parent());
-                    while (parent != null) {
-                        if (parent != null)
-                            pivot = parent.pivot();
-
-                        if (parent.name().isEmpty()) {
-                            break;
-                        } else {
-                            parent = bones.get(parent.parent());
-                        }
-                    }
-                }
+//                if (!element.parent().isEmpty()) {
+//                    Bone parent = bones.get(element.parent());
+//                    while (parent != null) {
+//                        if (parent != null) {
+//                            pivot = parent.pivot();
+//                        }
+//
+//                        if (parent.name().isEmpty()) {
+//                            break;
+//                        } else {
+//                            parent = bones.get(parent.parent());
+//                        }
+//                    }
+//                }
 
                 for (int i = 0; i < 3; i++) {
-                    element.from()[i] = (element.from()[i] + cubeOffset[i] - pivot[i]) * scale;
-                    element.from()[i] = element.from()[i] + pivot[i];
-                    element.to()[i] = (element.to()[i] + cubeOffset[i] - pivot[i]) * scale;
-                    element.to()[i] = element.to()[i] + pivot[i];
+                    element.from()[i] = (element.from()[i] - pivot[i] - (i == 1 ? 0 : 8)) * scale;
+                    element.from()[i] = element.from()[i] + pivot[i] + (i == 1 ? 0 : 8);
+
+                    element.to()[i] = element.from()[i] + (element.size()[i] * scale);
                 }
 
-                element.from(ArrayUtil.addOffsetToArray(element.from(), -element.inflate()));
-                element.to(ArrayUtil.addOffsetToArray(element.to(), element.inflate()));
+                element.from(ArrayUtil.addOffsetToArray(element.from(), -element.inflate() * scale));
+                element.to(ArrayUtil.addOffsetToArray(element.to(), element.inflate() * scale));
             }
 
             model.scale(scale);
-            model.positionOffset(cubeOffset);
         }
 
         return list;
