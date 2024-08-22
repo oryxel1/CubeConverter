@@ -27,7 +27,7 @@ public class Bone {
     private final double[] pivot;
     private final double[] rotation;
 
-    private String parent;
+    private String parent = "";
 
     public Bone(String name, double[] pivot, double[] rotation) {
         this.name = name;

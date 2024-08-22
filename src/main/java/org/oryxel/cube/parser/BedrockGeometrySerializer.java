@@ -82,6 +82,7 @@ public class BedrockGeometrySerializer {
             double[] pivot = ArrayUtil.getAsArray(boneObject.getAsJsonArray("pivot"));
             double[] boneRotation = ArrayUtil.getAsArray(boneObject.getAsJsonArray("rotation"));
             Bone bone = new Bone(name, pivot, boneRotation);
+
             if (boneObject.has("parent"))
                 bone.parent(boneObject.get("parent").getAsString());
 
@@ -118,10 +119,11 @@ public class BedrockGeometrySerializer {
                     cube.parent(bone.parent());
 
                 if (cubeObject.has("inflate"))
-                    cube.inflate(cubeObject.getAsJsonPrimitive("inflate").getAsDouble());
+                    cube.inflate(cubeObject.get("inflate").getAsDouble());
 
                 if (cubeObject.has("mirror"))
                     cube.mirror(cubeObject.get("mirror").getAsBoolean());
+
                 bone.cubes().add(cube);
             }
 

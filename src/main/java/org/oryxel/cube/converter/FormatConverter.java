@@ -45,20 +45,33 @@ public class FormatConverter {
 
         for (Bone bone : geometry.bones()) {
             bones.put(bone.name(), bone);
+        }
+
+        for (Bone bone : geometry.bones()) {
+            double[] boneRotation = bone.rotation();
+            if (!bone.parent().isEmpty()) {
+                Bone parent = bones.get(bone.parent());
+                while (parent != null) {
+                    if (parent != null) {
+                        boneRotation = ArrayUtil.combineArray(parent.rotation(), boneRotation);
+                    }
+
+                    if (parent.name().isEmpty()) {
+                        break;
+                    } else {
+                        parent = bones.get(parent.parent());
+                    }
+                }
+            }
 
             for (Cube cube : bone.cubes()) {
                 double[] from = ArrayUtil.getArrayWithOffset(cube.origin());
                 double[] to = ArrayUtil.combineArray(from, cube.size());
-                double[] origin = ArrayUtil.clone(cube.pivot());
-                double[] actualRotation = ArrayUtil.combineArray(cube.rotation(), bone.rotation());
+                double[] origin = ArrayUtil.combineArray(bone.pivot(), cube.pivot());
+                double[] actualRotation = ArrayUtil.combineArray(cube.rotation(), boneRotation);
 
                 int axisIndex = getAxis(actualRotation);
                 float rawAngle = (float) actualRotation[axisIndex];
-                String axis = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
-                float axisAngle = (float) (Math.round(rawAngle / 22.5) * 22.5);
-                float angle = MathUtil.clamp(axisAngle, -45, 45);
-
-                double angleDiff = Math.abs(rawAngle - angle);
 
                 double[] lastFrom = ArrayUtil.clone(from), lastTo = ArrayUtil.clone(to);
                 double[] tempFrom = ArrayUtil.clone(from), tempTo = ArrayUtil.clone(to);
@@ -73,26 +86,6 @@ public class FormatConverter {
                     maxTo = ArrayUtil.clone(to);
                 }
 
-                // the angle is close enough, ignore!
-                // nope, broken.
-//                if (ArrayUtil.isCloseEnough(cube.rotation(), 0, axisIndex) && angleDiff <= 5) {
-//                    Element element = new Element(bone.name(), angle, rawAngle, axis, origin, cube.size(), cube.mirror());
-//                    element.parent(cube.parent());
-//                    element.from(from);
-//                    element.to(to);
-//
-//                    Map<Direction, double[]> uv = new HashMap<>();
-//                    if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
-//                        uv = UVUtil.portUv(perface.uvMap(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
-//                    } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
-//                        uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), lastFrom, lastTo, rawAngle, geometry.textureWidth(), geometry.textureHeight());
-//                    }
-//                    element.uvMap().putAll(uv);
-//
-//                    rotation000.elements().add(element);
-//                    continue;
-//                }
-
                 if (ArrayUtil.isAllCloseEnough(cube.rotation(), 0)) {
                     Element element = new Element(bone.name(), 0, rawAngle, "x", origin, cube.size(), cube.mirror());
                     element.parent(cube.parent());
@@ -106,11 +99,11 @@ public class FormatConverter {
                         uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
                     }
                     element.uvMap().putAll(uv);
-                    if (ArrayUtil.isAllCloseEnough(bone.rotation(), 0)) {
+                    if (ArrayUtil.isAllCloseEnough(boneRotation, 0)) {
                         rotation000.elements().add(element);
                     } else {
                         ItemModelData model;
-                        double[] rotation = ArrayUtil.combineArray(cube.rotation(), bone.rotation());
+                        double[] rotation = ArrayUtil.combineArray(cube.rotation(), boneRotation);
                         Map.Entry<Long, ItemModelData> entry = getModel(modelDataMap, ArrayUtil.pack(rotation));
                         if (entry == null) {
                             model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
@@ -125,7 +118,7 @@ public class FormatConverter {
                     }
                 } else {
                     ItemModelData model;
-                    double[] rotation = ArrayUtil.combineArray(cube.rotation(), bone.rotation());
+                    double[] rotation = ArrayUtil.combineArray(cube.rotation(), boneRotation);
                     Map.Entry<Long, ItemModelData> entry = getModel(modelDataMap, ArrayUtil.pack(rotation));
                     if (entry == null) {
                         model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
@@ -177,31 +170,18 @@ public class FormatConverter {
 
         for (ItemModelData model : list) {
             for (Element element : model.elements()) {
-                double[] pivot = new double[3];
-//                if (!element.parent().isEmpty()) {
-//                    Bone parent = bones.get(element.parent());
-//                    while (parent != null) {
-//                        if (parent != null) {
-//                            pivot = parent.pivot();
-//                        }
-//
-//                        if (parent.name().isEmpty()) {
-//                            break;
-//                        } else {
-//                            parent = bones.get(parent.parent());
-//                        }
-//                    }
-//                }
-
                 for (int i = 0; i < 3; i++) {
-                    element.from()[i] = (element.from()[i] - pivot[i] - (i == 1 ? 0 : 8)) * scale;
-                    element.from()[i] = element.from()[i] + pivot[i] + (i == 1 ? 0 : 8);
+                    element.from()[i] = (element.from()[i] - (i == 1 ? 0 : 8)) * scale;
+                    element.from()[i] = element.from()[i] + (i == 1 ? 0 : 8);
 
                     element.to()[i] = element.from()[i] + (element.size()[i] * scale);
+
+                    element.origin()[i] = element.origin()[i] * scale;
+                    element.origin()[i] = element.origin()[i] + (i == 1 ? 0 : 8);
                 }
 
-                element.from(ArrayUtil.addOffsetToArray(element.from(), -element.inflate() * scale));
-                element.to(ArrayUtil.addOffsetToArray(element.to(), element.inflate() * scale));
+                element.from(ArrayUtil.addOffsetToArray(element.from(), -element.inflate()));
+                element.to(ArrayUtil.addOffsetToArray(element.to(), element.inflate()));
             }
 
             model.scale(scale);
