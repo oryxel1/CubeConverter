@@ -1,6 +1,6 @@
 package org.oryxel.cube.converter;
 
-import com.viaversion.viaversion.util.Pair;
+import org.oryxel.cube.converter.enums.OverflowFixType;
 import org.oryxel.cube.model.bedrock.EntityGeometry;
 import org.oryxel.cube.model.bedrock.other.Bone;
 import org.oryxel.cube.model.bedrock.other.Cube;
@@ -33,6 +33,128 @@ import java.util.Map;
  */
 public class FormatConverter {
 
+    public static ItemModelData bedrockToJava(String texture, EntityGeometry geometry, OverflowFixType type) {
+        int childrenCount = 0;
+        double[] cubeOffset = new double[3];
+        final List<Group> groups = new ArrayList<>();
+        final List<Element> elements = new ArrayList<>();
+
+        double[] minFrom = new double[] { Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE },
+                maxTo = new double[3];
+
+        for (Bone bone : geometry.bones()) {
+            Group group = new Group(bone.name(), ArrayUtil.getArrayWithOffset(bone.pivot()), 0);
+
+            for (Cube cube : bone.cubes()) {
+                double[] from = getFrom(cube.origin(), cube.size());
+                double[] to = ArrayUtil.combineArray(from, cube.size());
+                double[] origin = ArrayUtil.getArrayWithOffset(cube.pivot());
+
+                int axisIndex = getAxis(cube.rotation());
+                String axis = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
+                float rawAngle = (float) cube.rotation()[axisIndex];
+                float axisAngle = (float) (Math.round(rawAngle / 22.5) * 22.5);
+                float angle = MathUtil.clamp(axisAngle, -45, 45);
+
+                from = ArrayUtil.addOffsetToArray(from, -cube.inflate());
+                to = ArrayUtil.addOffsetToArray(to, cube.inflate());
+
+                // overflow fix.
+                if (type == OverflowFixType.CLAMP) {
+                    double[] lastFrom = ArrayUtil.clone(from), lastTo = ArrayUtil.clone(to);
+                    to = ArrayUtil.clamp(to, 32, -16);
+                    from = ArrayUtil.clamp(from, 32, -16);
+                    to[1] = MathUtil.clamp(lastTo[1], -16, 32);
+                    from[1] = MathUtil.clamp(lastFrom[1], -16, 32 - cube.size()[1]);
+
+                    for (int i = 0; i < from.length; i++) {
+                        double offset = from[i] - lastFrom[i];
+                        if (offset == 0)
+                            continue;
+
+                        if (Math.abs(offset) > Math.abs(cubeOffset[i])) {
+                            cubeOffset[i] = offset;
+                        }
+
+                        from[i] = lastFrom[i];
+                        to[i] = lastTo[i];
+                    }
+                } else {
+                    double[] lastFrom = ArrayUtil.clone(from), lastTo = ArrayUtil.clone(to);
+                    double[] tempFrom = ArrayUtil.clone(from), tempTo = ArrayUtil.clone(to);
+                    tempTo = ArrayUtil.clamp(tempTo, 32, -16);
+                    tempFrom = ArrayUtil.clamp(tempFrom, 32, -16);
+                    tempTo[1] = MathUtil.clamp(lastTo[1], -16, 32);
+                    tempFrom[1] = MathUtil.clamp(lastFrom[1], -16, 32 - cube.size()[1]);
+
+                    if (ArrayUtil.isSmaller(from, minFrom)) {
+                        minFrom = ArrayUtil.clone(from);
+                    } else if (ArrayUtil.isBigger(to, maxTo) && ArrayUtil.isBigger(to, minFrom)) {
+                        maxTo = ArrayUtil.clone(to);
+                    }
+                }
+
+                Element element = new Element(bone.name(), angle, rawAngle, axis, origin, cube.size(), cube.mirror());
+                element.from(from);
+                element.to(to);
+
+                Map<Direction, double[]> uv = new HashMap<>();
+                if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
+                    uv = UVUtil.portUv(perface.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
+                } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
+                    uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
+                }
+                element.uvMap().putAll(uv);
+
+                group.children().put(childrenCount, element);
+                elements.add(element);
+                childrenCount++;
+            }
+
+            groups.add(group);
+        }
+
+        double scale = getScalingSize(minFrom, maxTo);
+        ItemModelData itemModelData = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
+        itemModelData.scale(scale);
+
+        for (Element element : elements) {
+            if (type == OverflowFixType.CLAMP) {
+                for (int i = 0; i < cubeOffset.length; i++) {
+                    if (cubeOffset[i] == 0)
+                        continue;
+
+                    element.to()[i] = element.to()[i] + cubeOffset[i];
+                    element.from()[i] = element.from()[i] + cubeOffset[i];
+                }
+
+                double[] lastFrom = ArrayUtil.clone(element.from()), lastTo = ArrayUtil.clone(element.to());
+                element.to(ArrayUtil.clamp(element.to(), 32, -16));
+                element.from(ArrayUtil.clamp(element.from(), 32, -16));
+                element.to()[1] = MathUtil.clamp(lastTo[1], -16, 32);
+                element.from()[1] = MathUtil.clamp(lastFrom[1], -16, 32 - element.size()[1]);
+            } else {
+                for (int i = 0; i < 3; i++) {
+                    element.from()[i] = (element.from()[i] - (i == 1 ? 0 : 8)) * scale;
+                    element.from()[i] = element.from()[i] + (i == 1 ? 0 : 8);
+
+                    element.to()[i] = element.from()[i] + (element.size()[i] * scale);
+
+                    element.origin()[i] = element.origin()[i] * scale;
+                    element.origin()[i] = element.origin()[i] + (i == 1 ? 0 : 8);
+                }
+
+                element.from(ArrayUtil.addOffsetToArray(element.from(), -element.inflate() * scale));
+                element.to(ArrayUtil.addOffsetToArray(element.to(), element.inflate() * scale));
+            }
+        }
+
+        itemModelData.groups().addAll(groups);
+        itemModelData.elements().addAll(elements);
+        itemModelData.positionOffset(cubeOffset);
+        return itemModelData;
+    }
+
     public static List<ItemModelData> bedrockToJavaModels(String texture, EntityGeometry geometry) {
         final List<ItemModelData> list = new ArrayList<>();
 
@@ -52,11 +174,10 @@ public class FormatConverter {
             if (!bone.parent().isEmpty()) {
                 Bone parent = bones.get(bone.parent());
                 while (parent != null) {
-                    if (parent != null) {
+                    if (parent != null)
                         boneRotation = ArrayUtil.combineArray(parent.rotation(), boneRotation);
-                    }
 
-                    if (parent.name().isEmpty()) {
+                    if (parent.parent().isEmpty()) {
                         break;
                     } else {
                         parent = bones.get(parent.parent());
@@ -65,7 +186,8 @@ public class FormatConverter {
             }
 
             for (Cube cube : bone.cubes()) {
-                double[] from = ArrayUtil.getArrayWithOffset(cube.origin());
+                double[] from = getFrom(cube.origin(), cube.size());
+
                 double[] to = ArrayUtil.combineArray(from, cube.size());
                 double[] origin = ArrayUtil.combineArray(bone.pivot(), cube.pivot());
                 double[] actualRotation = ArrayUtil.combineArray(cube.rotation(), boneRotation);
@@ -148,25 +270,13 @@ public class FormatConverter {
             }
         }
 
-        if (!rotation000.elements().isEmpty()) {
+        if (!rotation000.elements().isEmpty())
             list.add(rotation000);
-        }
 
-        for (Map.Entry<Long, ItemModelData> entry : modelDataMap.entrySet()) {
+        for (Map.Entry<Long, ItemModelData> entry : modelDataMap.entrySet())
             list.add(entry.getValue());
-        }
 
-        double[] totalSize = ArrayUtil.size(maxTo, minFrom);
-
-        double[] overlappedMin = ArrayUtil.getOverlapSize(minFrom, totalSize), overlappedMax =
-                ArrayUtil.getOverlapSize(maxTo, totalSize);
-
-        double[] totalOverlappedSize = ArrayUtil.combineArrayAbs(overlappedMin, overlappedMax);
-        double[] maxSize = ArrayUtil.combineArrayAbs(totalOverlappedSize, new double[] { 48, 48, 48 });
-        double maxOverlapSize = Math.max(maxSize[0], Math.max(maxSize[1], maxSize[2]));
-        double scale = (1 / (maxOverlapSize / 48)) / 2;
-
-        scale -= 0.02;
+        double scale = getScalingSize(minFrom, maxTo);
 
         for (ItemModelData model : list) {
             for (Element element : model.elements()) {
@@ -180,8 +290,11 @@ public class FormatConverter {
                     element.origin()[i] = element.origin()[i] + (i == 1 ? 0 : 8);
                 }
 
-                element.from(ArrayUtil.addOffsetToArray(element.from(), -element.inflate()));
-                element.to(ArrayUtil.addOffsetToArray(element.to(), element.inflate()));
+                if (model != rotation000)
+                    model.positionOffset(element.from());
+
+                element.from(ArrayUtil.addOffsetToArray(element.from(), -element.inflate() * scale));
+                element.to(ArrayUtil.addOffsetToArray(element.to(), element.inflate() * scale));
             }
 
             model.scale(scale);
@@ -193,7 +306,7 @@ public class FormatConverter {
     private static Map.Entry<Long, ItemModelData> getModel(Map<Long, ItemModelData> map, long l) {
         for (Map.Entry<Long, ItemModelData> entry : map.entrySet()) {
             long diff = Math.abs(entry.getKey() - l);
-            if (diff < 12) {
+            if (diff < 5) {
                 return entry;
             }
         }
@@ -201,90 +314,27 @@ public class FormatConverter {
         return null;
     }
 
-    public static ItemModelData bedrockToJava(String texture, EntityGeometry geometry) {
-        int childrenCount = 0;
-        double[] cubeOffset = new double[3];
-        final List<Group> groups = new ArrayList<>();
-        final List<Element> elements = new ArrayList<>();
-        for (Bone bone : geometry.bones()) {
-            Group group = new Group(bone.name(), ArrayUtil.getArrayWithOffset(bone.pivot()), 0);
+    private static double getScalingSize(double[] minFrom, double[] maxTo) {
+        double[] totalSize = ArrayUtil.size(maxTo, minFrom);
+        double[] overlappedMin = ArrayUtil.getOverlapSize(minFrom, totalSize), overlappedMax =
+                ArrayUtil.getOverlapSize(maxTo, totalSize);
 
-            for (Cube cube : bone.cubes()) {
-                double[] from = ArrayUtil.getArrayWithOffset(cube.origin());
-                double[] to = ArrayUtil.combineArray(from, cube.size());
-                double[] origin = ArrayUtil.getArrayWithOffset(cube.pivot());
+        double[] totalOverlappedSize = ArrayUtil.combineArrayAbs(overlappedMin, overlappedMax);
+        double[] maxSize = ArrayUtil.combineArrayAbs(totalOverlappedSize, new double[] { 48, 48, 48 });
+        double maxOverlapSize = Math.max(maxSize[0], Math.max(maxSize[1], maxSize[2]));
+        double scale = (1 / (maxOverlapSize / 48)) / 2;
 
-                int axisIndex = getAxis(cube.rotation());
-                String axis = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
-                float rawAngle = (float) cube.rotation()[axisIndex];
-                float axisAngle = (float) (Math.round(rawAngle / 22.5) * 22.5);
-                float angle = MathUtil.clamp(axisAngle, -45, 45);
+        scale -= 0.02;
 
-                from = ArrayUtil.addOffsetToArray(from, -cube.inflate());
-                to = ArrayUtil.addOffsetToArray(to, cube.inflate());
+        return scale;
+    }
 
-                // overflow fix.
-                double[] lastFrom = ArrayUtil.clone(from), lastTo = ArrayUtil.clone(to);
-                to = ArrayUtil.clamp(to, 32, -16);
-                from = ArrayUtil.clamp(from, 32, -16);
-                to[1] = MathUtil.clamp(lastTo[1], -16, 32);
-                from[1] = MathUtil.clamp(lastFrom[1], -16, 32 - cube.size()[1]);
+    private static double[] getFrom(double[] origin, double[] size) {
+        double[] d = ArrayUtil.clone(origin);
+        d[0] = -(d[0] + size[0]);
+        d = ArrayUtil.getArrayWithOffset(d);
 
-                for (int i = 0; i < from.length; i++) {
-                    double offset = from[i] - lastFrom[i];
-                    if (offset == 0)
-                        continue;
-
-                    if (Math.abs(offset) > Math.abs(cubeOffset[i])) {
-                        cubeOffset[i] = offset;
-                    }
-
-                    from[i] = lastFrom[i];
-                    to[i] = lastTo[i];
-                }
-
-                Element element = new Element(bone.name(), angle, rawAngle, axis, origin, cube.size(), cube.mirror());
-                element.from(from);
-                element.to(to);
-
-                Map<Direction, double[]> uv = new HashMap<>();
-                if (cube instanceof Cube.PerFaceCube perface && !perface.uvMap().isEmpty()) {
-                    uv = UVUtil.portUv(perface.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
-                } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
-                    uv = UVUtil.portUv(element.mirror(), boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
-                }
-                element.uvMap().putAll(uv);
-
-                group.children().put(childrenCount, element);
-                elements.add(element);
-                childrenCount++;
-            }
-
-            groups.add(group);
-        }
-
-        elements.forEach(element -> {
-            for (int i = 0; i < cubeOffset.length; i++) {
-                if (cubeOffset[i] == 0)
-                    continue;
-
-                element.to()[i] = element.to()[i] + cubeOffset[i];
-                element.from()[i] = element.from()[i] + cubeOffset[i];
-            }
-
-            double[] lastFrom = ArrayUtil.clone(element.from()), lastTo = ArrayUtil.clone(element.to());
-            element.to(ArrayUtil.clamp(element.to(), 32, -16));
-            element.from(ArrayUtil.clamp(element.from(), 32, -16));
-            element.to()[1] = MathUtil.clamp(lastTo[1], -16, 32);
-            element.from()[1] = MathUtil.clamp(lastFrom[1], -16, 32 - element.size()[1]);
-        });
-
-        // TODO: implement children/parent group
-        ItemModelData itemModelData = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
-        itemModelData.groups().addAll(groups);
-        itemModelData.elements().addAll(elements);
-        itemModelData.positionOffset(cubeOffset);
-        return itemModelData;
+        return d;
     }
 
     // TODO: better implement than this...
