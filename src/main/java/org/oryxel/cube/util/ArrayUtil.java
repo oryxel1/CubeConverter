@@ -22,7 +22,19 @@ import com.viaversion.viaversion.libs.gson.JsonArray;
 public class ArrayUtil {
 
     public static long pack(double[] array) {
-        return ((long) ((int)array[0]) << 32) | ((long) ((int)array[1]) << 16) | (long) ((int)array[2]);
+        return (long) ((array[0] * array[1] + array[1] * array[0] + array[2] * array[1]) + array[0] + array[1] + array[2]);
+    }
+
+    public static double[] clampToMax(double[] point, double[] size, int index) {
+        double[] cloned = ArrayUtil.clone(point);
+        cloned = ArrayUtil.clamp(cloned, 32, -16);
+
+        if (index == 1)
+            cloned[1] = MathUtil.clamp(cloned[1], -16, 32);
+        else if (index == 0)
+            cloned[1] = MathUtil.clamp(cloned[1], -16, 32 - size[1]);
+
+        return cloned;
     }
 
     public static double[] getOverlapSize(double[] box, double[] size) {
@@ -228,12 +240,12 @@ public class ArrayUtil {
     }
 
     public static boolean isAllCloseEnough(double[] array, double v) {
-        return isAllCloseEnough(array, 12, v);
+        return isAllCloseEnough(array, 8, v);
     }
 
     public static boolean isAllCloseEnough(double[] array, double close, double v) {
         for (double a : array) {
-            double distance = Math.abs(a - v);
+            double distance = Math.abs(Math.abs(a) - Math.abs(v));
             if (distance > close)
                 return false;
         }

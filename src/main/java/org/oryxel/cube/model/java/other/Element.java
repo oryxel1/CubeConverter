@@ -1,6 +1,9 @@
 package org.oryxel.cube.model.java.other;
 
+import org.oryxel.cube.model.bedrock.EntityGeometry;
+import org.oryxel.cube.model.bedrock.other.Cube;
 import org.oryxel.cube.util.Direction;
+import org.oryxel.cube.util.UVUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,20 +33,34 @@ public class Element {
     private final String axis;
     private double[] origin, size;
     private final boolean mirror;
-    private double inflate;
 
     private String parent;
 
     private final Map<Direction, double[]> uvMap = new HashMap<>();
 
-    public Element(String name, float angle, float rawAngle, String axis, double[] origin, double[] size, boolean mirror) {
+    public Element(EntityGeometry geometry, Cube cube, String name, float angle, float rawAngle, String axis, double[] origin, double[] from, double[] to) {
         this.name = name;
         this.angle = angle;
         this.rawAngle = rawAngle;
         this.axis = axis;
         this.origin = origin;
-        this.size = size;
-        this.mirror = mirror;
+        this.size = cube.size();
+        this.mirror = cube.mirror();
+        this.from = from;
+        this.to = to;
+
+        autoPortUv(geometry, cube);
+    }
+
+    private void autoPortUv(EntityGeometry geometry, Cube cube) {
+        Map<Direction, double[]> uv = new HashMap<>();
+        if (cube instanceof Cube.PerFaceCube perFace && !perFace.uvMap().isEmpty()) {
+            uv = UVUtil.portUv(perFace.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
+        } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
+            uv = UVUtil.portUv(mirror, boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
+        }
+
+        this.uvMap.putAll(uv);
     }
 
     public String name() {
@@ -92,14 +109,6 @@ public class Element {
 
     public boolean mirror() {
         return mirror;
-    }
-
-    public double inflate() {
-        return inflate;
-    }
-
-    public void inflate(double inflate) {
-        this.inflate = inflate;
     }
 
     public String parent() {

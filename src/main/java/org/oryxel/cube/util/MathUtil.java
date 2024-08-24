@@ -19,6 +19,10 @@ package org.oryxel.cube.util;
  */
 public class MathUtil {
 
+    public static float clampToJavaAngle(double rawAngle) {
+        return (float) MathUtil.clamp(Math.round(rawAngle / 22.5) * 22.5, -45, 45);
+    }
+
     public static float clamp(float num, float min, float max) {
         return num < min ? min : (num > max ? max : num);
     }
