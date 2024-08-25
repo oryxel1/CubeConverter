@@ -145,14 +145,24 @@ public class FormatConverter {
                 else if (ArrayUtil.isBigger(to, maxTo))
                     maxTo = ArrayUtil.clone(to);
 
-                Element element = new Element(geometry, cube, bone.name(), 0, -rawAngle, "x", origin, from, to);
-                element.parent(cube.parent());
+                int allIndex = ArrayUtil.isAlmostAll(rotation, 0);
+                float allRawAngle = allIndex != -1 ? (float) rotation[allIndex] : 0;
 
-                if (ArrayUtil.isAll(rotation, 0)) {
+                if (allIndex != -1 && allRawAngle % 22.5 == 0D && allRawAngle >= -45 && allRawAngle <= 45) {
+                    Element element = new Element(geometry, cube, bone.name(), allRawAngle, -rawAngle, allIndex == 0 ? "x" : allIndex == 1 ? "y" : "z", origin, from, to);
+                    element.parent(cube.parent());
+
                     rotation000.elements().add(element);
                 } else {
-                    ItemModelData model = putIfNotExist(modelDataMap, texture, geometry, rotation);
-                    model.elements().add(element);
+                    Element element = new Element(geometry, cube, bone.name(), 0, -rawAngle, "x", origin, from, to);
+                    element.parent(cube.parent());
+
+                    if (ArrayUtil.isAll(rotation, 0)) {
+                        rotation000.elements().add(element);
+                    } else {
+                        ItemModelData model = putIfNotExist(modelDataMap, texture, geometry, rotation);
+                        model.elements().add(element);
+                    }
                 }
             }
         }

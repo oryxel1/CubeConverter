@@ -226,6 +226,17 @@ public class ArrayUtil {
         return new double[] { Math.abs(array[0]) + Math.abs(array1[0]), Math.abs(array[1]) + Math.abs(array1[1]), Math.abs(array[2]) + Math.abs(array1[2]) };
     }
 
+    public static int isAlmostAll(double[] array, double v) {
+        int index = -1, count = 0;
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == v)
+                count++;
+            else index = i;
+        }
+
+        return count != 2 ? -1 : index;
+    }
+
     public static boolean isAll(double[] array, double v) {
         for (double a : array) {
             if (a == v)
