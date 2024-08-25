@@ -226,41 +226,12 @@ public class ArrayUtil {
         return new double[] { Math.abs(array[0]) + Math.abs(array1[0]), Math.abs(array[1]) + Math.abs(array1[1]), Math.abs(array[2]) + Math.abs(array1[2]) };
     }
 
-    public static boolean isCloseEnough(double[] array, double v, int exception) {
-        for (int i = 0; i < array.length; i++) {
-            if (i == exception)
-                continue;
-
-            double distance = Math.abs(array[i] - v);
-            if (distance > 4)
-                return false;
-        }
-
-        return true;
-    }
-
-    public static boolean isAllCloseEnough(double[] array, double v) {
-        return isAllCloseEnough(array, 8, v);
-    }
-
-    public static boolean isAllCloseEnough(double[] array, double close, double v) {
+    public static boolean isAll(double[] array, double v) {
         for (double a : array) {
-            double distance = Math.abs(Math.abs(a) - Math.abs(v));
-            if (distance > close)
+            if (a == v)
                 return false;
         }
 
         return true;
     }
-
-    public static boolean isAllCloseEnough(double[] array, double[] array1, double close) {
-        for (int i = 0; i < array.length; i++) {
-            double distance = Math.abs(array[i] - array1[i]);
-            if (distance > close)
-                return false;
-        }
-
-        return true;
-    }
-
 }

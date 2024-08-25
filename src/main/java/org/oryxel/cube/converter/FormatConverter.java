@@ -70,7 +70,7 @@ public class FormatConverter {
                 } else {
                     if (ArrayUtil.isSmaller(from, minFrom))
                         minFrom = ArrayUtil.clone(from);
-                    else if (ArrayUtil.isBigger(to, maxTo) && ArrayUtil.isBigger(to, minFrom))
+                    else if (ArrayUtil.isBigger(to, maxTo))
                         maxTo = ArrayUtil.clone(to);
                 }
 
@@ -124,16 +124,8 @@ public class FormatConverter {
             double[] boneRotation = bone.rotation();
             if (!bone.parent().isEmpty()) {
                 Bone parent = bones.get(bone.parent());
-                while (parent != null) {
-                    if (parent != null)
-                        boneRotation = ArrayUtil.combineArray(parent.rotation(), boneRotation);
-
-                    if (parent.parent().isEmpty()) {
-                        break;
-                    } else {
-                        parent = bones.get(parent.parent());
-                    }
-                }
+                if (parent != null)
+                    boneRotation = ArrayUtil.combineArray(parent.rotation(), boneRotation);
             }
 
             for (Cube cube : bone.cubes()) {
@@ -143,21 +135,20 @@ public class FormatConverter {
                 double[] rotation = ArrayUtil.combineArray(cube.rotation(), boneRotation);
 
                 from = ArrayUtil.addOffsetToArray(from, -cube.inflate());
-                to = ArrayUtil.addOffsetToArray(to, -cube.inflate());
+                to = ArrayUtil.addOffsetToArray(to, cube.inflate());
 
                 int axisIndex = getAxis(rotation);
                 float rawAngle = (float) rotation[axisIndex];
 
-                if (ArrayUtil.isSmaller(from, minFrom)) {
+                if (ArrayUtil.isSmaller(from, minFrom))
                     minFrom = ArrayUtil.clone(from);
-                } else if (ArrayUtil.isBigger(to, maxTo) && ArrayUtil.isBigger(to, minFrom)) {
+                else if (ArrayUtil.isBigger(to, maxTo))
                     maxTo = ArrayUtil.clone(to);
-                }
 
-                Element element = new Element(geometry, cube, bone.name(), 0, rawAngle, "x", origin, from, to);
+                Element element = new Element(geometry, cube, bone.name(), 0, -rawAngle, "x", origin, from, to);
                 element.parent(cube.parent());
 
-                if (ArrayUtil.isAllCloseEnough(rotation, 0)) {
+                if (ArrayUtil.isAll(rotation, 0)) {
                     rotation000.elements().add(element);
                 } else {
                     ItemModelData model = putIfNotExist(modelDataMap, texture, geometry, rotation);
@@ -223,7 +214,7 @@ public class FormatConverter {
     }
 
     private static double getScalingSize(double[] minFrom, double[] maxTo) {
-        double[] totalSize = ArrayUtil.size(maxTo, minFrom);
+        double[] totalSize = ArrayUtil.sizeAbs(maxTo, minFrom);
         double[] overlappedMin = ArrayUtil.getOverlapSize(minFrom, totalSize), overlappedMax =
                 ArrayUtil.getOverlapSize(maxTo, totalSize);
 
@@ -231,8 +222,6 @@ public class FormatConverter {
         double[] maxSize = ArrayUtil.combineArrayAbs(totalOverlappedSize, new double[] { 48, 48, 48 });
         double maxOverlapSize = Math.max(maxSize[0], Math.max(maxSize[1], maxSize[2]));
         double scale = (1 / (maxOverlapSize / 48)) / 2;
-
-        scale -= 0.02;
 
         return scale;
     }
