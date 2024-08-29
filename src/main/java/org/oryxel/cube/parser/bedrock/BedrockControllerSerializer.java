@@ -93,14 +93,14 @@ public class BedrockControllerSerializer {
                         continue;
 
                     if (name.startsWith("Array.")) {
-                        geoArray = geoTextures.getAsJsonArray(name.replace("Geometry.", ""));
+                        geoArray = geoTextures.getAsJsonArray(name);
                         break;
                     }
                 }
 
                 if (geoArray != null) {
                     for (JsonElement texture : geoArray) {
-                        geometries.add(texture.getAsString());
+                        geometries.add(texture.getAsString().replace("Geometry.", ""));
                     }
                 }
             }
