@@ -1,4 +1,4 @@
-package org.oryxel.cube.model.bedrock.other;
+package org.oryxel.cube.model.bedrock.model;
 
 import org.oryxel.cube.util.Direction;
 

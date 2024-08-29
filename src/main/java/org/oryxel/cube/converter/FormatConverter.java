@@ -2,8 +2,8 @@ package org.oryxel.cube.converter;
 
 import org.oryxel.cube.converter.enums.OverflowFixType;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
-import org.oryxel.cube.model.bedrock.other.Bone;
-import org.oryxel.cube.model.bedrock.other.Cube;
+import org.oryxel.cube.model.bedrock.model.Bone;
+import org.oryxel.cube.model.bedrock.model.Cube;
 import org.oryxel.cube.model.java.ItemModelData;
 import org.oryxel.cube.model.java.other.Element;
 import org.oryxel.cube.model.java.other.Group;
@@ -74,7 +74,7 @@ public class FormatConverter {
                 float rawAngle = (float) cube.rotation()[axisIndex];
                 float angle = MathUtil.clampToJavaAngle(rawAngle);
 
-                Element element = new Element(geometry, cube, bone.name(), angle, rawAngle, axis, origin, from, to);
+                Element element = new Element(geometry, cube, bone.name(), -angle, -rawAngle, axis, origin, from, to);
                 elements.add(element);
 
                 group.children().put(childrenCount, element);

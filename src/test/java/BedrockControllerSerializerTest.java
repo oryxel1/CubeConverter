@@ -47,11 +47,7 @@ public class BedrockControllerSerializerTest {
                 String content = new String(Files.readAllBytes(file.toPath()));
 
                 if (path.startsWith("render_controllers")) {
-                    BedrockRenderController controller = BedrockControllerSerializer.deserialize(content);
-                    if (controller == null)
-                        continue;
-
-                    System.out.println(controller.textures());
+                    List<BedrockRenderController> controller = BedrockControllerSerializer.deserialize(content);
                 }
             }
         } catch (IOException e) {

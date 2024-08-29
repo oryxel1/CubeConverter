@@ -1,3 +1,5 @@
+package org.oryxel.cube.evaluator;
+
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
  * Copyright (C) 2023-2024 Oryxel and contributors
@@ -15,9 +17,5 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.oryxel.cube.model.bedrock;
-
-import java.util.List;
-import java.util.Map;
-
-public record BedrockModelData(String identifier, String material, List<BedrockRenderController> controller, Map<String, String> textures, Map<String, String> geometry) {}
+public class EvaluatorParser {
+}

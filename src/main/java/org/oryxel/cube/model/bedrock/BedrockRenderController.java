@@ -1,6 +1,7 @@
 package org.oryxel.cube.model.bedrock;
 
 import java.util.List;
+import java.util.Map;
 
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
@@ -19,4 +20,5 @@ import java.util.List;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public record BedrockRenderController(String identifier, List<String> textures, List<String> geometries) {}
+public record BedrockRenderController(String identifier, Map<String, String> textureIndex, Map<String, String> geometryIndex,
+                                      Map<String, List<String>> textures, Map<String, List<String>> geometries) {}

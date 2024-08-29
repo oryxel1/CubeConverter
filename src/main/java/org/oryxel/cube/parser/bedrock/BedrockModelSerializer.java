@@ -5,8 +5,11 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.util.GsonUtil;
 import org.oryxel.cube.model.bedrock.BedrockModelData;
+import org.oryxel.cube.model.bedrock.BedrockRenderController;
+import org.oryxel.cube.model.bedrock.controller.ControllerCondition;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -42,9 +45,10 @@ public class BedrockModelSerializer {
         String material = getFirstValue(description.getAsJsonObject("materials")).getAsString();
         Map<String, String> texture = objectToMap(description.getAsJsonObject("textures"));
         Map<String, String> geometry = objectToMap(description.getAsJsonObject("geometry"));
-        String controller = description.has("render_controllers") ? getFirstValue(description.getAsJsonArray("render_controllers")) : "";
+        List<BedrockRenderController> controllers = description.has("render_controllers") ?
+                BedrockControllerSerializer.deserialize(json) : null;
 
-        BedrockModelData model = new BedrockModelData(identifier, material, controller, texture, geometry);
+        BedrockModelData model = new BedrockModelData(identifier, material, controllers, texture, geometry);
         return model;
     }
 
@@ -57,13 +61,6 @@ public class BedrockModelSerializer {
         }
 
         return map;
-    }
-
-    private static String getFirstValue(JsonArray object) {
-        if (object.isEmpty())
-            return null;
-
-        return object.get(0).getAsString();
     }
 
     private static JsonElement getFirstValue(JsonObject object) {

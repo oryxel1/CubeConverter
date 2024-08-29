@@ -1,6 +1,6 @@
 package org.oryxel.cube.model.bedrock;
 
-import org.oryxel.cube.model.bedrock.other.Bone;
+import org.oryxel.cube.model.bedrock.model.Bone;
 
 import java.util.ArrayList;
 import java.util.List;

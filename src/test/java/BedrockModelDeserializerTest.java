@@ -1,12 +1,7 @@
-import org.oryxel.cube.converter.FormatConverter;
-import org.oryxel.cube.converter.enums.OverflowFixType;
-import org.oryxel.cube.model.bedrock.BedrockGeometry;
-import org.oryxel.cube.model.java.ItemModelData;
-import org.oryxel.cube.parser.bedrock.BedrockGeometrySerializer;
-import org.oryxel.cube.parser.java.JavaModelSerializer;
+import org.oryxel.cube.model.bedrock.BedrockModelData;
+import org.oryxel.cube.parser.bedrock.BedrockModelSerializer;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +27,7 @@ import java.util.stream.Stream;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class BedrockModelConverterTest {
+public class BedrockModelDeserializerTest {
 
     public static void main(String[] args) {
         if (args.length < 1) return;
@@ -46,30 +41,13 @@ public class BedrockModelConverterTest {
             for (File file : files) {
                 String path = file.getAbsolutePath().replace(args[0], "");
 
-                if (path.startsWith("entity\\") || !path.toLowerCase().endsWith(".json"))
+                if (!path.startsWith("entity\\") || !path.toLowerCase().endsWith(".json"))
                     continue;
 
                 String content = new String(Files.readAllBytes(file.toPath()));
 
-                if (path.startsWith("models\\entity")) {
-                    BedrockGeometry geometry = BedrockGeometrySerializer.deserialize(content);
-                    if (geometry == null)
-                        continue;
-
-                    ItemModelData model = FormatConverter.bedrockToJava("test", geometry, OverflowFixType.SCALING);
-
-                    String json = JavaModelSerializer.serializeToString(model);
-                    File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + ".json");
-
-                    System.out.println(file.getAbsolutePath());
-                    System.out.println(newPath.getAbsolutePath());
-
-                    if (!newPath.exists())
-                        newPath.createNewFile();
-
-                    try (final FileWriter writer = new FileWriter(newPath)) {
-                        writer.write(json);
-                    }
+                if (path.startsWith("entity")) {
+                    BedrockModelData geometry = BedrockModelSerializer.deserialize(content);
                 }
             }
         } catch (IOException e) {

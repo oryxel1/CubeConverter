@@ -5,8 +5,8 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.util.GsonUtil;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
-import org.oryxel.cube.model.bedrock.other.Bone;
-import org.oryxel.cube.model.bedrock.other.Cube;
+import org.oryxel.cube.model.bedrock.model.Bone;
+import org.oryxel.cube.model.bedrock.model.Cube;
 import org.oryxel.cube.util.ArrayUtil;
 import org.oryxel.cube.util.Direction;
 

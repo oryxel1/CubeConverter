@@ -1,4 +1,4 @@
-package org.oryxel.cube.model.bedrock.other;
+package org.oryxel.cube.model.bedrock.model;
 
 import java.util.ArrayList;
 import java.util.List;
