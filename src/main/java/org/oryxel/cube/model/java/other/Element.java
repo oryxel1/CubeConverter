@@ -1,6 +1,6 @@
 package org.oryxel.cube.model.java.other;
 
-import org.oryxel.cube.model.bedrock.EntityGeometry;
+import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.bedrock.other.Cube;
 import org.oryxel.cube.util.Direction;
 import org.oryxel.cube.util.UVUtil;
@@ -38,7 +38,7 @@ public class Element {
 
     private final Map<Direction, double[]> uvMap = new HashMap<>();
 
-    public Element(EntityGeometry geometry, Cube cube, String name, float angle, float rawAngle, String axis, double[] origin, double[] from, double[] to) {
+    public Element(BedrockGeometry geometry, Cube cube, String name, float angle, float rawAngle, String axis, double[] origin, double[] from, double[] to) {
         this.name = name;
         this.angle = angle;
         this.rawAngle = rawAngle;
@@ -52,7 +52,7 @@ public class Element {
         autoPortUv(geometry, cube);
     }
 
-    private void autoPortUv(EntityGeometry geometry, Cube cube) {
+    private void autoPortUv(BedrockGeometry geometry, Cube cube) {
         Map<Direction, double[]> uv = new HashMap<>();
         if (cube instanceof Cube.PerFaceCube perFace && !perFace.uvMap().isEmpty()) {
             uv = UVUtil.portUv(perFace.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);

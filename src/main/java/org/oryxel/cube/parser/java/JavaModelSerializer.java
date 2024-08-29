@@ -1,4 +1,4 @@
-package org.oryxel.cube.parser;
+package org.oryxel.cube.parser.java;
 
 import com.viaversion.viaversion.libs.gson.JsonArray;
 import com.viaversion.viaversion.libs.gson.JsonObject;

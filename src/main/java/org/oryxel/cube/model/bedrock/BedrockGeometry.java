@@ -22,7 +22,7 @@ import java.util.List;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class EntityGeometry {
+public class BedrockGeometry {
 
     private final String identifier;
     private final int textureWidth, textureHeight;
@@ -31,7 +31,7 @@ public class EntityGeometry {
 
     private String path;
 
-    public EntityGeometry(String identifier, int textureWidth, int textureHeight) {
+    public BedrockGeometry(String identifier, int textureWidth, int textureHeight) {
         this.identifier = identifier;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;

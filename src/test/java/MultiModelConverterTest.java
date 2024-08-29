@@ -1,8 +1,8 @@
 import org.oryxel.cube.converter.FormatConverter;
-import org.oryxel.cube.model.bedrock.EntityGeometry;
+import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.java.ItemModelData;
-import org.oryxel.cube.parser.BedrockGeometrySerializer;
-import org.oryxel.cube.parser.JavaModelSerializer;
+import org.oryxel.cube.parser.bedrock.BedrockGeometrySerializer;
+import org.oryxel.cube.parser.java.JavaModelSerializer;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -52,7 +52,7 @@ public class MultiModelConverterTest {
                 String content = new String(Files.readAllBytes(file.toPath()));
 
                 if (path.startsWith("models\\entity")) {
-                    EntityGeometry geometry = BedrockGeometrySerializer.deserialize(content);
+                    BedrockGeometry geometry = BedrockGeometrySerializer.deserialize(content);
                     if (geometry == null)
                         continue;
 

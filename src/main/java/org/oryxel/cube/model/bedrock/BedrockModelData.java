@@ -17,4 +17,6 @@
  */
 package org.oryxel.cube.model.bedrock;
 
-public record EntityModelData(String identifier, String material, String textures, String geometry) {}
+import java.util.Map;
+
+public record BedrockModelData(String identifier, String material, Map<String, String> textures, Map<String, String> geometry) {}

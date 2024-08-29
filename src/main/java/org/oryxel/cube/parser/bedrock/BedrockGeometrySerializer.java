@@ -1,10 +1,10 @@
-package org.oryxel.cube.parser;
+package org.oryxel.cube.parser.bedrock;
 
 import com.viaversion.viaversion.libs.gson.JsonArray;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.util.GsonUtil;
-import org.oryxel.cube.model.bedrock.EntityGeometry;
+import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.bedrock.other.Bone;
 import org.oryxel.cube.model.bedrock.other.Cube;
 import org.oryxel.cube.util.ArrayUtil;
@@ -32,11 +32,11 @@ import java.util.List;
  */
 public class BedrockGeometrySerializer {
 
-    public static EntityGeometry deserialize(String json) {
+    public static BedrockGeometry deserialize(String json) {
         return deserialize(GsonUtil.getGson().fromJson(json.trim(), JsonObject.class));
     }
 
-    public static EntityGeometry deserialize(JsonObject json) {
+    public static BedrockGeometry deserialize(JsonObject json) {
         if (json.has("minecraft:geometry")) {
             JsonElement element = json.get("minecraft:geometry");
             if (!element.isJsonArray())
@@ -61,7 +61,7 @@ public class BedrockGeometrySerializer {
         return null;
     }
 
-    private static EntityGeometry getEntityGeometry(JsonObject geometry, String elementName, String textureWidthName, String textureHeightName) {
+    private static BedrockGeometry getEntityGeometry(JsonObject geometry, String elementName, String textureWidthName, String textureHeightName) {
         JsonObject description = geometry.has("description") ? geometry.getAsJsonObject("description") : geometry;
         String identifier = description.has("identifier") ? description.get("identifier").getAsString() : elementName;
 
@@ -131,10 +131,10 @@ public class BedrockGeometrySerializer {
             bones.add(bone);
         }
 
-        EntityGeometry entityGeometry = new EntityGeometry(identifier, textureWidth, textureHeight);
-        entityGeometry.bones().addAll(bones);
+        BedrockGeometry bedrockGeometry = new BedrockGeometry(identifier, textureWidth, textureHeight);
+        bedrockGeometry.bones().addAll(bones);
 
-        return entityGeometry;
+        return bedrockGeometry;
     }
 
     private static void putIfExist(Direction direction, JsonObject object, Cube.PerFaceCube cube) {

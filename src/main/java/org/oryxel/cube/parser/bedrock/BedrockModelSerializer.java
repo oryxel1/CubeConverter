@@ -1,10 +1,11 @@
-package org.oryxel.cube.parser;
+package org.oryxel.cube.parser.bedrock;
 
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.util.GsonUtil;
-import org.oryxel.cube.model.bedrock.EntityModelData;
+import org.oryxel.cube.model.bedrock.BedrockModelData;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /*
@@ -26,11 +27,11 @@ import java.util.Map;
  */
 public class BedrockModelSerializer {
 
-    public static EntityModelData deserialize(String json) {
+    public static BedrockModelData deserialize(String json) {
         return deserialize(GsonUtil.getGson().fromJson(json.trim(), JsonObject.class));
     }
 
-    public static EntityModelData deserialize(JsonObject json) {
+    public static BedrockModelData deserialize(JsonObject json) {
         if (!json.has("minecraft:client_entity"))
             return null;
 
@@ -38,11 +39,25 @@ public class BedrockModelSerializer {
         JsonObject description = clientEntity.getAsJsonObject("description");
         String identifier = description.getAsJsonPrimitive("identifier").getAsString();
         String material = getFirstValue(description.getAsJsonObject("materials")).getAsString();
-        String texture = getFirstValue(description.getAsJsonObject("textures")).getAsString();
-        String geometry = getFirstValue(description.getAsJsonObject("geometry")).getAsString();
+        Map<String, String> texture = objectToMap(description.getAsJsonObject("textures"));
+        Map<String, String> geometry = objectToMap(description.getAsJsonObject("geometry"));
 
-        EntityModelData entityModelData = new EntityModelData(identifier, material, texture, geometry);
-        return entityModelData;
+        BedrockModelData model = new BedrockModelData(identifier, material, texture, geometry);
+        return model;
+    }
+
+    private static Map<String, String> objectToMap(JsonObject object) {
+        Map<String, String> map = new HashMap<>();
+        for (String name : object.keySet()) {
+            JsonElement element = object.get(name);
+            if (!element.isJsonObject())
+                continue;
+            JsonObject object1 = element.getAsJsonObject();
+
+            map.put(name, object1.getAsString());
+        }
+
+        return map;
     }
 
     private static JsonElement getFirstValue(JsonObject object) {

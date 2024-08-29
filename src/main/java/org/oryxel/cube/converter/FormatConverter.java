@@ -1,7 +1,7 @@
 package org.oryxel.cube.converter;
 
 import org.oryxel.cube.converter.enums.OverflowFixType;
-import org.oryxel.cube.model.bedrock.EntityGeometry;
+import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.bedrock.other.Bone;
 import org.oryxel.cube.model.bedrock.other.Cube;
 import org.oryxel.cube.model.java.ItemModelData;
@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class FormatConverter {
 
-    public static ItemModelData bedrockToJava(String texture, EntityGeometry geometry, OverflowFixType type) {
+    public static ItemModelData bedrockToJava(String texture, BedrockGeometry geometry, OverflowFixType type) {
         int childrenCount = 0;
         double[] cubeOffset = new double[3];
         final List<Group> groups = new ArrayList<>();
@@ -106,7 +106,7 @@ public class FormatConverter {
         return itemModelData;
     }
 
-    public static List<ItemModelData> bedrockToJavaModels(String texture, EntityGeometry geometry) {
+    public static List<ItemModelData> bedrockToJavaModels(String texture, BedrockGeometry geometry) {
         final List<ItemModelData> list = new ArrayList<>();
 
         ItemModelData rotation000 = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
@@ -183,7 +183,7 @@ public class FormatConverter {
         return list;
     }
 
-    private static ItemModelData putIfNotExist(Map<Long, ItemModelData> map, String texture, EntityGeometry geometry, double[] rotation) {
+    private static ItemModelData putIfNotExist(Map<Long, ItemModelData> map, String texture, BedrockGeometry geometry, double[] rotation) {
         ItemModelData model;
         Map.Entry<Long, ItemModelData> entry = getModel(map, ArrayUtil.pack(rotation));
         if (entry == null) {
