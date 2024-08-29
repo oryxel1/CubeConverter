@@ -50,11 +50,6 @@ public class FormatConverter {
                 double[] to = ArrayUtil.combineArray(from, cube.size());
                 double[] origin = ArrayUtil.getArrayWithOffset(cube.pivot());
 
-                int axisIndex = getAxis(cube.rotation());
-                String axis = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
-                float rawAngle = (float) cube.rotation()[axisIndex];
-                float angle = MathUtil.clampToJavaAngle(rawAngle);
-
                 from = ArrayUtil.addOffsetToArray(from, -cube.inflate());
                 to = ArrayUtil.addOffsetToArray(to, cube.inflate());
 
@@ -74,6 +69,11 @@ public class FormatConverter {
                         maxTo = ArrayUtil.clone(to);
                 }
 
+                int axisIndex = getAxis(cube.rotation());
+                String axis = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
+                float rawAngle = (float) cube.rotation()[axisIndex];
+                float angle = MathUtil.clampToJavaAngle(rawAngle);
+
                 Element element = new Element(geometry, cube, bone.name(), angle, rawAngle, axis, origin, from, to);
                 elements.add(element);
 
@@ -85,7 +85,11 @@ public class FormatConverter {
         }
 
         double scale = getScalingSize(minFrom, maxTo);
+
         ItemModelData itemModelData = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
+        itemModelData.groups().addAll(groups);
+        itemModelData.elements().addAll(elements);
+        itemModelData.positionOffset(cubeOffset);
         itemModelData.scale(scale);
 
         if (type == OverflowFixType.SCALING) {
@@ -100,9 +104,6 @@ public class FormatConverter {
             });
         }
 
-        itemModelData.groups().addAll(groups);
-        itemModelData.elements().addAll(elements);
-        itemModelData.positionOffset(cubeOffset);
         return itemModelData;
     }
 

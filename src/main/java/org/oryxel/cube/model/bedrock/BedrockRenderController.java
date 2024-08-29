@@ -19,4 +19,4 @@ import java.util.List;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public record BedrockRenderController(List<String> textures, List<String> geometries) {}
+public record BedrockRenderController(String identifier, List<String> textures, List<String> geometries) {}

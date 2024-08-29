@@ -1,5 +1,6 @@
 package org.oryxel.cube.parser.bedrock;
 
+import com.viaversion.viaversion.libs.gson.JsonArray;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.util.GsonUtil;
@@ -41,8 +42,9 @@ public class BedrockModelSerializer {
         String material = getFirstValue(description.getAsJsonObject("materials")).getAsString();
         Map<String, String> texture = objectToMap(description.getAsJsonObject("textures"));
         Map<String, String> geometry = objectToMap(description.getAsJsonObject("geometry"));
+        String controller = description.has("render_controllers") ? getFirstValue(description.getAsJsonArray("render_controllers")) : "";
 
-        BedrockModelData model = new BedrockModelData(identifier, material, texture, geometry);
+        BedrockModelData model = new BedrockModelData(identifier, material, controller, texture, geometry);
         return model;
     }
 
@@ -50,14 +52,18 @@ public class BedrockModelSerializer {
         Map<String, String> map = new HashMap<>();
         for (String name : object.keySet()) {
             JsonElement element = object.get(name);
-            if (!element.isJsonObject())
-                continue;
-            JsonObject object1 = element.getAsJsonObject();
 
-            map.put(name, object1.getAsString());
+            map.put(name, element.getAsString());
         }
 
         return map;
+    }
+
+    private static String getFirstValue(JsonArray object) {
+        if (object.isEmpty())
+            return null;
+
+        return object.get(0).getAsString();
     }
 
     private static JsonElement getFirstValue(JsonObject object) {

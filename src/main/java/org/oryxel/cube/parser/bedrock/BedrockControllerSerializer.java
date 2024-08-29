@@ -39,12 +39,14 @@ public class BedrockControllerSerializer {
 
         JsonObject controllers = json.getAsJsonObject("render_controllers");
         JsonObject object = null;
+        String identifier = "";
         for (String name : controllers.keySet()) {
             if (!controllers.get(name).isJsonObject())
                 continue;
 
             if (name.startsWith("controller.render")) {
                 object = controllers.getAsJsonObject(name);
+                identifier = name;
                 break;
             }
         }
@@ -104,7 +106,7 @@ public class BedrockControllerSerializer {
             }
         }
 
-        return new BedrockRenderController(textures, geometries);
+        return new BedrockRenderController(identifier, textures, geometries);
     }
 
 }
