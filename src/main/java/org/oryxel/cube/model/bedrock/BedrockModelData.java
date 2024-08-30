@@ -20,4 +20,4 @@ package org.oryxel.cube.model.bedrock;
 import java.util.List;
 import java.util.Map;
 
-public record BedrockModelData(String identifier, String material, List<BedrockRenderController> controller, Map<String, String> textures, Map<String, String> geometry) {}
+public record BedrockModelData(String identifier, String material, List<String> controller, Map<String, String> textures, Map<String, String> geometry) {}

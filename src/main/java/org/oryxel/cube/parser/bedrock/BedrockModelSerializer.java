@@ -1,11 +1,13 @@
 package org.oryxel.cube.parser.bedrock;
 
+import com.viaversion.viaversion.libs.gson.JsonArray;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.util.GsonUtil;
 import org.oryxel.cube.model.bedrock.BedrockModelData;
 import org.oryxel.cube.model.bedrock.BedrockRenderController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,11 +45,20 @@ public class BedrockModelSerializer {
         String material = getFirstValue(description.getAsJsonObject("materials")).getAsString();
         Map<String, String> texture = objectToMap(description.getAsJsonObject("textures"));
         Map<String, String> geometry = objectToMap(description.getAsJsonObject("geometry"));
-        List<BedrockRenderController> controllers = description.has("render_controllers") ?
-                BedrockControllerSerializer.deserialize(json) : null;
+        List<String> controllers = description.has("render_controllers") ?
+                objectToString(description.getAsJsonArray("render_controllers"))  : new ArrayList<>();
 
         BedrockModelData model = new BedrockModelData(identifier, material, controllers, texture, geometry);
         return model;
+    }
+
+    private static List<String> objectToString(JsonArray array) {
+        List<String> strings = new ArrayList<>();
+        for (JsonElement element : array) {
+            strings.add(element.getAsString());
+        }
+
+        return strings;
     }
 
     private static Map<String, String> objectToMap(JsonObject object) {

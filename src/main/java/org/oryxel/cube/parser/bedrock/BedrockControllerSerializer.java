@@ -102,9 +102,12 @@ public class BedrockControllerSerializer {
 
             if (object.has("geometry")) {
                 JsonElement element = object.get("geometry");
-                if (element.isJsonPrimitive())
-                    geometryIndex.add(object.getAsJsonPrimitive("geometry").getAsString());
-                else geometryIndex = getListFromJson(element.getAsJsonArray());
+                if (element.isJsonPrimitive()) {
+                    geometryIndex.add(element.getAsString());
+                }
+                else {
+                    geometryIndex = getListFromJson(element.getAsJsonArray());
+                }
             }
 
             list.add(new BedrockRenderController(controllerName, textureIndex, geometryIndex, textures, geometries));
