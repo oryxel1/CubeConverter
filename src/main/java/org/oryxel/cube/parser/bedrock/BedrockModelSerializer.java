@@ -1,12 +1,10 @@
 package org.oryxel.cube.parser.bedrock;
 
-import com.viaversion.viaversion.libs.gson.JsonArray;
 import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.util.GsonUtil;
 import org.oryxel.cube.model.bedrock.BedrockModelData;
 import org.oryxel.cube.model.bedrock.BedrockRenderController;
-import org.oryxel.cube.model.bedrock.controller.ControllerCondition;
 
 import java.util.HashMap;
 import java.util.List;

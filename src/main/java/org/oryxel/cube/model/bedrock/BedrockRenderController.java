@@ -20,5 +20,5 @@ import java.util.Map;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public record BedrockRenderController(String identifier, Map<String, String> textureIndex, Map<String, String> geometryIndex,
+public record BedrockRenderController(String identifier, List<String> textureIndex, List<String> geometryIndex,
                                       Map<String, List<String>> textures, Map<String, List<String>> geometries) {}

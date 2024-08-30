@@ -5,7 +5,6 @@ import com.viaversion.viaversion.libs.gson.JsonElement;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import com.viaversion.viaversion.util.GsonUtil;
 import org.oryxel.cube.model.bedrock.BedrockRenderController;
-import org.oryxel.cube.model.bedrock.controller.ControllerCondition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +56,7 @@ public class BedrockControllerSerializer {
             if (arrays == null)
                 return null;
 
-            if (arrays.has("textures") && arrays.get("textures").isJsonArray()) {
+            if (arrays.has("textures") && arrays.get("textures").isJsonObject()) {
                 JsonObject arraysTextures = arrays.getAsJsonObject("textures");
                 for (String name : arraysTextures.keySet()) {
                     if (!arraysTextures.get(name).isJsonArray() || !name.startsWith("Array."))
@@ -73,11 +72,11 @@ public class BedrockControllerSerializer {
                         texturesList.add(texture.getAsString().replace("Texture.", ""));
                     }
 
-                    textures.put(name.replace("Array.", ""), texturesList);
+                    textures.put(name, texturesList);
                 }
             }
 
-            if (arrays.has("geometries") && arrays.get("geometries").isJsonArray()) {
+            if (arrays.has("geometries") && arrays.get("geometries").isJsonObject()) {
                 JsonObject geoTextures = arrays.getAsJsonObject("geometries");
                 for (String name : geoTextures.keySet()) {
                     if (!geoTextures.get(name).isJsonArray() || !name.startsWith("Array."))
@@ -89,89 +88,39 @@ public class BedrockControllerSerializer {
 
                     final List<String> geometriesList = new ArrayList<>();
 
-                    for (JsonElement texture : geoArray) {
-                        geometriesList.add(texture.getAsString().replace("Geometry.", ""));
+                    for (JsonElement geo : geoArray) {
+                        geometriesList.add(geo.getAsString().replace("Geometry.", ""));
                     }
 
-                    geometries.put(name.replace("Array.", ""), geometriesList);
+                    geometries.put(name, geometriesList);
                 }
             }
 
-            Map<String, String> textureIndex = new HashMap<>(), geometryIndex = new HashMap<>();
+            List<String> textureIndex = new ArrayList<>(), geometryIndex = new ArrayList<>();
             if (object.has("textures"))
                 textureIndex = getListFromJson(object.getAsJsonArray("textures"));
 
             if (object.has("geometry")) {
                 JsonElement element = object.get("geometry");
                 if (element.isJsonPrimitive())
-                    geometryIndex.put("", object.getAsJsonPrimitive("geometry").getAsString().replace("Geometry.", ""));
+                    geometryIndex.add(object.getAsJsonPrimitive("geometry").getAsString());
                 else geometryIndex = getListFromJson(element.getAsJsonArray());
             }
 
-            System.out.println(controllerName);
             list.add(new BedrockRenderController(controllerName, textureIndex, geometryIndex, textures, geometries));
         }
 
         return list;
     }
 
-    private static Map<String, ControllerCondition> getController(JsonArray controller) {
-        if (controller.isEmpty())
-            return new HashMap<>();
-
-        final Map<String, ControllerCondition> map = new HashMap<>();
-
-        for (JsonElement element : controller) {
-            if (element.isJsonObject()) {
-                JsonObject object = element.getAsJsonObject();
-                for (String name : object.keySet()) {
-                    JsonElement element1 = object.get(name);
-                    if (!element1.isJsonPrimitive())
-                        continue;
-
-                    int testId = -1;
-                    try {
-                        testId = Integer.parseInt(String.valueOf(element1));
-                    } catch (Exception e) {}
-
-                    if (testId != -1)
-                        map.put(name + ".part" + testId, new ControllerCondition("", "", ControllerCondition.ConditionType.NONE));
-                    else {
-                        String[] split = element1.toString().replace("\"", "").split(" ");
-                        if (split.length != 3)
-                            continue;
-                        String type = split[0].replace("q.", "").toUpperCase();
-                        String compare = split[1];
-                        ControllerCondition.ConditionType conditionType = compare.equals("==") ? ControllerCondition.ConditionType.EQUALS :
-                                compare.equals(">") ? ControllerCondition.ConditionType.LARGER : compare.equals("<") ? ControllerCondition.ConditionType.SMALLER :
-                                        ControllerCondition.ConditionType.NONE;
-
-                        map.put(name, new ControllerCondition(type, compare, conditionType));
-                    }
-                }
-            } else {
-                map.put(element.getAsString(), new ControllerCondition("", "", ControllerCondition.ConditionType.NONE));
-                break; // there is no condition, we should be safe to break
-            }
-        }
-
-        return map;
-    }
-
-    private static Map<String, String> getListFromJson(JsonArray array) {
-        Map<String, String> map = new HashMap<>();
+    private static List<String> getListFromJson(JsonArray array) {
+        List<String> list = new ArrayList<>();
 
         for (JsonElement element : array) {
-            String s = element.getAsString().replace("Array.", "");
-            String[] split = s.split("\\[");
-            if (split.length != 2 || split[0].split(" ").length > 1)
-                continue;
-
-            System.out.println(array);
-            map.put(split[0].replace("Array.", ""), split[1].replace("]", ""));
+            list.add(element.getAsString());
         }
 
-        return map;
+        return list;
     }
 
 }
