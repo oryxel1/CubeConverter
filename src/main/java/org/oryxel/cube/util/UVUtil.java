@@ -52,6 +52,22 @@ public class UVUtil {
         return map;
     }
 
+    public static double[] portToBoxUv(Map<Direction, double[]> cubes, double[] from, double[] to) {
+        final Map<Direction, Face> faces = facesAsMap(from, to);
+
+        double[] uv = new double[2];
+        for (Map.Entry<Direction, double[]> entry : cubes.entrySet()) {
+            Face face = faces.get(entry.getKey());
+            if (face == null)
+                continue;
+
+            double[] entryUv = entry.getValue();
+            uv = new double[] { entryUv[0] - face.from[0], entryUv[1] - face.from[1] };
+        }
+
+        return uv;
+    }
+
     public static Map<Direction, double[]> portUv(boolean mirror, double[] uvOffset, double[] from, double[] to, double rawAngle, int tW, int tH) {
         final List<Face> faces = faces(from, to);
 
@@ -89,6 +105,19 @@ public class UVUtil {
                 new Face(Direction.SOUTH, ArrayUtil.build(size[2] * 2 + size[0], size[2]), ArrayUtil.build(size[0], size[1])),
                 new Face(Direction.WEST, ArrayUtil.build(size[2] + size[0], size[2]), ArrayUtil.build(size[2], size[1])),
                 new Face(Direction.EAST, ArrayUtil.build(0, size[2]), ArrayUtil.build(size[2], size[1]))
+        );
+        return faces;
+    }
+
+    private static Map<Direction, Face> facesAsMap(double[] from, double[] to) {
+        double[] size = ArrayUtil.size(to, from);
+        final Map<Direction, Face> faces = Map.of(
+                Direction.DOWN, new Face(Direction.DOWN, ArrayUtil.build(size[2] + size[0] * 2, 0), ArrayUtil.build(-size[0], size[2])),
+                Direction.UP, new Face(Direction.UP, ArrayUtil.build(size[2] + size[0], size[2]), ArrayUtil.build( -size[0], -size[2])),
+                Direction.NORTH, new Face(Direction.NORTH, ArrayUtil.build(size[2], size[2]), ArrayUtil.build(size[0], size[1])),
+                Direction.SOUTH, new Face(Direction.SOUTH, ArrayUtil.build(size[2] * 2 + size[0], size[2]), ArrayUtil.build(size[0], size[1])),
+                Direction.WEST, new Face(Direction.WEST, ArrayUtil.build(size[2] + size[0], size[2]), ArrayUtil.build(size[2], size[1])),
+                Direction.EAST, new Face(Direction.EAST, ArrayUtil.build(0, size[2]), ArrayUtil.build(size[2], size[1]))
         );
         return faces;
     }

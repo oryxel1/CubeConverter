@@ -46,7 +46,7 @@ public class BedrockModelSerializer {
         Map<String, String> texture = objectToMap(description.getAsJsonObject("textures"));
         Map<String, String> geometry = objectToMap(description.getAsJsonObject("geometry"));
         List<String> controllers = description.has("render_controllers") ?
-                objectToString(description.getAsJsonArray("render_controllers"))  : new ArrayList<>();
+                objectToString(description.getAsJsonArray("render_controllers")) : new ArrayList<>();
 
         BedrockModelData model = new BedrockModelData(identifier, material, controllers, texture, geometry);
         return model;
