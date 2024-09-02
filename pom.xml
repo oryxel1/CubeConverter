@@ -6,7 +6,7 @@
 
     <groupId>org.oryxel.cube</groupId>
     <artifactId>cubeconverter</artifactId>
-    <version>1.0.5-build1</version>
+    <version>1.0.5-build2</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -26,9 +26,38 @@
             <groupId>com.viaversion</groupId>
             <artifactId>viaversion-common</artifactId>
             <version>5.0.2-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <distributionManagement>
         <repository>
