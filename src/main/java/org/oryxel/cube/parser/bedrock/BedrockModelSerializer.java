@@ -55,7 +55,9 @@ public class BedrockModelSerializer {
     private static List<String> objectToString(JsonArray array) {
         List<String> strings = new ArrayList<>();
         for (JsonElement element : array) {
-            strings.add(element.getAsString());
+            if (element.isJsonObject())
+                continue; // TODO: actually proper implement.
+            else strings.add(element.getAsString());
         }
 
         return strings;
