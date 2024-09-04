@@ -1,7 +1,7 @@
 package org.oryxel.cube.parser.java;
 
-import com.viaversion.viaversion.libs.gson.JsonArray;
-import com.viaversion.viaversion.libs.gson.JsonObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.oryxel.cube.model.java.ItemModelData;
 import org.oryxel.cube.model.java.other.Element;
 import org.oryxel.cube.model.java.other.Group;

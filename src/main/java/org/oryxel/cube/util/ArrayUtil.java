@@ -1,6 +1,6 @@
 package org.oryxel.cube.util;
 
-import com.viaversion.viaversion.libs.gson.JsonArray;
+import com.google.gson.JsonArray;
 
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter

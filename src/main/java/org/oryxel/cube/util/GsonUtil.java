@@ -1,5 +1,8 @@
 package org.oryxel.cube.util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
  * Copyright (C) 2023-2024 Oryxel and contributors
@@ -17,27 +20,12 @@ package org.oryxel.cube.util;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class QuaternionUtil {
+public class GsonUtil {
 
-    public static double[] toQuaternion(double x, double y, double z, boolean nonRadius) {
-        if (nonRadius) {
-            x = Math.toRadians(x);
-            y = Math.toRadians(y);
-            z = Math.toRadians(z);
-        }
+    private static final Gson GSON = new GsonBuilder().create();
 
-        double cx = Math.cos(x / 2);
-        double cy = Math.cos(y / 2);
-        double cz = Math.cos(z / 2);
-        double sx = Math.sin(x / 2);
-        double sy = Math.sin(y / 2);
-        double sz = Math.sin(z / 2);
-
-        float qw = (float) (cx * cy * cz + sx * sy * sz);
-        float qx = (float) (sx * cy * cz - cx * sy * sz);
-        float qy = (float) (cx * sy * cz + sx * cy * sz);
-        float qz = (float) (cx * cy * sz - sx * sy * cz);
-
-        return new double[] { qx, qy, qz, qw };
+    public static Gson getGson() {
+        return GSON;
     }
+
 }

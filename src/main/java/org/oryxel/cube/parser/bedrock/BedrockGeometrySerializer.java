@@ -1,14 +1,14 @@
 package org.oryxel.cube.parser.bedrock;
 
-import com.viaversion.viaversion.libs.gson.JsonArray;
-import com.viaversion.viaversion.libs.gson.JsonElement;
-import com.viaversion.viaversion.libs.gson.JsonObject;
-import com.viaversion.viaversion.util.GsonUtil;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.bedrock.model.Bone;
 import org.oryxel.cube.model.bedrock.model.Cube;
 import org.oryxel.cube.util.ArrayUtil;
 import org.oryxel.cube.util.Direction;
+import org.oryxel.cube.util.GsonUtil;
 
 import java.util.ArrayList;
 import java.util.List;
