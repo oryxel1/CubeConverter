@@ -46,13 +46,31 @@ public class BedrockModelSerializer {
         Map<String, String> texture = objectToMap(description.getAsJsonObject("textures"));
         Map<String, String> geometry = objectToMap(description.getAsJsonObject("geometry"));
         List<String> controllers = description.has("render_controllers") ?
-                objectToString(description.getAsJsonArray("render_controllers")) : new ArrayList<>();
+                renderController(description.getAsJsonArray("render_controllers")) : new ArrayList<>();
+        List<String> variables = new ArrayList<>();
+        if (description.has("scripts")) {
+            JsonObject scripts = description.getAsJsonObject("scripts");
+            if (scripts.has("initialize"))
+                variables = objectToString(scripts.getAsJsonArray("initialize"));
+        }
 
-        BedrockModelData model = new BedrockModelData(identifier, material, controllers, texture, geometry);
+        BedrockModelData model = new BedrockModelData(identifier, material, controllers, texture, geometry, variables);
+
         return model;
     }
 
     private static List<String> objectToString(JsonArray array) {
+        List<String> strings = new ArrayList<>();
+        for (JsonElement element : array) {
+            if (element.isJsonObject())
+                continue;
+            else strings.add(element.getAsString());
+        }
+
+        return strings;
+    }
+
+    private static List<String> renderController(JsonArray array) {
         List<String> strings = new ArrayList<>();
         for (JsonElement element : array) {
             if (element.isJsonObject())
