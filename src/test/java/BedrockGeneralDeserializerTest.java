@@ -1,5 +1,5 @@
-import org.oryxel.cube.model.bedrock.BedrockEntityData;
-import org.oryxel.cube.parser.bedrock.BedrockEntitySerializer;
+import org.oryxel.cube.model.bedrock.BedrockGeneralData;
+import org.oryxel.cube.parser.bedrock.BedrockGeneralSerializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class BedrockEntityDeserializerTest {
+public class BedrockGeneralDeserializerTest {
 
     public static void main(String[] args) {
         if (args.length < 1) return;
@@ -41,14 +41,11 @@ public class BedrockEntityDeserializerTest {
             for (File file : files) {
                 String path = file.getAbsolutePath().replace(args[0], "");
 
-                if (!path.startsWith("entity\\") || !path.toLowerCase().endsWith(".json"))
+                if (!path.toLowerCase().endsWith(".json"))
                     continue;
 
                 String content = new String(Files.readAllBytes(file.toPath()));
-
-                if (path.startsWith("entity")) {
-                    BedrockEntityData entity = BedrockEntitySerializer.deserialize(content);
-                }
+                BedrockGeneralData general = BedrockGeneralSerializer.deserialize(content);
             }
         } catch (IOException e) {
             e.printStackTrace();
