@@ -1,7 +1,8 @@
 # CubeConverter
 A library for reading and converting minecraft model for Java/Bedrock edition.
 
-Basic example, I'm too lazy to write a wiki :P
+### Basic example
+- I'm too lazy to write an actual wiki :P
 ```java
 // This contains model identifier, model textures, model geometries, variables.
 // ---- For custom entity.
@@ -14,6 +15,9 @@ BedrockGeometry geometry = BedrockGeometrySerializer.deserialize(content);
 // SCALING is recommend, CLAMP is worse than scaling and half broken anyway.
 ItemModelData model = FormatConverter.bedrockToJava("texture-location", geometry, OverflowFixType.SCALING);
 ```
+
+### Offset to correct position
+- If you put the model on item display it can be in the wrong position, you can fix this by add extra (scale * 0.5F) to the y position. That should do the trick.
 
 Feel free to write a wiki for this project if you want (~~**PLEASE.**~~)
 
