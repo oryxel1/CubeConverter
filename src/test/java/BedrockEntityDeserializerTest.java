@@ -1,5 +1,5 @@
-import org.oryxel.cube.model.bedrock.BedrockModelData;
-import org.oryxel.cube.parser.bedrock.BedrockModelSerializer;
+import org.oryxel.cube.model.bedrock.BedrockEntityData;
+import org.oryxel.cube.parser.bedrock.BedrockEntitySerializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class BedrockModelDeserializerTest {
+public class BedrockEntityDeserializerTest {
 
     public static void main(String[] args) {
         if (args.length < 1) return;
@@ -47,7 +47,7 @@ public class BedrockModelDeserializerTest {
                 String content = new String(Files.readAllBytes(file.toPath()));
 
                 if (path.startsWith("entity")) {
-                    BedrockModelData geometry = BedrockModelSerializer.deserialize(content);
+                    BedrockEntityData entity = BedrockEntitySerializer.deserialize(content);
                 }
             }
         } catch (IOException e) {

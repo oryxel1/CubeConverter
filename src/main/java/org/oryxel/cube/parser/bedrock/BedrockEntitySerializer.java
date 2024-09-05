@@ -3,7 +3,7 @@ package org.oryxel.cube.parser.bedrock;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.oryxel.cube.model.bedrock.BedrockModelData;
+import org.oryxel.cube.model.bedrock.BedrockEntityData;
 import org.oryxel.cube.util.GsonUtil;
 
 import java.util.ArrayList;
@@ -28,13 +28,13 @@ import java.util.Map;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class BedrockModelSerializer {
+public class BedrockEntitySerializer {
 
-    public static BedrockModelData deserialize(String json) {
+    public static BedrockEntityData deserialize(String json) {
         return deserialize(GsonUtil.getGson().fromJson(json.trim(), JsonObject.class));
     }
 
-    public static BedrockModelData deserialize(JsonObject json) {
+    public static BedrockEntityData deserialize(JsonObject json) {
         if (!json.has("minecraft:client_entity"))
             return null;
 
@@ -53,7 +53,7 @@ public class BedrockModelSerializer {
                 variables = objectToString(scripts.getAsJsonArray("initialize"));
         }
 
-        BedrockModelData model = new BedrockModelData(identifier, material, controllers, texture, geometry, variables);
+        BedrockEntityData model = new BedrockEntityData(identifier, material, controllers, texture, geometry, variables);
 
         return model;
     }
