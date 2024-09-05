@@ -15,6 +15,8 @@ BedrockGeometry geometry = BedrockGeometrySerializer.deserialize(content);
 ItemModelData model = FormatConverter.bedrockToJava("texture-location", geometry, OverflowFixType.SCALING);
 ```
 
+Feel free to write a wiki for this project if you want (~~**PLEASE.**~~)
+
 ## Useful resources
 CubeConverter would not have been possible without the following projects:
 - [Blockbench](https://github.com/JannisX11/blockbench/): Used for debugging/testing models, helped with figure out converting, **DIRECT CODE IMPLEMENT FOR** [UV MAPPING](https://github.com/Oryxel/CubeConverter/blob/main/src/main/java/org/oryxel/cube/util/UVUtil.java). 
