@@ -29,7 +29,6 @@ import java.util.Map;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// THIS IS NOT READY, STILL NEED TO COMPLETE Evaluation
 public class BedrockControllerSerializer {
 
     public static List<BedrockRenderController> deserialize(String json) {
