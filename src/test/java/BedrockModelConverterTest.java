@@ -52,23 +52,28 @@ public class BedrockModelConverterTest {
                 String content = new String(Files.readAllBytes(file.toPath()));
 
                 if (path.startsWith("models\\entity")) {
-                    BedrockGeometry geometry = BedrockGeometrySerializer.deserialize(content);
-                    if (geometry == null)
+                    List<BedrockGeometry> geometries = BedrockGeometrySerializer.deserialize(content);
+                    if (geometries.isEmpty())
                         continue;
 
-                    ItemModelData model = FormatConverter.bedrockToJava("test", geometry, OverflowFixType.SCALING);
+                    int i = 0;
+                    for (BedrockGeometry geometry : geometries) {
+                        ItemModelData model = FormatConverter.bedrockToJava("test", geometry, OverflowFixType.SCALING);
 
-                    String json = JavaModelSerializer.serializeToString(model);
-                    File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + ".json");
+                        String json = JavaModelSerializer.serializeToString(model);
+                        File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + ".json");
 
-                    System.out.println(file.getAbsolutePath());
-                    System.out.println(newPath.getAbsolutePath());
+                        System.out.println(file.getAbsolutePath());
+                        System.out.println(newPath.getAbsolutePath());
 
-                    if (!newPath.exists())
-                        newPath.createNewFile();
+                        if (!newPath.exists())
+                            newPath.createNewFile();
 
-                    try (final FileWriter writer = new FileWriter(newPath)) {
-                        writer.write(json);
+                        try (final FileWriter writer = new FileWriter(newPath)) {
+                            writer.write(json);
+                        }
+
+                        i++;
                     }
                 }
             }

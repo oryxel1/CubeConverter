@@ -41,7 +41,6 @@ public class BedrockEntitySerializer {
         JsonObject clientEntity = json.getAsJsonObject("minecraft:client_entity");
         JsonObject description = clientEntity.getAsJsonObject("description");
         String identifier = description.getAsJsonPrimitive("identifier").getAsString();
-        String material = getFirstValue(description.getAsJsonObject("materials")).getAsString();
         Map<String, String> texture = objectToMap(description.getAsJsonObject("textures"));
         Map<String, String> geometry = objectToMap(description.getAsJsonObject("geometry"));
         List<String> controllers = description.has("render_controllers") ?
@@ -53,7 +52,7 @@ public class BedrockEntitySerializer {
                 variables = objectToString(scripts.getAsJsonArray("initialize"));
         }
 
-        BedrockEntityData model = new BedrockEntityData(identifier, material, controllers, texture, geometry, variables);
+        BedrockEntityData model = new BedrockEntityData(identifier, controllers, texture, geometry, variables);
 
         return model;
     }
@@ -89,14 +88,6 @@ public class BedrockEntitySerializer {
         }
 
         return map;
-    }
-
-    private static JsonElement getFirstValue(JsonObject object) {
-        for (Map.Entry<String, JsonElement> object1 : object.entrySet()) {
-            return object1.getValue();
-        }
-
-        return null;
     }
 
 }

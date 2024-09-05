@@ -1,4 +1,5 @@
 import org.oryxel.cube.converter.FormatConverter;
+import org.oryxel.cube.converter.enums.OverflowFixType;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.java.ItemModelData;
 import org.oryxel.cube.parser.bedrock.BedrockGeometrySerializer;
@@ -52,34 +53,40 @@ public class MultiModelConverterTest {
                 String content = new String(Files.readAllBytes(file.toPath()));
 
                 if (path.startsWith("models\\entity")) {
-                    BedrockGeometry geometry = BedrockGeometrySerializer.deserialize(content);
-                    if (geometry == null)
+                    List<BedrockGeometry> geometries = BedrockGeometrySerializer.deserialize(content);
+                    if (geometries.isEmpty())
                         continue;
 
-                    List<ItemModelData> models = FormatConverter.bedrockToJavaModels("test", geometry);
+                    int currentI = 0;
+                    for (BedrockGeometry geometry : geometries) {
+                        List<ItemModelData> models = FormatConverter.bedrockToJavaModels("test", geometry);
 
-                    AtomicInteger i = new AtomicInteger();
-                    models.forEach(model -> {
-                        String json = JavaModelSerializer.serializeToString(model);
-                        File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + ".json");
+                        AtomicInteger i = new AtomicInteger();
+                        int finalCurrentI = currentI;
+                        models.forEach(model -> {
+                            String json = JavaModelSerializer.serializeToString(model);
+                            File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + "_" + finalCurrentI + ".json");
 
-                        System.out.println(file.getAbsolutePath());
-                        System.out.println(newPath.getAbsolutePath());
+                            System.out.println(file.getAbsolutePath());
+                            System.out.println(newPath.getAbsolutePath());
 
-                        if (!newPath.exists()) {
-                            try {
-                                newPath.createNewFile();
-                            } catch (IOException e) {}
-                        }
+                            if (!newPath.exists()) {
+                                try {
+                                    newPath.createNewFile();
+                                } catch (IOException e) {}
+                            }
 
-                        try (final FileWriter writer = new FileWriter(newPath)) {
-                            writer.write(json);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                            try (final FileWriter writer = new FileWriter(newPath)) {
+                                writer.write(json);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
 
-                        i.getAndIncrement();
-                    });
+                            i.getAndIncrement();
+                        });
+
+                        currentI++;
+                    }
                 }
             }
         } catch (IOException e) {

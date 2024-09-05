@@ -32,21 +32,26 @@ import java.util.List;
  */
 public class BedrockGeometrySerializer {
 
-    public static BedrockGeometry deserialize(String json) {
+    public static List<BedrockGeometry> deserialize(String json) {
         return deserialize(GsonUtil.getGson().fromJson(json.trim(), JsonObject.class));
     }
 
-    public static BedrockGeometry deserialize(JsonObject json) {
+    public static List<BedrockGeometry> deserialize(JsonObject json) {
+        final List<BedrockGeometry> geometries = new ArrayList<>();
+
         if (json.has("minecraft:geometry")) {
             JsonElement element = json.get("minecraft:geometry");
             if (!element.isJsonArray())
                 return null;
+
             JsonArray array = element.getAsJsonArray();
             for (JsonElement element1 : array) {
                 if (!element1.isJsonObject()) continue;
                 JsonObject object = element1.getAsJsonObject();
 
-                return getEntityGeometry(object, "minecraft:geometry", "texture_width", "texture_height");
+                BedrockGeometry geometry = getEntityGeometry(object, "minecraft:geometry", "texture_width", "texture_height");
+                if (geometry == null) continue;
+                geometries.add(geometry);
             }
         }
 
@@ -55,10 +60,12 @@ public class BedrockGeometrySerializer {
             if (!element.isJsonObject()) continue;
             JsonObject object = element.getAsJsonObject();
             if (!object.has("texturewidth")) continue;
-            return getEntityGeometry(object, elementName, "texturewidth", "textureheight");
+            BedrockGeometry geometry = getEntityGeometry(object, elementName, "texturewidth", "textureheight");
+            if (geometry == null) continue;
+            geometries.add(geometry);
         }
 
-        return null;
+        return geometries;
     }
 
     private static BedrockGeometry getEntityGeometry(JsonObject geometry, String elementName, String textureWidthName, String textureHeightName) {
