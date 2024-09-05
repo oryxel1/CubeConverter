@@ -1,5 +1,8 @@
 name: Publish package to GitHub Packages
-on: push
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
 jobs:
   publish:
     runs-on: ubuntu-latest

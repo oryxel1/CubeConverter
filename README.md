@@ -1,12 +1,16 @@
 # CubeConverter
-A library for reading and converting minecraft model for Java/Bedrock edition. 
+A library for reading and converting minecraft model for Java/Bedrock edition.
 
-## WARNING: THIS IS NOT READY, PLEASE DON'T USE IT, IN CASE YOU WANT TO USE IT SEE:
-- **https://github.com/Oryxel/ViaBedrock/tree/rotation-custom-entity-broken**
-- **https://github.com/Oryxel/ViaBedrock/tree/old-entity-translation**
+Basic example, I'm too lazy to write a wiki :P
+```java
+// This contains model identifier, model textures, model geometries, variables.
+// ---- For custom entity.
+BedrockModelData data = BedrockModelSerializer.deserialize(content);
 
-**These are already OUTDATED, there is no wiki yet so might as well figure it out yourself, sorry.**
-
+// Convert from bedrock to java model.
+BedrockGeometry geometry = BedrockGeometrySerializer.deserialize(content);
+ItemModelData model = FormatConverter.bedrockToJava("texture-location", geometry, OverflowFixType.SCALING);
+```
 
 ## Useful resources
 CubeConverter would not have been possible without the following projects:
