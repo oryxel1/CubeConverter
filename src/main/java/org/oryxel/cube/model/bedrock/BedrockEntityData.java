@@ -20,5 +20,5 @@ package org.oryxel.cube.model.bedrock;
 import java.util.List;
 import java.util.Map;
 
-public record BedrockEntityData(String identifier, List<String> controller, Map<String, String> textures, Map<String, String> geometries,
+public record BedrockEntityData(String identifier, List<String> controllers, Map<String, String> textures, Map<String, String> geometries,
                                 List<String> variables) {}
