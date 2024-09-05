@@ -90,7 +90,7 @@ public class FormatConverter {
         itemModelData.groups().addAll(groups);
         itemModelData.elements().addAll(elements);
         itemModelData.positionOffset(cubeOffset);
-        itemModelData.scale(scale);
+        itemModelData.scale(1 / scale);
 
         if (type == OverflowFixType.SCALING) {
             scaleEverything(itemModelData.elements(), scale);
@@ -178,7 +178,7 @@ public class FormatConverter {
 
         for (ItemModelData model : list) {
             scaleEverything(model.elements(), scale);
-            model.scale(scale);
+            model.scale(1 / scale);
         }
 
         return list;
