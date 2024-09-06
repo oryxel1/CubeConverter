@@ -53,7 +53,7 @@ public class BedrockControllerSerializer {
             JsonObject object = controllers.getAsJsonObject(controllerName);
             JsonObject arrays = object.getAsJsonObject("arrays");
             if (arrays == null)
-                return null;
+                return new ArrayList<>();
 
             if (arrays.has("textures") && arrays.get("textures").isJsonObject()) {
                 JsonObject arraysTextures = arrays.getAsJsonObject("textures");
