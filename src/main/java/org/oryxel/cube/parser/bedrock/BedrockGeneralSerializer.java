@@ -42,13 +42,15 @@ public class BedrockGeneralSerializer {
         if (!json.has("minecraft:client_entity") && !json.has("minecraft:attachable"))
             return null;
 
+        BedrockGeneralData.GeneralDataType dataType = BedrockGeneralData.GeneralDataType.ENTITY;
         JsonObject object = null;
         if (json.has("minecraft:client_entity")) {
             object = json.getAsJsonObject("minecraft:client_entity");
         } else if (json.has("minecraft:attachable")) {
             object = json.getAsJsonObject("minecraft:attachable");
+
+            dataType = BedrockGeneralData.GeneralDataType.ATTACHABLE;
         }
-        System.out.println(json);
 
         JsonObject description = object.getAsJsonObject("description");
         String identifier = description.getAsJsonPrimitive("identifier").getAsString();
@@ -63,7 +65,7 @@ public class BedrockGeneralSerializer {
                 variables = objectToString(scripts.getAsJsonArray("initialize"));
         }
 
-        BedrockGeneralData model = new BedrockGeneralData(identifier, controllers, texture, geometry, variables);
+        BedrockGeneralData model = new BedrockGeneralData(dataType, identifier, controllers, texture, geometry, variables);
 
         return model;
     }

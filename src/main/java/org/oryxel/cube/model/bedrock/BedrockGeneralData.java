@@ -20,5 +20,11 @@ package org.oryxel.cube.model.bedrock;
 import java.util.List;
 import java.util.Map;
 
-public record BedrockGeneralData(String identifier, List<String> controllers, Map<String, String> textures, Map<String, String> geometries,
-                                 List<String> variables) {}
+public record BedrockGeneralData(GeneralDataType dataType, String identifier, List<String> controllers, Map<String, String> textures, Map<String, String> geometries,
+                                 List<String> variables) {
+
+    public enum GeneralDataType {
+        ENTITY, ATTACHABLE;
+    }
+
+}
