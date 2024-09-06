@@ -101,11 +101,10 @@ public class BedrockControllerSerializer {
 
             if (object.has("geometry")) {
                 JsonElement element = object.get("geometry");
-                if (element.isJsonPrimitive()) {
-                    geometryIndex.add(element.getAsString());
-                }
-                else {
+                if (element.isJsonArray()) {
                     geometryIndex = getListFromJson(element.getAsJsonArray());
+                } else {
+                    geometryIndex.add(element.getAsString());
                 }
             }
 

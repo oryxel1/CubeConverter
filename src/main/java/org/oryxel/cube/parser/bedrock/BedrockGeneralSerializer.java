@@ -54,8 +54,8 @@ public class BedrockGeneralSerializer {
 
         JsonObject description = object.getAsJsonObject("description");
         String identifier = description.getAsJsonPrimitive("identifier").getAsString();
-        Map<String, String> texture = objectToMap(description.getAsJsonObject("textures"));
-        Map<String, String> geometry = objectToMap(description.getAsJsonObject("geometry"));
+        Map<String, String> textures = objectToMap(description.getAsJsonObject("textures"));
+        Map<String, String> geometries = objectToMap(description.getAsJsonObject("geometry"));
         List<String> controllers = description.has("render_controllers") ?
                 renderController(description.getAsJsonArray("render_controllers")) : new ArrayList<>();
         List<String> variables = new ArrayList<>();
@@ -65,7 +65,7 @@ public class BedrockGeneralSerializer {
                 variables = objectToString(scripts.getAsJsonArray("initialize"));
         }
 
-        BedrockGeneralData model = new BedrockGeneralData(dataType, identifier, controllers, texture, geometry, variables);
+        BedrockGeneralData model = new BedrockGeneralData(dataType, identifier, controllers, textures, geometries, variables);
 
         return model;
     }
