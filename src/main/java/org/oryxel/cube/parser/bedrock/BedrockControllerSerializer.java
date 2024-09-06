@@ -52,46 +52,45 @@ public class BedrockControllerSerializer {
 
             JsonObject object = controllers.getAsJsonObject(controllerName);
             JsonObject arrays = object.getAsJsonObject("arrays");
-            if (arrays == null)
-                return new ArrayList<>();
+            if (arrays != null) {
+                if (arrays.has("textures") && arrays.get("textures").isJsonObject()) {
+                    JsonObject arraysTextures = arrays.getAsJsonObject("textures");
+                    for (String name : arraysTextures.keySet()) {
+                        if (!arraysTextures.get(name).isJsonArray() || !name.startsWith("Array."))
+                            continue;
 
-            if (arrays.has("textures") && arrays.get("textures").isJsonObject()) {
-                JsonObject arraysTextures = arrays.getAsJsonObject("textures");
-                for (String name : arraysTextures.keySet()) {
-                    if (!arraysTextures.get(name).isJsonArray() || !name.startsWith("Array."))
-                        continue;
+                        JsonArray texturesObject = arraysTextures.getAsJsonArray(name);
+                        if (texturesObject == null)
+                            continue;
 
-                    JsonArray texturesObject = arraysTextures.getAsJsonArray(name);
-                    if (texturesObject == null)
-                        continue;
+                        final List<String> texturesList = new ArrayList<>();
 
-                    final List<String> texturesList = new ArrayList<>();
+                        for (JsonElement texture : texturesObject) {
+                            texturesList.add(texture.getAsString().replace("Texture.", ""));
+                        }
 
-                    for (JsonElement texture : texturesObject) {
-                        texturesList.add(texture.getAsString().replace("Texture.", ""));
+                        textures.put(name, texturesList);
                     }
-
-                    textures.put(name, texturesList);
                 }
-            }
 
-            if (arrays.has("geometries") && arrays.get("geometries").isJsonObject()) {
-                JsonObject geoTextures = arrays.getAsJsonObject("geometries");
-                for (String name : geoTextures.keySet()) {
-                    if (!geoTextures.get(name).isJsonArray() || !name.startsWith("Array."))
-                        continue;
+                if (arrays.has("geometries") && arrays.get("geometries").isJsonObject()) {
+                    JsonObject geoTextures = arrays.getAsJsonObject("geometries");
+                    for (String name : geoTextures.keySet()) {
+                        if (!geoTextures.get(name).isJsonArray() || !name.startsWith("Array."))
+                            continue;
 
-                    JsonArray geoArray = geoTextures.getAsJsonArray(name);
-                    if (geoArray == null)
-                        continue;
+                        JsonArray geoArray = geoTextures.getAsJsonArray(name);
+                        if (geoArray == null)
+                            continue;
 
-                    final List<String> geometriesList = new ArrayList<>();
+                        final List<String> geometriesList = new ArrayList<>();
 
-                    for (JsonElement geo : geoArray) {
-                        geometriesList.add(geo.getAsString().replace("Geometry.", ""));
+                        for (JsonElement geo : geoArray) {
+                            geometriesList.add(geo.getAsString().replace("Geometry.", ""));
+                        }
+
+                        geometries.put(name, geometriesList);
                     }
-
-                    geometries.put(name, geometriesList);
                 }
             }
 
@@ -101,10 +100,10 @@ public class BedrockControllerSerializer {
 
             if (object.has("geometry")) {
                 JsonElement element = object.get("geometry");
-                if (element.isJsonArray()) {
-                    geometryIndex = getListFromJson(element.getAsJsonArray());
-                } else {
+                if (element.isJsonPrimitive()) {
                     geometryIndex.add(element.getAsString());
+                } else {
+                    geometryIndex = getListFromJson(element.getAsJsonArray());
                 }
             }
 
