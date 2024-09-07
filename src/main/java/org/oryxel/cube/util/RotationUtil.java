@@ -61,7 +61,7 @@ public class RotationUtil {
                     element.from()[2] = cloneTo[2];
                 }
                 case 2 -> {
-                    element.to()[2] = element.from()[2];
+                    element.to()[1] = element.from()[1];
                     element.from()[1] = cloneTo[1];
                 }
             }
