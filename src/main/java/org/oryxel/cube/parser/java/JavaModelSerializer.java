@@ -77,7 +77,12 @@ public class JavaModelSerializer {
 
         for (Map.Entry<Direction, double[]> direction : element.uvMap().entrySet()) {
             JsonObject faceDirection = new JsonObject();
-            faceDirection.add("uv", arrayToJsonArray(direction.getValue()));
+            JsonArray array = arrayToJsonArray(direction.getValue());
+            if (array == null)
+                continue;
+
+            faceDirection.add("uv", array);
+
             faceDirection.addProperty("texture", "#0");
 
             faces.add(direction.getKey().name().toLowerCase(), faceDirection);
@@ -97,7 +102,7 @@ public class JavaModelSerializer {
 
     private static JsonArray arrayToJsonArray(double[] array) {
         if (array == null)
-            return new JsonArray();
+            return null;
 
         JsonArray array1 = new JsonArray();
         for (double d : array) {
