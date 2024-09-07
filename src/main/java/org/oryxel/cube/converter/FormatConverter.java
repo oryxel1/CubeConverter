@@ -47,7 +47,7 @@ public class FormatConverter {
             for (Cube cube : bone.cubes()) {
                 double[] from = getFrom(cube.origin(), cube.size());
                 double[] to = ArrayUtil.combineArray(from, cube.size());
-                double[] origin = ArrayUtil.getArrayWithOffset(cube.pivot());
+                double[] origin = ArrayUtil.clone(cube.pivot());
 
                 from = ArrayUtil.addOffsetToArray(from, -cube.inflate());
                 to = ArrayUtil.addOffsetToArray(to, cube.inflate());
@@ -56,8 +56,10 @@ public class FormatConverter {
                 String axis = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
                 float rawAngle = (float) cube.rotation()[axisIndex];
                 float angle = Math.abs(rawAngle) == 180 ? 0 : MathUtil.clampToJavaAngle(rawAngle);
+                if (axisIndex != 2)
+                    angle = -angle;
 
-                Element element = new Element(geometry, cube, bone.name(), -angle, axis, origin, from, to);
+                Element element = new Element(geometry, cube, bone.name(), angle, axis, origin, from, to);
                 elements.add(element);
 
                 if (ArrayUtil.isSmaller(element.from(), minFrom))

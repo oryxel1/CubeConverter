@@ -82,7 +82,6 @@ public class JavaModelSerializer {
                 continue;
 
             faceDirection.add("uv", array);
-
             faceDirection.addProperty("texture", "#0");
 
             faces.add(direction.getKey().name().toLowerCase(), faceDirection);
@@ -104,15 +103,6 @@ public class JavaModelSerializer {
         if (array == null)
             return null;
 
-        JsonArray array1 = new JsonArray();
-        for (double d : array) {
-            array1.add(d);
-        }
-
-        return array1;
-    }
-
-    private static JsonArray arrayToJsonArray(Double[] array) {
         JsonArray array1 = new JsonArray();
         for (double d : array) {
             array1.add(d);
