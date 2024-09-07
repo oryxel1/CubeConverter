@@ -1,9 +1,9 @@
-package org.oryxel.cube.parser.bedrock;
+package org.oryxel.cube.parser.bedrock.data;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.oryxel.cube.model.bedrock.BedrockGeneralData;
+import org.oryxel.cube.model.bedrock.data.BedrockAttachableData;
 import org.oryxel.cube.util.GsonUtil;
 
 import java.util.ArrayList;
@@ -28,9 +28,9 @@ import java.util.Map;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class BedrockGeneralSerializer {
+public class BedrockAttachableSerializer {
 
-    public static BedrockGeneralData deserialize(String json) {
+    public static BedrockAttachableData deserialize(String json) {
         JsonElement element = GsonUtil.getGson().fromJson(json.trim(), JsonElement.class);
         if (!element.isJsonObject()) // Well this can happen sometimes a json can only have ["en_US"], or something like that, I have no idea.
             return null;
@@ -38,21 +38,12 @@ public class BedrockGeneralSerializer {
         return deserialize(element.getAsJsonObject());
     }
 
-    public static BedrockGeneralData deserialize(JsonObject json) {
-        if (!json.has("minecraft:client_entity") && !json.has("minecraft:attachable"))
+    // "minecraft:client_entity", "minecraft:attachable"
+    public static BedrockAttachableData deserialize(JsonObject json) {
+        if (!json.has("minecraft:attachable"))
             return null;
 
-        BedrockGeneralData.GeneralDataType dataType = BedrockGeneralData.GeneralDataType.ENTITY;
-        JsonObject object = null;
-        if (json.has("minecraft:client_entity")) {
-            object = json.getAsJsonObject("minecraft:client_entity");
-        } else if (json.has("minecraft:attachable")) {
-            object = json.getAsJsonObject("minecraft:attachable");
-
-            dataType = BedrockGeneralData.GeneralDataType.ATTACHABLE;
-        }
-
-        JsonObject description = object.getAsJsonObject("description");
+        JsonObject description = json.getAsJsonObject("minecraft:attachable").getAsJsonObject("description");
         String identifier = description.getAsJsonPrimitive("identifier").getAsString();
         Map<String, String> textures = objectToMap(description.getAsJsonObject("textures"));
         Map<String, String> geometries = objectToMap(description.getAsJsonObject("geometry"));
@@ -65,7 +56,7 @@ public class BedrockGeneralSerializer {
                 variables = objectToString(scripts.getAsJsonArray("initialize"));
         }
 
-        BedrockGeneralData model = new BedrockGeneralData(dataType, identifier, controllers, textures, geometries, variables);
+        BedrockAttachableData model = new BedrockAttachableData(identifier, controllers, textures, geometries, variables);
 
         return model;
     }

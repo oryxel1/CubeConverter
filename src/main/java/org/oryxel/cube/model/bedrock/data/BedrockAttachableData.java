@@ -15,16 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.oryxel.cube.model.bedrock;
+package org.oryxel.cube.model.bedrock.data;
 
 import java.util.List;
 import java.util.Map;
 
-public record BedrockGeneralData(GeneralDataType dataType, String identifier, List<String> controllers, Map<String, String> textures, Map<String, String> geometries,
-                                 List<String> variables) {
+public class BedrockAttachableData extends BedrockEntityData {
 
-    public enum GeneralDataType {
-        ENTITY, ATTACHABLE;
+    public BedrockAttachableData(String identifier, List<String> controllers, Map<String, String> textures, Map<String, String> geometries, List<String> variables) {
+        super(identifier, controllers, textures, geometries, variables);
     }
 
 }

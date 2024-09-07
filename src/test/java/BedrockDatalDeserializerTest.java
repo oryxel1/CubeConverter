@@ -1,5 +1,7 @@
-import org.oryxel.cube.model.bedrock.BedrockGeneralData;
-import org.oryxel.cube.parser.bedrock.BedrockGeneralSerializer;
+import org.oryxel.cube.model.bedrock.data.BedrockAttachableData;
+import org.oryxel.cube.model.bedrock.data.BedrockEntityData;
+import org.oryxel.cube.parser.bedrock.data.BedrockAttachableSerializer;
+import org.oryxel.cube.parser.bedrock.data.BedrockEntitySerializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +29,7 @@ import java.util.stream.Stream;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class BedrockGeneralDeserializerTest {
+public class BedrockDatalDeserializerTest {
 
     public static void main(String[] args) {
         if (args.length < 1) return;
@@ -45,7 +47,11 @@ public class BedrockGeneralDeserializerTest {
                     continue;
 
                 String content = new String(Files.readAllBytes(file.toPath()));
-                BedrockGeneralData general = BedrockGeneralSerializer.deserialize(content);
+                BedrockAttachableData attachable = BedrockAttachableSerializer.deserialize(content);
+                BedrockEntityData entity = BedrockEntitySerializer.deserialize(content);
+
+                System.out.println("attachable = " + attachable);
+                System.out.println("entity = " + entity);
             }
         } catch (IOException e) {
             e.printStackTrace();
