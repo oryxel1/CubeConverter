@@ -29,7 +29,7 @@ public class Element {
 
     private final String name;
     private double[] from, to;
-    private final float angle, rawAngle;
+    private final float angle;
     private final String axis;
     private double[] origin, size;
     private final boolean mirror;
@@ -39,10 +39,9 @@ public class Element {
 
     private final Map<Direction, double[]> uvMap = new HashMap<>();
 
-    public Element(BedrockGeometry geometry, Cube cube, String name, float angle, float rawAngle, String axis, double[] origin, double[] from, double[] to) {
+    public Element(BedrockGeometry geometry, Cube cube, String name, float angle, String axis, double[] origin, double[] from, double[] to) {
         this.name = name;
         this.angle = angle;
-        this.rawAngle = rawAngle;
         this.axis = axis;
         this.origin = origin;
         this.size = cube.size();
@@ -56,11 +55,29 @@ public class Element {
 
     private void autoPortUv(BedrockGeometry geometry, Cube cube) {
         Map<Direction, double[]> uv = new HashMap<>();
+        boolean boxUv = false;
         if (cube instanceof Cube.PerFaceCube perFace && !perFace.uvMap().isEmpty()) {
-            uv = UVUtil.portUv(perFace.uvMap(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight(), false);
+            uv = perFace.uvMap();
         } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
-            uv = UVUtil.portUv(mirror, boxCube.uvOffset(), from, to, rawAngle, geometry.textureWidth(), geometry.textureHeight());
+            uv = UVUtil.rawPortUv(mirror, boxCube.uvOffset(), from, to);
+            boxUv = true;
         }
+
+        for (Map.Entry<Direction, double[]> entry : uv.entrySet()) {
+            double sizeValue2 = boxUv ? entry.getValue()[2] - entry.getValue()[0] : entry.getValue()[2],
+                    sizeValue3 = boxUv ? entry.getValue()[3] - entry.getValue()[1] : entry.getValue()[3];
+            if (cube.rotation()[1] == 180 || cube.rotation()[0] == 180) {
+                entry.getValue()[0] = entry.getValue()[0] + sizeValue2;
+                entry.getValue()[2] = boxUv ? entry.getValue()[0] - sizeValue2 : -entry.getValue()[2];
+            }
+
+            if (cube.rotation()[0] == 180 || cube.rotation()[2] == 180) {
+                entry.getValue()[1] = entry.getValue()[1] + sizeValue3;
+                entry.getValue()[3] = boxUv ? entry.getValue()[1] - sizeValue3 : -entry.getValue()[3];
+            }
+        }
+
+        uv = UVUtil.portUv(uv, geometry.textureWidth(), geometry.textureHeight(), boxUv);
 
         this.uvMap.putAll(uv);
     }
@@ -87,10 +104,6 @@ public class Element {
 
     public float angle() {
         return angle;
-    }
-
-    public float rawAngle() {
-        return rawAngle;
     }
 
     public String axis() {

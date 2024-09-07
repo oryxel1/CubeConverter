@@ -24,8 +24,7 @@ import java.util.Map;
  */
 public class UVUtil {
 
-    public static Map<Direction, double[]> portUv(Map<Direction, double[]> cubes, double[] from, double[] to, double rawAngle, int tW, int tH,
-                                                   boolean boxUv) {
+    public static Map<Direction, double[]> portUv(Map<Direction, double[]> cubes, int tW, int tH, boolean boxUv) {
         Map<Direction, double[]> map = new HashMap<>();
 
         for (Map.Entry<Direction, double[]> entry : cubes.entrySet()) {
@@ -62,7 +61,7 @@ public class UVUtil {
         return uv;
     }
 
-    public static Map<Direction, double[]> portUv(boolean mirror, double[] uvOffset, double[] from, double[] to, double rawAngle, int tW, int tH) {
+    public static Map<Direction, double[]> rawPortUv(boolean mirror, double[] uvOffset, double[] from, double[] to) {
         final List<Face> faces = faces(from, to);
 
         if (mirror) {
@@ -87,7 +86,7 @@ public class UVUtil {
             map.put(face.direction, uv);
         }
 
-        return portUv(map, from, to, rawAngle, tW, tH, true);
+        return map;
     }
 
     private static List<Face> faces(double[] from, double[] to) {

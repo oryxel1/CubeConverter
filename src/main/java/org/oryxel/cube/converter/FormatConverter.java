@@ -72,9 +72,9 @@ public class FormatConverter {
                 int axisIndex = getAxis(cube.rotation());
                 String axis = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
                 float rawAngle = (float) cube.rotation()[axisIndex];
-                float angle = MathUtil.clampToJavaAngle(rawAngle);
+                float angle = Math.abs(rawAngle) == 180 ? 0 : MathUtil.clampToJavaAngle(rawAngle);
 
-                Element element = new Element(geometry, cube, bone.name(), -angle, -rawAngle, axis, origin, from, to);
+                Element element = new Element(geometry, cube, bone.name(), -angle, axis, origin, from, to);
                 elements.add(element);
 
                 group.children().put(childrenCount, element);
@@ -147,12 +147,12 @@ public class FormatConverter {
                 float allRawAngle = allIndex != -1 ? (float) rotation[allIndex] : 0;
 
                 if (allIndex != -1 && allRawAngle % 22.5 == 0D && allRawAngle >= -45 && allRawAngle <= 45) {
-                    Element element = new Element(geometry, cube, bone.name(), allRawAngle, -rawAngle, allIndex == 0 ? "x" : allIndex == 1 ? "y" : "z", origin, from, to);
+                    Element element = new Element(geometry, cube, bone.name(), allRawAngle, allIndex == 0 ? "x" : allIndex == 1 ? "y" : "z", origin, from, to);
                     element.parent(cube.parent());
 
                     rotation000.elements().add(element);
                 } else {
-                    Element element = new Element(geometry, cube, bone.name(), 0, -rawAngle, "x", origin, from, to);
+                    Element element = new Element(geometry, cube, bone.name(), 0, "x", origin, from, to);
                     element.parent(cube.parent());
 
                     if (ArrayUtil.isAll(rotation, 0)) {
