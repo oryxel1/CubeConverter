@@ -2,9 +2,7 @@ package org.oryxel.cube.model.java.other;
 
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.bedrock.model.Cube;
-import org.oryxel.cube.util.Direction;
-import org.oryxel.cube.util.RotationUtil;
-import org.oryxel.cube.util.UVUtil;
+import org.oryxel.cube.util.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,6 +63,28 @@ public class Element {
             RotationUtil.rotate90Degrees(this, rotation, axis);
             this.angle = 0;
         }
+
+        int axis = this.axis.equals("x") ? 0 : this.axis.equals("y") ? 1 : 2;
+        double actual = cube.rotation()[axis];
+        if (axis != 2) actual = -actual;
+
+        if (Math.abs(actual) == 135 && cube.pivot()[0] == 0 && cube.pivot()[1] == 0 && cube.pivot()[2] == 0) {
+            this.angle = actual > 0 ? -45 : 45;
+            return;
+        }
+
+        float hackyRotation = (float) (90 - Math.abs(actual));
+        boolean isHackyValid = MathUtil.isValidJavaAngle(hackyRotation) && !MathUtil.isValidJavaAngle(actual)
+                && actual != 0D && hackyRotation != 0D;
+
+        if (!isHackyValid)
+            return;
+
+        double mulValue = Math.abs(actual) / actual;
+        hackyRotation = (float) (Math.abs(hackyRotation) * mulValue);
+
+        RotationUtil.rotate90Degrees(this, 90 * mulValue, axis);
+        this.angle = Math.abs(actual) > 90 || Math.abs(actual) == 112.5 ? hackyRotation : - hackyRotation;
     }
 
     private void autoPortUv(BedrockGeometry geometry, Cube cube) {

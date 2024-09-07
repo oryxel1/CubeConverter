@@ -239,7 +239,9 @@ public class ArrayUtil {
 
     public static boolean isAll(double[] array, double v) {
         for (double a : array) {
-            if (a == v)
+            if (a == -0) a = 0;
+
+            if (Math.abs(a) == v)
                 return false;
         }
 
