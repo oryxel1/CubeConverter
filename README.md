@@ -12,9 +12,9 @@ final BedrockGeneralData data = BedrockGeneralSerializer.deserialize(content);
 final List<BedrockGeometry> geometries = BedrockGeometrySerializer.deserialize(content);
 
 geometries.forEach(geometry -> {
-    // Item model on java have a limited size, you can clamp it or scale it down and the scale it up in-game
-    // SCALING is recommend, CLAMP is worse than scaling and half broken anyway.
-    ItemModelData model = FormatConverter.bedrockToJava("texture-location", geometry, OverflowFixType.SCALING);
+    // Item model on java have a limited size, CubeConverter going scale it down.
+    // You can use display value to scale it up to the correct scale ItemModelData will provide the scaling value.
+    ItemModelData model = FormatConverter.bedrockToJava("texture-location", geometry);
 });
 ```
 
