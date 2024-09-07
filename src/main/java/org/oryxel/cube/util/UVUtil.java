@@ -32,13 +32,7 @@ public class UVUtil {
             double[] uv = entry.getValue();
 
             if (!boxUv) {
-                switch (entry.getKey()) {
-                    case NORTH, SOUTH -> uv = autoUV(entry.getValue(), new double[] { size(0, to, from), size(1, to, from) }, rawAngle, tW, tH );
-                    case EAST, WEST -> uv = autoUV(entry.getValue(), new double[] { size(2, to, from), size(1, to, from) }, rawAngle, tW, tH );
-                    case UP, DOWN -> uv = autoUV(entry.getValue(), new double[] { size(0, to, from), size(2, to, from) }, rawAngle, tW, tH );
-                }
-
-                uv = new double[] { uv[0], uv[1], uv[0] + entry.getValue()[2], uv[1] + entry.getValue()[3] };
+                uv = new double[] { entry.getValue()[0], entry.getValue()[1], entry.getValue()[0] + entry.getValue()[2], entry.getValue()[1] + entry.getValue()[3] };
             }
 
             for (int i = 0; i < uv.length; i++) {
@@ -120,39 +114,6 @@ public class UVUtil {
                 Direction.EAST, new Face(Direction.EAST, ArrayUtil.build(0, size[2]), ArrayUtil.build(size[2], size[1]))
         );
         return faces;
-    }
-
-    private static double[] autoUV(double[] uv, double[] size, double rotation, int tW, int tH) {
-        size[0] = Math.abs(size[0]);
-        size[1] = Math.abs(size[1]);
-        double sx = uv[0];
-        double sy = uv[1];
-
-        if (rotation == 90 || rotation == 270) {
-            size[0] = -size[0];
-            size[1] = -size[1];
-        }
-
-        size[0] = MathUtil.clamp(size[0], -tW, tW);
-        size[1] = MathUtil.clamp(size[1], -tH, tH);
-
-        var x = sx + size[0];
-        var y = sy + size[1];
-
-        if (x > tW) {
-            sx = tW - (x - sx);
-            x = tH;
-        }
-
-        if (y > tH) {
-            sy = tH - (y - sy);
-            y = tH;
-        }
-        if (sx < 0) sx = 0;
-        if (sy < 0) sy = 0;
-        if (x < sx) x = sx;
-        if (y < sy) y = sy;
-        return new double[] {sx, sy, x, y};
     }
 
     private static class Face {

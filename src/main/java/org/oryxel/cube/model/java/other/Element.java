@@ -33,6 +33,7 @@ public class Element {
     private final String axis;
     private double[] origin, size;
     private final boolean mirror;
+    private final double inflate;
 
     private String parent;
 
@@ -48,6 +49,7 @@ public class Element {
         this.mirror = cube.mirror();
         this.from = from;
         this.to = to;
+        this.inflate = cube.inflate();
 
         autoPortUv(geometry, cube);
     }
@@ -113,6 +115,10 @@ public class Element {
 
     public String parent() {
         return parent;
+    }
+
+    public double inflate() {
+        return inflate;
     }
 
     public void parent(String parent) {
