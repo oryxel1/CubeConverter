@@ -49,8 +49,8 @@ public class RotationUtil {
 
     private static void rotate90Degrees(Element element, int axis, int steps, double[] origin) {
         origin = ArrayUtil.clone(origin);
-        origin[0] = -origin[0];
         origin = ArrayUtil.getArrayWithOffset(origin);
+        origin[0] = -origin[0];
         while (steps > 0) {
             steps--;
             //Swap coordinate thingy
@@ -68,7 +68,7 @@ public class RotationUtil {
 
             element.from(rotateCoord(element.from(), axis, origin));
             element.to(rotateCoord(element.to(), axis, origin));
-            element.origin(rotateCoord(element.origin(), axis, origin));
+            // element.origin(rotateCoord(element.origin(), axis, origin));
 
             element.size(ArrayUtil.size(element.to(), element.from()));
             
