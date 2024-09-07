@@ -57,7 +57,7 @@ public class FormatConverter {
                 float rawAngle = (float) cube.rotation()[axisIndex];
                 float angle = Math.abs(rawAngle) == 180 ? 0 : MathUtil.clampToJavaAngle(rawAngle);
 
-                Element element = new Element(geometry, cube, bone.name(), angle, axis, origin, from, to);
+                Element element = new Element(geometry, cube, bone.name(), -angle, axis, origin, from, to);
                 elements.add(element);
 
                 if (ArrayUtil.isSmaller(element.from(), minFrom))
