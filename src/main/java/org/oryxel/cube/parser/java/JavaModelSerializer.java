@@ -96,6 +96,9 @@ public class JavaModelSerializer {
     }
 
     private static JsonArray arrayToJsonArray(double[] array) {
+        if (array == null)
+            return new JsonArray();
+
         JsonArray array1 = new JsonArray();
         for (double d : array) {
             array1.add(d);

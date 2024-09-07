@@ -1,6 +1,5 @@
 package org.oryxel.cube.converter;
 
-import org.oryxel.cube.converter.enums.OverflowFixType;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.bedrock.model.Bone;
 import org.oryxel.cube.model.bedrock.model.Cube;
@@ -33,7 +32,7 @@ import java.util.Map;
  */
 public class FormatConverter {
 
-    public static ItemModelData bedrockToJava(String texture, BedrockGeometry geometry, OverflowFixType type) {
+    public static ItemModelData bedrockToJava(String texture, BedrockGeometry geometry) {
         int childrenCount = 0;
         double[] cubeOffset = new double[3];
         final List<Group> groups = new ArrayList<>();
@@ -53,22 +52,6 @@ public class FormatConverter {
                 from = ArrayUtil.addOffsetToArray(from, -cube.inflate());
                 to = ArrayUtil.addOffsetToArray(to, cube.inflate());
 
-                // overflow fix.
-                if (type == OverflowFixType.CLAMP) {
-                    double[] clonedFrom = ArrayUtil.clampToMax(from, cube.size(), 0);
-
-                    for (int i = 0; i < 3; i++) {
-                        double offset = clonedFrom[i] - from[i];
-                        if (Math.abs(offset) > Math.abs(cubeOffset[i]))
-                            cubeOffset[i] = offset;
-                    }
-                } else {
-                    if (ArrayUtil.isSmaller(from, minFrom))
-                        minFrom = ArrayUtil.clone(from);
-                    else if (ArrayUtil.isBigger(to, maxTo))
-                        maxTo = ArrayUtil.clone(to);
-                }
-
                 int axisIndex = getAxis(cube.rotation());
                 String axis = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
                 float rawAngle = (float) cube.rotation()[axisIndex];
@@ -76,6 +59,11 @@ public class FormatConverter {
 
                 Element element = new Element(geometry, cube, bone.name(), -angle, axis, origin, from, to);
                 elements.add(element);
+
+                if (ArrayUtil.isSmaller(element.from(), minFrom))
+                    minFrom = ArrayUtil.clone(element.from());
+                else if (ArrayUtil.isBigger(element.to(), maxTo))
+                    maxTo = ArrayUtil.clone(element.to());
 
                 group.children().put(childrenCount, element);
                 childrenCount++;
@@ -92,17 +80,7 @@ public class FormatConverter {
         itemModelData.positionOffset(cubeOffset);
         itemModelData.scale(1 / scale);
 
-        if (type == OverflowFixType.SCALING) {
-            scaleEverything(itemModelData.elements(), scale);
-        } else {
-            elements.forEach(element -> {
-                element.from(ArrayUtil.combineArray(element.from(), cubeOffset));
-                element.to(ArrayUtil.combineArray(element.to(), cubeOffset));
-
-                ArrayUtil.clampToMax(element.from(), element.size(), 0);
-                ArrayUtil.clampToMax(element.to(), element.size(), 1);
-            });
-        }
+        scaleEverything(itemModelData.elements(), scale);
 
         return itemModelData;
     }
@@ -135,24 +113,17 @@ public class FormatConverter {
                 double[] origin = ArrayUtil.combineArray(bone.pivot(), cube.pivot());
                 double[] rotation = ArrayUtil.combineArray(cube.rotation(), boneRotation);
 
-                int axisIndex = getAxis(rotation);
-                float rawAngle = (float) rotation[axisIndex];
-
-                if (ArrayUtil.isSmaller(from, minFrom))
-                    minFrom = ArrayUtil.clone(from);
-                else if (ArrayUtil.isBigger(to, maxTo))
-                    maxTo = ArrayUtil.clone(to);
-
                 int allIndex = ArrayUtil.isAlmostAll(rotation, 0);
                 float allRawAngle = allIndex != -1 ? (float) rotation[allIndex] : 0;
 
+                Element element;
                 if (allIndex != -1 && allRawAngle % 22.5 == 0D && allRawAngle >= -45 && allRawAngle <= 45) {
-                    Element element = new Element(geometry, cube, bone.name(), allRawAngle, allIndex == 0 ? "x" : allIndex == 1 ? "y" : "z", origin, from, to);
+                    element = new Element(geometry, cube, bone.name(), allRawAngle, allIndex == 0 ? "x" : allIndex == 1 ? "y" : "z", origin, from, to);
                     element.parent(cube.parent());
 
                     rotation000.elements().add(element);
                 } else {
-                    Element element = new Element(geometry, cube, bone.name(), 0, "x", origin, from, to);
+                    element = new Element(geometry, cube, bone.name(), 0, "x", origin, from, to);
                     element.parent(cube.parent());
 
                     if (ArrayUtil.isAll(rotation, 0)) {
@@ -161,6 +132,13 @@ public class FormatConverter {
                         ItemModelData model = putIfNotExist(modelDataMap, texture, geometry, rotation);
                         model.elements().add(element);
                     }
+                }
+
+                if (element != null) {
+                    if (ArrayUtil.isSmaller(element.from(), minFrom))
+                        minFrom = ArrayUtil.clone(element.from());
+                    else if (ArrayUtil.isBigger(element.to(), maxTo))
+                        maxTo = ArrayUtil.clone(element.to());
                 }
             }
         }

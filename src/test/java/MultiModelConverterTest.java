@@ -1,5 +1,4 @@
 import org.oryxel.cube.converter.FormatConverter;
-import org.oryxel.cube.converter.enums.OverflowFixType;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.java.ItemModelData;
 import org.oryxel.cube.parser.bedrock.BedrockGeometrySerializer;

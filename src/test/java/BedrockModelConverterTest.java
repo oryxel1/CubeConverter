@@ -1,5 +1,4 @@
 import org.oryxel.cube.converter.FormatConverter;
-import org.oryxel.cube.converter.enums.OverflowFixType;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.java.ItemModelData;
 import org.oryxel.cube.parser.bedrock.BedrockGeometrySerializer;
@@ -58,7 +57,7 @@ public class BedrockModelConverterTest {
 
                     int i = 0;
                     for (BedrockGeometry geometry : geometries) {
-                        ItemModelData model = FormatConverter.bedrockToJava("test", geometry, OverflowFixType.SCALING);
+                        ItemModelData model = FormatConverter.bedrockToJava("test", geometry);
 
                         String json = JavaModelSerializer.serializeToString(model);
                         File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + ".json");

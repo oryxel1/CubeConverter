@@ -3,6 +3,7 @@ package org.oryxel.cube.model.java.other;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.bedrock.model.Cube;
 import org.oryxel.cube.util.Direction;
+import org.oryxel.cube.util.RotationUtil;
 import org.oryxel.cube.util.UVUtil;
 
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class Element {
 
     private final String name;
     private double[] from, to;
-    private final float angle;
+    private float angle;
     private final String axis;
     private double[] origin, size;
     private final boolean mirror;
@@ -51,6 +52,18 @@ public class Element {
         this.inflate = cube.inflate();
 
         autoPortUv(geometry, cube);
+        rotateIfPossible(cube);
+    }
+
+    private void rotateIfPossible(Cube cube) {
+        for (int axis = 0; axis < cube.rotation().length; axis++) {
+            double rotation = -cube.rotation()[axis];
+            if (Math.abs(rotation) != 90)
+                continue;
+
+            RotationUtil.rotate90Degrees(this, rotation, axis);
+            this.angle = 0;
+        }
     }
 
     private void autoPortUv(BedrockGeometry geometry, Cube cube) {
@@ -78,7 +91,6 @@ public class Element {
         }
 
         uv = UVUtil.portUv(uv, geometry.textureWidth(), geometry.textureHeight(), boxUv);
-
         this.uvMap.putAll(uv);
     }
 
@@ -116,6 +128,10 @@ public class Element {
 
     public void origin(double[] origin) {
         this.origin = origin;
+    }
+
+    public void size(double[] size) {
+        this.size = size;
     }
 
     public double[] size() {

@@ -44,6 +44,12 @@ public class Cube {
 
         public PerFaceCube(double[] origin, double[] size, double[] pivot, double[] rotation) {
             super(origin, size, pivot, rotation);
+
+            this.uvMap.put(Direction.NORTH, new double[] { 0, 0, 0, 0 });
+            this.uvMap.put(Direction.WEST, new double[] { 0, 0, 0, 0 });
+            this.uvMap.put(Direction.EAST, new double[] { 0, 0, 0, 0 });
+            this.uvMap.put(Direction.UP, new double[] { 0, 0, 0, 0 });
+            this.uvMap.put(Direction.DOWN, new double[] { 0, 0, 0, 0 });
         }
 
         public Map<Direction, double[]> uvMap() {

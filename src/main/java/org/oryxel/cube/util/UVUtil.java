@@ -22,6 +22,7 @@ import java.util.Map;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+// Credit goes to https://github.com/JannisX11/blockbench
 public class UVUtil {
 
     public static Map<Direction, double[]> portUv(Map<Direction, double[]> cubes, int tW, int tH, boolean boxUv) {
