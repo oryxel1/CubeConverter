@@ -74,14 +74,4 @@ public class BedrockEntityData {
         return Objects.hash(identifier, controllers, textures, geometries, variables);
     }
 
-    @Override
-    public String toString() {
-        return "BedrockEntityData[" +
-                "identifier=" + identifier + ", " +
-                "controllers=" + controllers + ", " +
-                "textures=" + textures + ", " +
-                "geometries=" + geometries + ", " +
-                "variables=" + variables + ']';
-    }
-
 }
