@@ -126,7 +126,7 @@ public class FormatConverter {
         double largestAxes = 0;
         int axis = 0;
         for (int i = 0; i < axes.length; i++) {
-            if (Math.abs(axes[i]) > largestAxes && axes[i] % 90 != 0D) {
+            if (Math.abs(axes[i]) > largestAxes && axes[i] % Math.abs(90) != 0D) {
                 largestAxes = Math.abs(axes[i]);
                 axis = i;
             }

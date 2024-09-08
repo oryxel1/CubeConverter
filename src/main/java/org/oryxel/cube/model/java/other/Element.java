@@ -57,7 +57,7 @@ public class Element {
     private void rotateIfPossible(Cube cube) {
         for (int axis = 0; axis < cube.rotation().length; axis++) {
             double rotation = cube.rotation()[axis];
-            if (axis != 2) rotation = -rotation;
+            rotation = -rotation;
 
             if (Math.abs(rotation) == 180) {
                 if (rotation == -180) {
@@ -74,8 +74,7 @@ public class Element {
             if (Math.abs(rotation) != 90)
                 continue;
 
-            RotationUtil.rotate90Degrees(this, -rotation, axis, true);
-            // this.angle = 0;
+            RotationUtil.rotate90Degrees(this, rotation, axis, true);
 
             double[] rotAxes = ArrayUtil.clone(cube.rotation());
             var i = 0;
@@ -99,6 +98,10 @@ public class Element {
 
             this.axis = axisName;
             this.angle = MathUtil.clampToJavaAngle(rotAxes[axisIndex]);
+
+            if (axisIndex == axis) {
+                this.angle = 0;
+            }
 
             if (axisIndex != 2)
                 angle = -angle;
