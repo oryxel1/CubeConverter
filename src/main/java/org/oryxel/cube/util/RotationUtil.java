@@ -34,7 +34,7 @@ public class RotationUtil {
             }
 
             case 1 -> {
-                if (rotation == 90)
+                if (rotation == -90)
                     rotate90Degrees(element, 1, 1, element.origin(), updateUv);
                 else rotate90Degrees(element, 1, 3, element.origin(), updateUv);
             }

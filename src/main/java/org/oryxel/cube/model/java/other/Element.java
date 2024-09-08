@@ -57,7 +57,7 @@ public class Element {
     private void rotateIfPossible(Cube cube) {
         for (int axis = 0; axis < cube.rotation().length; axis++) {
             double rotation = cube.rotation()[axis];
-            rotation = -rotation;
+            if (axis != 2) rotation = -rotation;
 
             if (Math.abs(rotation) == 180) {
                 if (rotation == -180) {
