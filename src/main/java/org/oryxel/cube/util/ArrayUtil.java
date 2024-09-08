@@ -25,18 +25,6 @@ public class ArrayUtil {
         return (long) ((array[0] * array[1] + array[1] * array[0] + array[2] * array[1]) + array[0] + array[1] + array[2]);
     }
 
-    public static double[] clampToMax(double[] point, double[] size, int index) {
-        double[] cloned = ArrayUtil.clone(point);
-        cloned = ArrayUtil.clamp(cloned, 32, -16);
-
-        if (index == 1)
-            cloned[1] = MathUtil.clamp(cloned[1], -16, 32);
-        else if (index == 0)
-            cloned[1] = MathUtil.clamp(cloned[1], -16, 32 - size[1]);
-
-        return cloned;
-    }
-
     public static double[] getOverlapSize(double[] box, double[] size) {
         double[] overlap = new double[3];
         double[] cloned = ArrayUtil.clone(box);
@@ -75,98 +63,6 @@ public class ArrayUtil {
     public static double[] sizeAbs(double[] to, double[] from) {
         double x = Math.abs(to[0] - from[0]), y = Math.abs(to[1] - from[1]), z = Math.abs(to[2] - from[2]);
         return new double[] { x, y, z };
-    }
-
-    public static double largest(double[] d) {
-        double largest = d[0];
-
-        for (int i = 0; i < d.length; i++) {
-            if (d[i] > largest)
-                largest = d[i];
-        }
-
-        return largest;
-    }
-
-    public static double smallest(double[] d) {
-        double smallest = d[0];
-
-        for (int i = 0; i < d.length; i++) {
-            if (d[i] < smallest)
-                smallest = d[i];
-        }
-
-        return smallest;
-    }
-
-    public static double[] multiply(double[] d, double v[]) {
-        double[] cloned = clone(d);
-
-        for (int i = 0; i < cloned.length; i++) {
-            cloned[i] = cloned[i] * v[i];
-        }
-
-        return cloned;
-    }
-
-    public static double[] multiply(double[] d, double v) {
-        double[] cloned = clone(d);
-
-        for (int i = 0; i < cloned.length; i++) {
-            cloned[i] = cloned[i] * v;
-        }
-
-        return cloned;
-    }
-
-    public static double[] minus(double[] d, double v[]) {
-        double[] cloned = clone(d);
-
-        for (int i = 0; i < cloned.length; i++) {
-            cloned[i] = cloned[i] - v[i];
-        }
-
-        return cloned;
-    }
-
-    public static double[] divide(double[] d, double v) {
-        double[] cloned = clone(d);
-
-        for (int i = 0; i < cloned.length; i++) {
-            cloned[i] = cloned[i] / v;
-        }
-
-        return cloned;
-    }
-
-    public static double[] divide(double[] d, double v[]) {
-        double[] cloned = clone(d);
-
-        for (int i = 0; i < cloned.length; i++) {
-            cloned[i] = cloned[i] / v[i];
-        }
-
-        return cloned;
-    }
-
-    public static double[] max(double[] d, double max) {
-        double[] cloned = clone(d);
-
-        for (int i = 0; i < cloned.length; i++) {
-            cloned[i] = cloned[i] > max ? max : cloned[i];
-        }
-
-        return cloned;
-    }
-
-    public static double[] min(double[] d, double min) {
-        double[] cloned = clone(d);
-
-        for (int i = 0; i < cloned.length; i++) {
-            cloned[i] = cloned[i] < min ? min : cloned[i];
-        }
-
-        return cloned;
     }
 
     public static boolean isSmaller(double[] array, double[] array1) {
@@ -226,25 +122,4 @@ public class ArrayUtil {
         return new double[] { Math.abs(array[0]) + Math.abs(array1[0]), Math.abs(array[1]) + Math.abs(array1[1]), Math.abs(array[2]) + Math.abs(array1[2]) };
     }
 
-    public static int isAlmostAll(double[] array, double v) {
-        int index = -1, count = 0;
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] == v)
-                count++;
-            else index = i;
-        }
-
-        return count != 2 ? -1 : index;
-    }
-
-    public static boolean isAll(double[] array, double v) {
-        for (double a : array) {
-            if (a == -0) a = 0;
-
-            if (Math.abs(a) == v)
-                return false;
-        }
-
-        return true;
-    }
 }

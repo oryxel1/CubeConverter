@@ -122,14 +122,17 @@ public class FormatConverter {
     }
 
     // TODO: better implement than this...
-    private static int getAxis(double[] axes) {
+    public static int getAxis(double[] axes) {
+        double largestAxes = 0;
+        int axis = 0;
         for (int i = 0; i < axes.length; i++) {
-            if (axes[i] != 0) {
-                return i;
+            if (Math.abs(axes[i]) > largestAxes && axes[i] % 90 != 0D) {
+                largestAxes = Math.abs(axes[i]);
+                axis = i;
             }
         }
 
-        return 0;
+        return axis;
     }
 
 }

@@ -1,5 +1,6 @@
 package org.oryxel.cube.model.java.other;
 
+import org.oryxel.cube.converter.FormatConverter;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.bedrock.model.Cube;
 import org.oryxel.cube.util.*;
@@ -29,7 +30,7 @@ public class Element {
     private final String name;
     private double[] from, to;
     private float angle;
-    private final String axis;
+    private String axis;
     private double[] origin, size;
     private final boolean mirror;
     private final double inflate;
@@ -61,7 +62,33 @@ public class Element {
                 continue;
 
             RotationUtil.rotate90Degrees(this, rotation, axis);
-            this.angle = 0;
+            // this.angle = 0;
+
+            double[] rotAxes = ArrayUtil.clone(cube.rotation());
+            var i = 0;
+            Double temp_rot = null;
+            Integer temp_i = null;
+            while (i < 3) {
+                if (i != axis) {
+                    if (temp_rot == null) {
+                        temp_rot = rotAxes[i];
+                        temp_i = i;
+                    } else {
+                        rotAxes[temp_i] = -rotAxes[i];
+                        rotAxes[i] = temp_rot;
+                    }
+                }
+                i++;
+            }
+
+            int axisIndex = FormatConverter.getAxis(rotAxes);
+            String axisName = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
+
+            this.axis = axisName;
+            this.angle = MathUtil.clampToJavaAngle(rotAxes[axisIndex]);
+
+            if (axisIndex != 2)
+                angle = -angle;
         }
 
         int axis = this.axis.equals("x") ? 0 : this.axis.equals("y") ? 1 : 2;

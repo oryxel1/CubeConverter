@@ -43,14 +43,14 @@ public class BedrockModelConverterTest {
                     .collect(Collectors.toList());
 
             for (File file : files) {
-                String path = file.getAbsolutePath().replace(args[0], "");
+                String path = file.getAbsolutePath().replace(args[0].replace("/", "\\"), "");
 
                 if (path.startsWith("entity\\") || !path.toLowerCase().endsWith(".json"))
                     continue;
 
                 String content = new String(Files.readAllBytes(file.toPath()));
 
-                if (path.startsWith("models\\entity")) {
+                if (path.startsWith("models\\entity") || path.startsWith("\\models\\entity")) {
                     List<BedrockGeometry> geometries = BedrockGeometrySerializer.deserialize(content);
                     if (geometries.isEmpty())
                         continue;

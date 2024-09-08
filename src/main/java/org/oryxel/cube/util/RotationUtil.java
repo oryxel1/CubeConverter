@@ -51,6 +51,7 @@ public class RotationUtil {
         origin = ArrayUtil.clone(origin);
         origin = ArrayUtil.getArrayWithOffset(origin);
         origin[0] = -origin[0];
+
         while (steps > 0) {
             steps--;
             //Swap coordinate thingy
