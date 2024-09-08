@@ -51,6 +51,10 @@ public class ArrayUtil {
         return new double[] { d[0], d[1], d[2] };
     }
 
+    public static double[] cloneW4Index(double[] d) {
+        return new double[] { d[0], d[1], d[2], d[3] };
+    }
+
     public static double[] cloneW2Index(double[] d) {
         return new double[] { d[0], d[1] };
     }

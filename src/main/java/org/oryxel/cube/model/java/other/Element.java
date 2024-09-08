@@ -58,10 +58,23 @@ public class Element {
         for (int axis = 0; axis < cube.rotation().length; axis++) {
             double rotation = cube.rotation()[axis];
             if (axis != 2) rotation = -rotation;
+
+            if (Math.abs(rotation) == 180) {
+                if (rotation == -180) {
+                    RotationUtil.rotate90Degrees(this, -90, axis, false);
+                    RotationUtil.rotate90Degrees(this, -90, axis, false);
+                } else {
+                    RotationUtil.rotate90Degrees(this, 90, axis, false);
+                    RotationUtil.rotate90Degrees(this, 90, axis, false);
+                }
+
+                continue;
+            }
+
             if (Math.abs(rotation) != 90)
                 continue;
 
-            RotationUtil.rotate90Degrees(this, rotation, axis);
+            RotationUtil.rotate90Degrees(this, -rotation, axis, true);
             // this.angle = 0;
 
             double[] rotAxes = ArrayUtil.clone(cube.rotation());
@@ -110,7 +123,7 @@ public class Element {
         double mulValue = Math.abs(actual) / actual;
         hackyRotation = (float) (Math.abs(hackyRotation) * mulValue);
 
-        RotationUtil.rotate90Degrees(this, 90 * mulValue, axis);
+        RotationUtil.rotate90Degrees(this, 90 * mulValue, axis, true);
         this.angle = Math.abs(actual) > 90 || Math.abs(actual) == 112.5 ? hackyRotation : - hackyRotation;
     }
 
@@ -124,19 +137,20 @@ public class Element {
             boxUv = true;
         }
 
-        for (Map.Entry<Direction, double[]> entry : uv.entrySet()) {
-            double sizeValue2 = boxUv ? entry.getValue()[2] - entry.getValue()[0] : entry.getValue()[2],
-                    sizeValue3 = boxUv ? entry.getValue()[3] - entry.getValue()[1] : entry.getValue()[3];
-            if (cube.rotation()[1] == 180 || cube.rotation()[0] == 180) {
-                entry.getValue()[0] = entry.getValue()[0] + sizeValue2;
-                entry.getValue()[2] = boxUv ? entry.getValue()[0] - sizeValue2 : -entry.getValue()[2];
-            }
-
-            if (cube.rotation()[0] == 180 || cube.rotation()[2] == 180) {
-                entry.getValue()[1] = entry.getValue()[1] + sizeValue3;
-                entry.getValue()[3] = boxUv ? entry.getValue()[1] - sizeValue3 : -entry.getValue()[3];
-            }
-        }
+        // Swap the texture when rotate 180 degrees.
+//        for (Map.Entry<Direction, double[]> entry : uv.entrySet()) {
+//            double sizeValue2 = boxUv ? entry.getValue()[2] - entry.getValue()[0] : entry.getValue()[2],
+//                    sizeValue3 = boxUv ? entry.getValue()[3] - entry.getValue()[1] : entry.getValue()[3];
+//            if (cube.rotation()[1] == 180 || cube.rotation()[0] == 180) {
+//                entry.getValue()[0] = entry.getValue()[0] + sizeValue2;
+//                entry.getValue()[2] = boxUv ? entry.getValue()[0] - sizeValue2 : -entry.getValue()[2];
+//            }
+//
+//            if (cube.rotation()[0] == 180 || cube.rotation()[2] == 180) {
+//                entry.getValue()[1] = entry.getValue()[1] + sizeValue3;
+//                entry.getValue()[3] = boxUv ? entry.getValue()[1] - sizeValue3 : -entry.getValue()[3];
+//            }
+//        }
 
         uv = UVUtil.portUv(uv, geometry.textureWidth(), geometry.textureHeight(), boxUv);
         this.uvMap.putAll(uv);

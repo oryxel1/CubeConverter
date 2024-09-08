@@ -25,32 +25,32 @@ import java.util.Map;
 // Credit goes to BlockBench. https://github.com/JannisX11/blockbench
 public class RotationUtil {
 
-    public static void rotate90Degrees(Element element, double rotation, int axis) {
+    public static void rotate90Degrees(Element element, double rotation, int axis, boolean updateUv) {
         switch (axis) {
             case 0 -> {
                 if (rotation == 90)
-                    rotate90Degrees(element, 0, 1, element.origin());
-                else rotate90Degrees(element, 0, 3, element.origin());
+                    rotate90Degrees(element, 0, 1, element.origin(), updateUv);
+                else rotate90Degrees(element, 0, 3, element.origin(), updateUv);
             }
 
             case 1 -> {
                 if (rotation == 90)
-                    rotate90Degrees(element, 1, 1, element.origin());
-                else rotate90Degrees(element, 1, 3, element.origin());
+                    rotate90Degrees(element, 1, 1, element.origin(), updateUv);
+                else rotate90Degrees(element, 1, 3, element.origin(), updateUv);
             }
 
             case 2 -> {
                 if (rotation == 90)
-                    rotate90Degrees(element, 2, 1, element.origin());
-                else rotate90Degrees(element, 2, 3, element.origin());
+                    rotate90Degrees(element, 2, 1, element.origin(), updateUv);
+                else rotate90Degrees(element, 2, 3, element.origin(), updateUv);
             }
         }
     }
 
-    private static void rotate90Degrees(Element element, int axis, int steps, double[] origin) {
+    private static void rotate90Degrees(Element element, int axis, int steps, double[] origin, boolean updateUv) {
         origin = ArrayUtil.clone(origin);
         origin = ArrayUtil.getArrayWithOffset(origin);
-        origin[0] = -origin[0];
+        // origin[0] = -origin[0];
 
         while (steps > 0) {
             steps--;
@@ -72,7 +72,11 @@ public class RotationUtil {
             // element.origin(rotateCoord(element.origin(), axis, origin));
 
             element.size(ArrayUtil.size(element.to(), element.from()));
-            
+
+            if (!updateUv) {
+                continue;
+            }
+
             Map<Direction, double[]> old = new HashMap<>(element.uvMap());
 
             switch (axis) {
