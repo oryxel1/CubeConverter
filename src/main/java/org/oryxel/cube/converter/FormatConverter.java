@@ -9,9 +9,7 @@ import org.oryxel.cube.model.java.other.Group;
 import org.oryxel.cube.util.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
@@ -34,7 +32,6 @@ public class FormatConverter {
 
     public static ItemModelData bedrockToJava(String texture, BedrockGeometry geometry) {
         int childrenCount = 0;
-        double[] cubeOffset = new double[3];
         final List<Group> groups = new ArrayList<>();
         final List<Element> elements = new ArrayList<>();
 
@@ -79,7 +76,6 @@ public class FormatConverter {
         ItemModelData itemModelData = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
         itemModelData.groups().addAll(groups);
         itemModelData.elements().addAll(elements);
-        itemModelData.positionOffset(cubeOffset);
         itemModelData.scale(1 / scale);
 
         scaleEverything(itemModelData.elements(), scale);
@@ -88,92 +84,7 @@ public class FormatConverter {
     }
 
     public static List<ItemModelData> bedrockToJavaModels(String texture, BedrockGeometry geometry) {
-        final List<ItemModelData> list = new ArrayList<>();
-
-        ItemModelData rotation000 = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
-
-        double[] minFrom = new double[] { Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE },
-                    maxTo = new double[3];
-        final Map<Long, ItemModelData> modelDataMap = new HashMap<>();
-        final Map<String, Bone> bones = new HashMap<>();
-
-        for (Bone bone : geometry.bones()) {
-            bones.put(bone.name(), bone);
-        }
-
-        for (Bone bone : geometry.bones()) {
-            double[] boneRotation = bone.rotation();
-            if (!bone.parent().isEmpty()) {
-                Bone parent = bones.get(bone.parent());
-                if (parent != null)
-                    boneRotation = ArrayUtil.combineArray(parent.rotation(), boneRotation);
-            }
-
-            for (Cube cube : bone.cubes()) {
-                double[] from = getFrom(cube.origin(), cube.size());
-                double[] to = ArrayUtil.combineArray(from, cube.size());
-                double[] origin = ArrayUtil.combineArray(bone.pivot(), cube.pivot());
-                double[] rotation = ArrayUtil.combineArray(cube.rotation(), boneRotation);
-
-                int allIndex = ArrayUtil.isAlmostAll(rotation, 0);
-                float allRawAngle = allIndex != -1 ? (float) rotation[allIndex] : 0;
-
-                Element element;
-                if (allIndex != -1 && allRawAngle % 22.5 == 0D && allRawAngle >= -45 && allRawAngle <= 45) {
-                    element = new Element(geometry, cube, bone.name(), allRawAngle, allIndex == 0 ? "x" : allIndex == 1 ? "y" : "z", origin, from, to);
-                    element.parent(cube.parent());
-
-                    rotation000.elements().add(element);
-                } else {
-                    element = new Element(geometry, cube, bone.name(), 0, "x", origin, from, to);
-                    element.parent(cube.parent());
-
-                    if (ArrayUtil.isAll(rotation, 0)) {
-                        rotation000.elements().add(element);
-                    } else {
-                        ItemModelData model = putIfNotExist(modelDataMap, texture, geometry, rotation);
-                        model.elements().add(element);
-                    }
-                }
-
-                if (element != null) {
-                    if (ArrayUtil.isSmaller(element.from(), minFrom))
-                        minFrom = ArrayUtil.clone(element.from());
-                    else if (ArrayUtil.isBigger(element.to(), maxTo))
-                        maxTo = ArrayUtil.clone(element.to());
-                }
-            }
-        }
-
-        if (!rotation000.elements().isEmpty())
-            list.add(rotation000);
-
-        for (Map.Entry<Long, ItemModelData> entry : modelDataMap.entrySet())
-            list.add(entry.getValue());
-
-        double scale = getScalingSize(minFrom, maxTo);
-
-        for (ItemModelData model : list) {
-            scaleEverything(model.elements(), scale);
-            model.scale(1 / scale);
-        }
-
-        return list;
-    }
-
-    private static ItemModelData putIfNotExist(Map<Long, ItemModelData> map, String texture, BedrockGeometry geometry, double[] rotation) {
-        ItemModelData model;
-        Map.Entry<Long, ItemModelData> entry = getModel(map, ArrayUtil.pack(rotation));
-        if (entry == null) {
-            model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
-            model.rotation(rotation);
-
-            map.put(ArrayUtil.pack(rotation), model);
-        } else {
-            model = entry.getValue();
-        }
-
-        return model;
+        return List.of();
     }
 
     private static void scaleEverything(List<Element> elements, double scale) {
@@ -190,17 +101,6 @@ public class FormatConverter {
         }
     }
 
-    private static Map.Entry<Long, ItemModelData> getModel(Map<Long, ItemModelData> map, long l) {
-        for (Map.Entry<Long, ItemModelData> entry : map.entrySet()) {
-            long diff = Math.abs(entry.getKey() - l);
-            if (diff < 12) {
-                return entry;
-            }
-        }
-
-        return null;
-    }
-
     private static double getScalingSize(double[] minFrom, double[] maxTo) {
         double[] totalSize = ArrayUtil.sizeAbs(maxTo, minFrom);
         double[] overlappedMin = ArrayUtil.getOverlapSize(minFrom, totalSize), overlappedMax =
@@ -209,9 +109,8 @@ public class FormatConverter {
         double[] totalOverlappedSize = ArrayUtil.combineArrayAbs(overlappedMin, overlappedMax);
         double[] maxSize = ArrayUtil.combineArrayAbs(totalOverlappedSize, new double[] { 48, 48, 48 });
         double maxOverlapSize = Math.max(maxSize[0], Math.max(maxSize[1], maxSize[2]));
-        double scale = (1 / (maxOverlapSize / 48)) / 2;
 
-        return scale;
+        return (1 / (maxOverlapSize / 48)) / 2;
     }
 
     private static double[] getFrom(double[] origin, double[] size) {

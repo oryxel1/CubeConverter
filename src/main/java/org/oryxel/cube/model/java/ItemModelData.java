@@ -27,7 +27,6 @@ public class ItemModelData {
 
     private final String textures;
     private final int textureWidth, textureHeight;
-    private double[] positionOffset = new double[3];
     private double[] rotation = new double[3];
     private double scale = 1;
 
@@ -58,14 +57,6 @@ public class ItemModelData {
 
     public void rotation(double[] rotation) {
         this.rotation = rotation;
-    }
-
-    public double[] positionOffset() {
-        return positionOffset;
-    }
-
-    public void positionOffset(double[] positionOffset) {
-        this.positionOffset = positionOffset;
     }
 
     public double scale() {
