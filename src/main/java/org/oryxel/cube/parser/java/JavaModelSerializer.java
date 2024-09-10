@@ -87,6 +87,13 @@ public class JavaModelSerializer {
             faces.add(direction.getKey().name().toLowerCase(), faceDirection);
         }
 
+        if (faces.isEmpty()) {
+            JsonObject face = new JsonObject();
+            face.add("uv", arrayToJsonArray(new double[4]));
+            face.addProperty("texture", "#0");
+            faces.add("down", face);
+        }
+
         return faces;
     }
 

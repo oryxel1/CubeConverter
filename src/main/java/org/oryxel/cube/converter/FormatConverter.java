@@ -46,8 +46,8 @@ public class FormatConverter {
                 double[] to = ArrayUtil.combineArray(from, cube.size());
                 double[] origin = ArrayUtil.clone(cube.pivot());
 
-                from = ArrayUtil.addOffsetToArray(from, -cube.inflate());
-                to = ArrayUtil.addOffsetToArray(to, cube.inflate());
+                // from = ArrayUtil.addOffsetToArray(from, -cube.inflate());
+                // to = ArrayUtil.addOffsetToArray(to, cube.inflate());
 
                 int axisIndex = getAxis(cube.rotation());
                 String axis = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
@@ -110,6 +110,7 @@ public class FormatConverter {
         double[] maxSize = ArrayUtil.combineArrayAbs(totalOverlappedSize, new double[] { 48, 48, 48 });
         double maxOverlapSize = Math.max(maxSize[0], Math.max(maxSize[1], maxSize[2]));
 
+        System.out.println((1 / (maxOverlapSize / 48)));
         return (1 / (maxOverlapSize / 48)) / 2;
     }
 
