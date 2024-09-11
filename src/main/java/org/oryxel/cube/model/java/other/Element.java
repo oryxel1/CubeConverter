@@ -51,83 +51,6 @@ public class Element {
         this.inflate = cube.inflate();
 
         autoPortUv(geometry, cube);
-        rotateIfPossible(cube);
-    }
-
-    private void rotateIfPossible(Cube cube) {
-        for (int axis = 0; axis < cube.rotation().length; axis++) {
-            double rotation = cube.rotation()[axis];
-            if (axis != 2) rotation = -rotation;
-
-            if (Math.abs(rotation) == 180) {
-                if (rotation == -180) {
-                    RotationUtil.rotate90Degrees(this, -90, axis, false);
-                    RotationUtil.rotate90Degrees(this, -90, axis, false);
-                } else {
-                    RotationUtil.rotate90Degrees(this, 90, axis, false);
-                    RotationUtil.rotate90Degrees(this, 90, axis, false);
-                }
-
-                continue;
-            }
-
-            if (Math.abs(rotation) != 90)
-                continue;
-
-            RotationUtil.rotate90Degrees(this, rotation, axis, true);
-
-            double[] rotAxes = ArrayUtil.clone(cube.rotation());
-            var i = 0;
-            Double temp_rot = null;
-            Integer temp_i = null;
-            while (i < 3) {
-                if (i != axis) {
-                    if (temp_rot == null) {
-                        temp_rot = rotAxes[i];
-                        temp_i = i;
-                    } else {
-                        rotAxes[temp_i] = -rotAxes[i];
-                        rotAxes[i] = temp_rot;
-                    }
-                }
-                i++;
-            }
-
-            int axisIndex = FormatConverter.getAxis(rotAxes);
-            String axisName = axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z";
-
-            this.axis = axisName;
-            this.angle = MathUtil.clampToJavaAngle(rotAxes[axisIndex]);
-
-            if (axisIndex == axis) {
-                this.angle = 0;
-            }
-
-            if (axisIndex != 2)
-                angle = -angle;
-        }
-
-        int axis = this.axis.equals("x") ? 0 : this.axis.equals("y") ? 1 : 2;
-        double actual = cube.rotation()[axis];
-        if (axis != 2) actual = -actual;
-
-        if (Math.abs(actual) == 135 && cube.pivot()[0] == 0 && cube.pivot()[1] == 0 && cube.pivot()[2] == 0) {
-            this.angle = actual > 0 ? -45 : 45;
-            return;
-        }
-
-        float hackyRotation = (float) (90 - Math.abs(actual));
-        boolean isHackyValid = MathUtil.isValidJavaAngle(hackyRotation) && !MathUtil.isValidJavaAngle(actual)
-                && actual != 0D && hackyRotation != 0D;
-
-        if (!isHackyValid)
-            return;
-
-        double mulValue = Math.abs(actual) / actual;
-        hackyRotation = (float) (Math.abs(hackyRotation) * mulValue);
-
-        RotationUtil.rotate90Degrees(this, 90 * mulValue, axis, true);
-        this.angle = Math.abs(actual) > 90 || Math.abs(actual) == 112.5 ? hackyRotation : - hackyRotation;
     }
 
     private void autoPortUv(BedrockGeometry geometry, Cube cube) {
@@ -139,21 +62,6 @@ public class Element {
             uv = UVUtil.rawPortUv(mirror, boxCube.uvOffset(), from, to);
             boxUv = true;
         }
-
-        // Swap the texture when rotate 180 degrees.
-//        for (Map.Entry<Direction, double[]> entry : uv.entrySet()) {
-//            double sizeValue2 = boxUv ? entry.getValue()[2] - entry.getValue()[0] : entry.getValue()[2],
-//                    sizeValue3 = boxUv ? entry.getValue()[3] - entry.getValue()[1] : entry.getValue()[3];
-//            if (cube.rotation()[1] == 180 || cube.rotation()[0] == 180) {
-//                entry.getValue()[0] = entry.getValue()[0] + sizeValue2;
-//                entry.getValue()[2] = boxUv ? entry.getValue()[0] - sizeValue2 : -entry.getValue()[2];
-//            }
-//
-//            if (cube.rotation()[0] == 180 || cube.rotation()[2] == 180) {
-//                entry.getValue()[1] = entry.getValue()[1] + sizeValue3;
-//                entry.getValue()[3] = boxUv ? entry.getValue()[1] - sizeValue3 : -entry.getValue()[3];
-//            }
-//        }
 
         uv = UVUtil.portUv(uv, geometry.textureWidth(), geometry.textureHeight(), boxUv);
         this.uvMap.putAll(uv);

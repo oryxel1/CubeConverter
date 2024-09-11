@@ -29,6 +29,7 @@ public class ItemModelData {
     private final int textureWidth, textureHeight;
     private double[] rotation = new double[3];
     private double scale = 1;
+    private double[] size = new double[2];
 
     private final List<Group> groups = new ArrayList<>();
     private final List<Element> elements = new ArrayList<>();
@@ -65,6 +66,14 @@ public class ItemModelData {
 
     public void scale(double scale) {
         this.scale = scale;
+    }
+
+    public double[] size() {
+        return size;
+    }
+
+    public void size(double[] size) {
+        this.size = size;
     }
 
     public List<Group> groups() {

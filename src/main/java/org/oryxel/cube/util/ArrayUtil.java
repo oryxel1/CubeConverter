@@ -70,21 +70,23 @@ public class ArrayUtil {
     }
 
     public static boolean isSmaller(double[] array, double[] array1) {
+        double v = 0, v1 = 0;
         for (int i = 0; i < array.length; i++) {
-            if (array[i] > array1[i])
-                return false;
+            v += array[i] * array[i];
+            v1 += array1[i] * array1[i];
         }
 
-        return true;
+        return v < v1;
     }
 
     public static boolean isBigger(double[] array, double[] array1) {
+        double v = 0, v1 = 0;
         for (int i = 0; i < array.length; i++) {
-            if (array[i] < array1[i])
-                return false;
+            v += array[i] * array[i];
+            v1 += array1[i] * array1[i];
         }
 
-        return true;
+        return v > v1;
     }
 
     public static double[] clamp(double[] d, double max, double min) {
