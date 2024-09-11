@@ -156,11 +156,11 @@ public class FormatConverter {
         double[] totalOverlap = ArrayUtil.combineArray(overlapFrom, overlapTo);
         double maxSize = Math.max(totalOverlap[1], totalOverlap[0] + totalOverlap[2]);
         double divideValue = 32;
-        if (totalOverlap[1] == maxSize && minFrom[1] < 0 || totalOverlap[1] != maxSize && (minFrom[0] < 0 || minFrom[2] < 0)) {
+        if ((totalOverlap[1] == maxSize && minFrom[1] < 0 || totalOverlap[1] != maxSize && (minFrom[0] < 0 || minFrom[2] < 0))) {
             divideValue = 16;
         }
 
-        return Math.min(1, divideValue / (maxSize + 48));
+        return maxSize == 0 ? 1 : Math.min(1, divideValue / (maxSize + 48));
     }
 
     private static double[] getFrom(double[] origin, double[] size) {
