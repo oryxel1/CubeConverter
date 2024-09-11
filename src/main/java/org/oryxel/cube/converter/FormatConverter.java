@@ -140,10 +140,10 @@ public class FormatConverter {
     private static void scaleEverything(List<Element> elements, double scale) {
         for (Element element : elements) {
             for (int i = 0; i < 3; i++) {
-                element.from()[i] = (element.from()[i] - (i == 1 ? 0 : 8) + element.inflate()) * scale;
-                element.from()[i] = element.from()[i] + (i == 1 ? 0 : 8) - element.inflate();
+                element.from()[i] = (element.from()[i] - (i == 1 ? 0 : 8)) * scale;
+                element.from()[i] = element.from()[i] + (i == 1 ? 0 : 8);
 
-                element.to()[i] = element.from()[i] + (element.size()[i] * scale) + element.inflate();
+                element.to()[i] = element.from()[i] + (element.size()[i] * scale);
 
                 element.origin()[i] = element.origin()[i] * scale;
                 element.origin()[i] = element.origin()[i] + (i == 1 ? 0 : 8);
