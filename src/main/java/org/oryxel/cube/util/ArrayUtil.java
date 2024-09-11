@@ -21,23 +21,15 @@ import com.google.gson.JsonArray;
  */
 public class ArrayUtil {
 
-    public static long pack(double[] array) {
-        return (long) ((array[0] * array[1] + array[1] * array[0] + array[2] * array[1]) + array[0] + array[1] + array[2]);
-    }
-
-    public static double[] getOverlapSize(double[] box, double[] size) {
+    public static double[] getOverlap(double[] box) {
         double[] overlap = new double[3];
         double[] cloned = ArrayUtil.clone(box);
-        cloned[0] = MathUtil.clamp(cloned[0], -16, 32 - size[0]);
-        cloned[1] = MathUtil.clamp(cloned[1], -16, 32 - size[1]);
-        cloned[2] = MathUtil.clamp(cloned[2], -16, 32 - size[2]);
+        cloned[0] = MathUtil.clamp(cloned[0], -16, 32);
+        cloned[1] = MathUtil.clamp(cloned[1], -16, 32);
+        cloned[2] = MathUtil.clamp(cloned[2], -16, 32);
 
         for (int i = 0; i < box.length; i++) {
-            double offset = box[i] - cloned[i];
-
-            if (overlap[i] < Math.abs(offset)) {
-                overlap[i] = Math.abs(offset);
-            }
+            overlap[i] = Math.abs(box[i] - cloned[i]);
         }
 
         return overlap;
@@ -49,10 +41,6 @@ public class ArrayUtil {
 
     public static double[] clone(double[] d) {
         return new double[] { d[0], d[1], d[2] };
-    }
-
-    public static double[] cloneW4Index(double[] d) {
-        return new double[] { d[0], d[1], d[2], d[3] };
     }
 
     public static double[] cloneW2Index(double[] d) {
@@ -69,51 +57,11 @@ public class ArrayUtil {
         return new double[] { x, y, z };
     }
 
-    public static boolean isSmaller(double[] array, double[] array1) {
-        double v = 0, v1 = 0;
-        for (int i = 0; i < array.length; i++) {
-            v += array[i] * array[i];
-            v1 += array1[i] * array1[i];
-        }
-
-        return v < v1;
-    }
-
-    public static boolean isBigger(double[] array, double[] array1) {
-        double v = 0, v1 = 0;
-        for (int i = 0; i < array.length; i++) {
-            v += array[i] * array[i];
-            v1 += array1[i] * array1[i];
-        }
-
-        return v > v1;
-    }
-
-    public static double[] clamp(double[] d, double max, double min) {
-        for (int i = 0; i < d.length; i++) {
-            d[i] = MathUtil.clamp(d[i], min, max);
-        }
-
-        return d;
-    }
-
     public static double[] getAsArray(JsonArray array) {
         if (array == null)
             return new double[] { 0D, 0D, 0D };
 
         return new double[] { array.get(0).getAsDouble(), array.get(1).getAsDouble(), array.get(2).getAsDouble() };
-    }
-
-    public static double[] addOffsetToArray(double[] array, double offset) {
-        for (var i = 0; i < array.length; i++) {
-            array[i] = array[i] + offset;
-        }
-
-        return array;
-    }
-
-    public static double[] getArrayWithoutOffset(double[] array) {
-        return new double[] { array[0] - 8, array[1], array[2] - 8 };
     }
 
     public static double[] getArrayWithOffset(double[] array) {
@@ -122,10 +70,6 @@ public class ArrayUtil {
 
     public static double[] combineArray(double[] array, double[] array1) {
         return new double[] { array[0] + array1[0], array[1] + array1[1], array[2] + array1[2] };
-    }
-
-    public static double[] combineArrayAbs(double[] array, double[] array1) {
-        return new double[] { Math.abs(array[0]) + Math.abs(array1[0]), Math.abs(array[1]) + Math.abs(array1[1]), Math.abs(array[2]) + Math.abs(array1[2]) };
     }
 
 }

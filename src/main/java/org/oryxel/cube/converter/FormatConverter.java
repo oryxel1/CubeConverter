@@ -56,14 +56,13 @@ public class FormatConverter {
                 double[] from = getFrom(cube.origin(), cube.size());
                 double[] to = ArrayUtil.combineArray(from, cube.size());
 
-                if (ArrayUtil.isSmaller(from, minFrom)) {
-                    minFrom = ArrayUtil.clone(from);
-                }
-                if (ArrayUtil.isBigger(to, maxTo)) {
-                    maxTo = ArrayUtil.clone(to);
-                }
+                if (from[0] < minFrom[0]) minFrom[0] = from[0];
+                if (from[1] < minFrom[1]) minFrom[1] = from[1];
+                if (from[2] < minFrom[2]) minFrom[2] = from[2];
 
-
+                if (to[0] > maxTo[0]) maxTo[0] = to[0];
+                if (to[1] > maxTo[1]) maxTo[1] = to[1];
+                if (to[2] > maxTo[2]) maxTo[2] = to[2];
             }
         }
 
@@ -105,12 +104,13 @@ public class FormatConverter {
                 Element element = new Element(geometry, cube, bone.name(), angle, axis, origin, from, to);
                 elements.add(element);
 
-                if (ArrayUtil.isSmaller(element.from(), minFrom)) {
-                    minFrom = ArrayUtil.clone(element.from());
-                }
-                if (ArrayUtil.isBigger(element.to(), maxTo)) {
-                    maxTo = ArrayUtil.clone(element.to());
-                }
+                if (element.from()[0] < minFrom[0]) minFrom[0] = element.from()[0];
+                if (element.from()[1] < minFrom[1]) minFrom[1] = element.from()[1];
+                if (element.from()[2] < minFrom[2]) minFrom[2] = element.from()[2];
+
+                if (element.to()[0] > maxTo[0]) maxTo[0] = to[0];
+                if (element.to()[1] > maxTo[1]) maxTo[1] = to[1];
+                if (element.to()[2] > maxTo[2]) maxTo[2] = to[2];
 
                 group.children().put(childrenCount, element);
                 childrenCount++;
@@ -152,15 +152,15 @@ public class FormatConverter {
     }
 
     private static double getScalingSize(double[] minFrom, double[] maxTo) {
-        double[] totalSize = ArrayUtil.sizeAbs(maxTo, minFrom);
-        double[] overlappedMin = ArrayUtil.getOverlapSize(minFrom, totalSize), overlappedMax =
-                ArrayUtil.getOverlapSize(maxTo, totalSize);
+        double[] overlapFrom = ArrayUtil.getOverlap(minFrom), overlapTo = ArrayUtil.getOverlap(maxTo);
+        double[] totalOverlap = ArrayUtil.combineArray(overlapFrom, overlapTo);
+        double maxSize = Math.max(totalOverlap[1], totalOverlap[0] + totalOverlap[2]);
+        double divideValue = 32;
+        if (totalOverlap[1] == maxSize && minFrom[1] < 0 || totalOverlap[1] != maxSize && (minFrom[0] < 0 || minFrom[2] < 0)) {
+            divideValue = 16;
+        }
 
-        double[] totalOverlappedSize = ArrayUtil.combineArrayAbs(overlappedMin, overlappedMax);
-        double[] maxSize = ArrayUtil.combineArrayAbs(totalOverlappedSize, new double[] { 48, 48, 48 });
-        double maxOverlapSize = Math.max(maxSize[1], Math.max(maxSize[0], maxSize[2]));
-
-        return (1 / (maxOverlapSize / 48)) / 2;
+        return Math.min(1, divideValue / (maxSize + 48));
     }
 
     private static double[] getFrom(double[] origin, double[] size) {
