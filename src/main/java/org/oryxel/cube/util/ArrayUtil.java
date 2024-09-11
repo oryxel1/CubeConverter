@@ -72,4 +72,25 @@ public class ArrayUtil {
         return new double[] { array[0] + array1[0], array[1] + array1[1], array[2] + array1[2] };
     }
 
+    public static boolean isAllEmpty(double[] array) {
+        for (double d : array) {
+            if (Math.abs(d) != 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean isOneNotEmpty(double[] array) {
+        int notEmpties = 0;
+        for (double d : array) {
+            if (Math.abs(d) != 0) {
+                notEmpties++;
+            }
+        }
+
+        return notEmpties == 1 || notEmpties == 0;
+    }
+
 }

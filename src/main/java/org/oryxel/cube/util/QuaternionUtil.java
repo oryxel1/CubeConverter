@@ -40,4 +40,5 @@ public class QuaternionUtil {
 
         return new double[] { qx, qy, qz, qw };
     }
+
 }

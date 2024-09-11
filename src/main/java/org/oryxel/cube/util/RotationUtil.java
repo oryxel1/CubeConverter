@@ -1,10 +1,5 @@
 package org.oryxel.cube.util;
 
-import org.oryxel.cube.model.java.other.Element;
-
-import java.util.HashMap;
-import java.util.Map;
-
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
  * Copyright (C) 2023-2024 Oryxel and contributors
@@ -25,104 +20,16 @@ import java.util.Map;
 // Credit goes to BlockBench. https://github.com/JannisX11/blockbench
 public class RotationUtil {
 
-    public static void rotate90Degrees(Element element, double rotation, int axis, boolean updateUv) {
-        switch (axis) {
-            case 0 -> {
-                if (rotation == 90)
-                    rotate90Degrees(element, 0, 1, element.origin(), updateUv);
-                else rotate90Degrees(element, 0, 3, element.origin(), updateUv);
-            }
+    public static double[] rotate(double[] from, double[] pivot, double[] rotation) {
+        double radX = Math.toRadians(rotation[0]), radY = Math.toRadians(rotation[1]), radZ = Math.toRadians(rotation[2]);
+        double pivotX = from[0] - pivot[0], pivotY = from[1] - pivot[1], pivotZ = from[2] - pivot[2];
 
-            case 1 -> {
-                if (rotation == -90)
-                    rotate90Degrees(element, 1, 1, element.origin(), updateUv);
-                else rotate90Degrees(element, 1, 3, element.origin(), updateUv);
-            }
+        double y1 = pivotY * Math.cos(radX) - pivotZ * Math.sin(radX), z1 = pivotY * Math.sin(radX) + pivotZ * Math.cos(radX);
+        double x1 = pivotX * Math.cos(radY) + z1 * Math.sin(radY);
+        double x2 = x1 * Math.cos(radZ) - y1 * Math.sin(radZ), y2 = x1 * Math.sin(radZ) + y1 * Math.cos(radZ);
+        z1 = -pivotX * Math.sin(radY) + z1 * Math.cos(radY);
 
-            case 2 -> {
-                if (rotation == 90)
-                    rotate90Degrees(element, 2, 1, element.origin(), updateUv);
-                else rotate90Degrees(element, 2, 3, element.origin(), updateUv);
-            }
-        }
-    }
-
-    private static void rotate90Degrees(Element element, int axis, int steps, double[] origin, boolean updateUv) {
-        origin = ArrayUtil.clone(origin);
-        origin = ArrayUtil.getArrayWithOffset(origin);
-        // origin[0] = -origin[0];
-
-        while (steps > 0) {
-            steps--;
-            //Swap coordinate thingy
-            double[] cloneTo = ArrayUtil.clone(element.to());
-             switch(axis) {
-                case 0, 1 -> {
-                    element.to()[2] = element.from()[2];
-                    element.from()[2] = cloneTo[2];
-                }
-                case 2 -> {
-                    element.to()[1] = element.from()[1];
-                    element.from()[1] = cloneTo[1];
-                }
-            }
-
-            element.from(rotateCoord(element.from(), axis, origin));
-            element.to(rotateCoord(element.to(), axis, origin));
-            // element.origin(rotateCoord(element.origin(), axis, origin));
-
-            element.size(ArrayUtil.size(element.to(), element.from()));
-
-            if (!updateUv) {
-                continue;
-            }
-
-            Map<Direction, double[]> old = new HashMap<>(element.uvMap());
-
-            switch (axis) {
-                case 0 -> {
-                    element.uvMap().put(Direction.NORTH, old.get(Direction.DOWN));
-                    element.uvMap().put(Direction.DOWN, old.get(Direction.SOUTH));
-                    element.uvMap().put(Direction.SOUTH, old.get(Direction.UP));
-                    element.uvMap().put(Direction.UP, old.get(Direction.NORTH));
-                }
-
-                case 1 -> {
-                    element.uvMap().put(Direction.NORTH, old.get(Direction.WEST));
-                    element.uvMap().put(Direction.WEST, old.get(Direction.SOUTH));
-                    element.uvMap().put(Direction.SOUTH, old.get(Direction.EAST));
-                    element.uvMap().put(Direction.EAST, old.get(Direction.NORTH));
-                }
-
-                case 2 -> {
-                    element.uvMap().put(Direction.EAST, old.get(Direction.DOWN));
-                    element.uvMap().put(Direction.DOWN, old.get(Direction.WEST));
-                    element.uvMap().put(Direction.WEST, old.get(Direction.UP));
-                    element.uvMap().put(Direction.UP, old.get(Direction.EAST));
-                }
-            }
-        }
-    }
-
-    private static double[] rotateCoord(double[] array, int axis, double[] origin) {
-        Double a = null;
-        int b = -1;
-
-        for (int i = 0; i < array.length; i++) {
-            double s = array[i];
-            if (i != axis) {
-                if (a == null) {
-                    a = s - origin[i];
-                    b = i;
-                } else {
-                    array[b] = s - origin[i];
-                    array[b] = origin[b] - array[b];
-                    array[i] = origin[i] + a;
-                }
-            }
-        }
-
-        return array;
+        return new double[] { x2 + pivot[0], y2 + pivot[1], z1 + pivot[2] };
     }
 
 }

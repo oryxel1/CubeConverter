@@ -43,6 +43,7 @@ public class FormatConverter {
             bones.put(bone.name(), bone);
         }
 
+        int size = 1;
         for (Bone bone : geometry.bones()) {
             final Map<double[], double[]> pivotRotation = new HashMap<>();
             pivotRotation.put(ArrayUtil.clone(bone.pivot()), ArrayUtil.clone(bone.rotation()));
@@ -51,28 +52,61 @@ public class FormatConverter {
                 pivotRotation.put(ArrayUtil.clone(parent.pivot()), ArrayUtil.clone(parent.rotation()));
                 parent = bones.get(parent.parent());
             }
+            double[] combinedRotation = ArrayUtil.clone(bone.rotation());
+            for (Map.Entry<double[], double[]> entry : pivotRotation.entrySet()) {
+                combinedRotation = ArrayUtil.combineArray(combinedRotation, entry.getValue());
+            }
 
             for (Cube cube : bone.cubes()) {
                 double[] from = getFrom(cube.origin(), cube.size());
                 double[] to = ArrayUtil.combineArray(from, cube.size());
+                double[] origin = ArrayUtil.clone(cube.pivot());
+
+                if (ArrayUtil.isAllEmpty(combinedRotation) && ArrayUtil.isOneNotEmpty(cube.rotation()) && MathUtil.isValidJavaAngle(cube.rotation()[getAxis(cube.rotation())])) {
+                    int axisIndex = getAxis(cube.rotation());
+                    float angle = MathUtil.clampToJavaAngle(cube.rotation()[axisIndex]);
+
+                    Element element = new Element(geometry, cube, bone.name(), axisIndex != 2 ? -angle : angle, axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z", origin, from, to);
+                    main.elements().add(element);
+                } else {
+                    ItemModelData model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
+                    from = prepareForRotation(cube.origin(), cube.size(), pivotRotation);
+                    to = ArrayUtil.combineArray(from, cube.size());
+
+                    Element element = new Element(geometry, cube, bone.name(), 0, "x", origin, from, to);
+                    size += 1;
+                }
 
                 if (from[0] < minFrom[0]) minFrom[0] = from[0];
                 if (from[1] < minFrom[1]) minFrom[1] = from[1];
                 if (from[2] < minFrom[2]) minFrom[2] = from[2];
-
                 if (to[0] > maxTo[0]) maxTo[0] = to[0];
                 if (to[1] > maxTo[1]) maxTo[1] = to[1];
                 if (to[2] > maxTo[2]) maxTo[2] = to[2];
             }
         }
 
+        // For debugging.
+        System.out.println(size);
+
         if (!main.elements().isEmpty()) {
             models.add(main);
         }
 
-        double scale = getScalingSize(minFrom, maxTo);
-
         return models;
+    }
+
+    private static double[] prepareForRotation(double[] origin, double[] size, Map<double[], double[]> map) {
+        double[] after = new double[3];
+        double[] fixedFrom = ArrayUtil.clone(origin);
+        fixedFrom[0] = -(fixedFrom[0] + size[0]);
+        for (Map.Entry<double[], double[]> entry : map.entrySet()) {
+            double[] fixed = RotationUtil.rotate(fixedFrom, entry.getKey(), entry.getValue());
+            after = ArrayUtil.clone(fixed);
+        }
+        double[] offset = new double[] { after[0] - fixedFrom[0], after[1] - fixedFrom[1], after[2] - fixedFrom[2] };
+
+        return new double[] { fixedFrom[0] - offset[0], fixedFrom[1] - offset[1], fixedFrom[2] - offset[2] };
     }
 
     public static ItemModelData bedrockToJava(String texture, BedrockGeometry geometry) {
@@ -107,7 +141,6 @@ public class FormatConverter {
                 if (element.from()[0] < minFrom[0]) minFrom[0] = element.from()[0];
                 if (element.from()[1] < minFrom[1]) minFrom[1] = element.from()[1];
                 if (element.from()[2] < minFrom[2]) minFrom[2] = element.from()[2];
-
                 if (element.to()[0] > maxTo[0]) maxTo[0] = to[0];
                 if (element.to()[1] > maxTo[1]) maxTo[1] = to[1];
                 if (element.to()[2] > maxTo[2]) maxTo[2] = to[2];

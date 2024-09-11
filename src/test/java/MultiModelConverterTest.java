@@ -44,14 +44,13 @@ public class MultiModelConverterTest {
                     .collect(Collectors.toList());
 
             for (File file : files) {
-                String path = file.getAbsolutePath().replace(args[0], "");
-
-                if (!path.startsWith("models\\entity") && !path.startsWith("entity\\") || !path.toLowerCase().endsWith(".json"))
-                    continue;
-
+                String path = file.getAbsolutePath().replace(args[0].replace("/", "\\"), "");
                 String content = new String(Files.readAllBytes(file.toPath()));
 
-                if (path.startsWith("models\\entity")) {
+                if (path.startsWith("entity\\") || !path.toLowerCase().endsWith(".json"))
+                    continue;
+
+                if (path.startsWith("models\\entity") || path.startsWith("\\models\\entity")) {
                     List<BedrockGeometry> geometries = BedrockGeometrySerializer.deserialize(content);
                     if (geometries.isEmpty())
                         continue;
@@ -60,13 +59,13 @@ public class MultiModelConverterTest {
                     for (BedrockGeometry geometry : geometries) {
                         List<ItemModelData> models = FormatConverter.bedrockToJavaModels("test", geometry);
 
+                        System.out.println(file.getAbsolutePath());
                         AtomicInteger i = new AtomicInteger();
                         int finalCurrentI = currentI;
                         models.forEach(model -> {
                             String json = JavaModelSerializer.serializeToString(model);
                             File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + "_" + finalCurrentI + ".json");
 
-                            System.out.println(file.getAbsolutePath());
                             System.out.println(newPath.getAbsolutePath());
 
                             if (!newPath.exists()) {
