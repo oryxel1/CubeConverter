@@ -93,6 +93,7 @@ public class FormatConverter {
         double scale = getScalingSize(minFrom, maxTo);
         for (ItemModelData model : models) {
             scaleEverything(model.elements(), scale);
+            model.scale(scale);
         }
 
         return Collections.unmodifiableList(models);
