@@ -70,7 +70,7 @@ public class FormatConverter {
                     main.elements().add(element);
                 } else {
                     ItemModelData model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
-                    from = prepareForRotation(cube.origin(), cube.size(), pivotRotation);
+                    from = ArrayUtil.getArrayWithOffset(prepareForRotation(cube.origin(), cube.rotation(), cube.pivot(), cube.size(), pivotRotation));
                     to = ArrayUtil.combineArray(from, cube.size());
 
                     Element element = new Element(geometry, cube, bone.name(), 0, "x", origin, from, to);
@@ -96,7 +96,7 @@ public class FormatConverter {
         return models;
     }
 
-    private static double[] prepareForRotation(double[] origin, double[] size, Map<double[], double[]> map) {
+    private static double[] prepareForRotation(double[] origin, double[] rotation, double[] pivot, double[] size, Map<double[], double[]> map) {
         double[] after = new double[3];
         double[] fixedFrom = ArrayUtil.clone(origin);
         fixedFrom[0] = -(fixedFrom[0] + size[0]);
@@ -105,8 +105,9 @@ public class FormatConverter {
             after = ArrayUtil.clone(fixed);
         }
         double[] offset = new double[] { after[0] - fixedFrom[0], after[1] - fixedFrom[1], after[2] - fixedFrom[2] };
+        double[] fixed = new double[] { fixedFrom[0] - offset[0], fixedFrom[1] - offset[1], fixedFrom[2] - offset[2] };
 
-        return new double[] { fixedFrom[0] - offset[0], fixedFrom[1] - offset[1], fixedFrom[2] - offset[2] };
+        return RotationUtil.rotate(fixed, pivot, rotation);
     }
 
     public static ItemModelData bedrockToJava(String texture, BedrockGeometry geometry) {
