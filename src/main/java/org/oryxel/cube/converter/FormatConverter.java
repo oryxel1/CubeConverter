@@ -8,10 +8,7 @@ import org.oryxel.cube.model.java.other.Element;
 import org.oryxel.cube.model.java.other.Group;
 import org.oryxel.cube.util.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
@@ -37,13 +34,12 @@ public class FormatConverter {
         final ItemModelData main = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
 
         final Map<String, Bone> bones = new HashMap<>();
-        final List<ItemModelData> models = new ArrayList<>();
+        final Map<double[], ItemModelData> modelMap = new HashMap<>();
 
         for (Bone bone : geometry.bones()) {
             bones.put(bone.name(), bone);
         }
 
-        int size = 1;
         for (Bone bone : geometry.bones()) {
             final Map<double[], double[]> pivotRotation = new HashMap<>();
             pivotRotation.put(ArrayUtil.clone(bone.pivot()), ArrayUtil.clone(bone.rotation()));
@@ -69,12 +65,11 @@ public class FormatConverter {
                     Element element = new Element(geometry, cube, bone.name(), axisIndex != 2 ? -angle : angle, axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z", origin, from, to);
                     main.elements().add(element);
                 } else {
-                    ItemModelData model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
+                    ItemModelData model = putIfNotExist(geometry, texture, modelMap, ArrayUtil.combineArray(combinedRotation, cube.rotation()));
                     from = ArrayUtil.getArrayWithOffset(prepareForRotation(cube.origin(), cube.rotation(), cube.pivot(), cube.size(), pivotRotation));
                     to = ArrayUtil.combineArray(from, cube.size());
 
                     Element element = new Element(geometry, cube, bone.name(), 0, "x", origin, from, to);
-                    size += 1;
                 }
 
                 if (from[0] < minFrom[0]) minFrom[0] = from[0];
@@ -86,14 +81,37 @@ public class FormatConverter {
             }
         }
 
-        // For debugging.
-        System.out.println(size);
-
+        final List<ItemModelData> models = new ArrayList<>();
         if (!main.elements().isEmpty()) {
             models.add(main);
         }
 
-        return models;
+        for (Map.Entry<double[], ItemModelData> entry : modelMap.entrySet()) {
+            models.add(entry.getValue());
+        }
+
+        double scale = getScalingSize(minFrom, maxTo);
+        for (ItemModelData model : models) {
+            scaleEverything(model.elements(), scale);
+        }
+
+        return Collections.unmodifiableList(models);
+    }
+
+    private static ItemModelData putIfNotExist(BedrockGeometry geometry, String texture, Map<double[], ItemModelData> models, double[] rotation) {
+        ItemModelData model = null;
+        for (Map.Entry<double[], ItemModelData> entry : models.entrySet()) {
+            if (Arrays.equals(entry.getKey(), rotation)) {
+                model = entry.getValue();
+            }
+        }
+
+        if (model == null) {
+            model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
+            models.put(rotation, model);
+        }
+
+        return model;
     }
 
     private static double[] prepareForRotation(double[] origin, double[] rotation, double[] pivot, double[] size, Map<double[], double[]> map) {

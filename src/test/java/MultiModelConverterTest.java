@@ -4,6 +4,7 @@ import org.oryxel.cube.model.java.ItemModelData;
 import org.oryxel.cube.parser.bedrock.BedrockGeometrySerializer;
 import org.oryxel.cube.parser.java.JavaModelSerializer;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -55,23 +56,19 @@ public class MultiModelConverterTest {
                     if (geometries.isEmpty())
                         continue;
 
-                    int currentI = 0;
+                    int currentI = 0, i = 0;
                     for (BedrockGeometry geometry : geometries) {
                         List<ItemModelData> models = FormatConverter.bedrockToJavaModels("test", geometry);
 
-                        System.out.println(file.getAbsolutePath());
-                        AtomicInteger i = new AtomicInteger();
-                        int finalCurrentI = currentI;
-                        models.forEach(model -> {
+                        for (ItemModelData model : models) {
                             String json = JavaModelSerializer.serializeToString(model);
-                            File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + "_" + finalCurrentI + ".json");
-
-                            System.out.println(newPath.getAbsolutePath());
+                            File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + currentI + "_" + i + ".json");
 
                             if (!newPath.exists()) {
                                 try {
                                     newPath.createNewFile();
-                                } catch (IOException e) {}
+                                } catch (IOException e) {
+                                }
                             }
 
                             try (final FileWriter writer = new FileWriter(newPath)) {
@@ -80,8 +77,8 @@ public class MultiModelConverterTest {
                                 throw new RuntimeException(e);
                             }
 
-                            i.getAndIncrement();
-                        });
+                            i++;
+                        }
 
                         currentI++;
                     }
