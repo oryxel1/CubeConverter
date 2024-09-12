@@ -45,12 +45,12 @@ public class FormatConverter {
             pivotRotation.put(ArrayUtil.clone(bone.pivot()), ArrayUtil.clone(bone.rotation()));
             Bone parent = bones.get(bone.parent());
             while (parent != null) {
-                pivotRotation.put(ArrayUtil.clone(parent.pivot()), ArrayUtil.fixRotation(parent.rotation()));
+                pivotRotation.put(ArrayUtil.clone(parent.pivot()), ArrayUtil.clone(parent.rotation()));
                 parent = bones.get(parent.parent());
             }
-            double[] combinedRotation = ArrayUtil.fixRotation(bone.rotation());
+            double[] combinedRotation = ArrayUtil.clone(bone.rotation());
             for (Map.Entry<double[], double[]> entry : pivotRotation.entrySet()) {
-                combinedRotation = ArrayUtil.combineArray(combinedRotation, ArrayUtil.fixRotation(entry.getValue()));
+                combinedRotation = ArrayUtil.combineArray(combinedRotation, ArrayUtil.clone(entry.getValue()));
             }
 
             for (Cube cube : bone.cubes()) {
@@ -65,8 +65,8 @@ public class FormatConverter {
                     Element element = new Element(geometry, cube, bone.name(), axisIndex != 2 ? -angle : angle, axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z", origin, from, to);
                     main.elements().add(element);
                 } else {
-                    ItemModelData model = putIfNotExist(geometry, texture, modelMap, ArrayUtil.combineArray(combinedRotation, ArrayUtil.fixRotation(cube.rotation())));
-                    from = ArrayUtil.getArrayWithOffset(prepareForRotation(cube.origin(), ArrayUtil.fixRotation(cube.rotation()), cube.pivot(), cube.size(), pivotRotation));
+                    ItemModelData model = putIfNotExist(geometry, texture, modelMap, ArrayUtil.combineArray(combinedRotation, ArrayUtil.clone(cube.rotation())));
+                    from = ArrayUtil.getArrayWithOffset(prepareForRotation(cube.origin(), ArrayUtil.clone(cube.rotation()), cube.pivot(), cube.size(), pivotRotation));
                     to = ArrayUtil.combineArray(from, cube.size());
 
                     model.elements().add(new Element(geometry, cube, bone.name(), 0, "x", origin, from, to));

@@ -39,10 +39,6 @@ public class ArrayUtil {
         return new double[] { d, d1 };
     }
 
-    public static double[] fixRotation(double[] d) {
-        return new double[] { -d[0], -d[1], d[2] };
-    }
-
     public static double[] clone(double[] d) {
         return new double[] { d[0], d[1], d[2] };
     }
