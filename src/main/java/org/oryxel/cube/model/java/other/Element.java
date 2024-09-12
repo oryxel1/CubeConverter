@@ -1,6 +1,5 @@
 package org.oryxel.cube.model.java.other;
 
-import org.oryxel.cube.converter.FormatConverter;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.bedrock.model.Cube;
 import org.oryxel.cube.util.*;
