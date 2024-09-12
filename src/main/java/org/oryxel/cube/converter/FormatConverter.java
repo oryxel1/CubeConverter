@@ -117,15 +117,15 @@ public class FormatConverter {
     }
 
     private static double[] prepareForRotation(double[] origin, double[] rotation, double[] pivot, double[] size, Map<double[], double[]> map) {
-        double[] after = new double[3];
         double[] fixedFrom = ArrayUtil.clone(origin);
         fixedFrom[0] = -(fixedFrom[0] + size[0]);
-        for (Map.Entry<double[], double[]> entry : map.entrySet()) {
-            double[] fixed = RotationUtil.rotate(fixedFrom, entry.getKey(), entry.getValue());
-            after = ArrayUtil.clone(fixed);
-        }
-        double[] offset = new double[] { after[0] - fixedFrom[0], after[1] - fixedFrom[1], after[2] - fixedFrom[2] };
+        double[] after000 = RotationUtil.rotate(fixedFrom, new double[3], rotation);
+        double[] offset = new double[] { after000[0] - fixedFrom[0], after000[1] - fixedFrom[1], after000[2] - fixedFrom[2] };
         double[] fixed = new double[] { fixedFrom[0] - offset[0], fixedFrom[1] - offset[1], fixedFrom[2] - offset[2] };
+
+        for (Map.Entry<double[], double[]> entry : map.entrySet()) {
+            fixed = RotationUtil.rotate(fixedFrom, entry.getKey(), entry.getValue());
+        }
 
         return RotationUtil.rotate(fixed, pivot, rotation);
     }
