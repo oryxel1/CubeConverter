@@ -21,6 +21,8 @@ import com.google.gson.JsonArray;
  */
 public class ArrayUtil {
 
+    private ArrayUtil() {}
+
     public static double[] build(double d, double d1) {
         return new double[] { d, d1 };
     }

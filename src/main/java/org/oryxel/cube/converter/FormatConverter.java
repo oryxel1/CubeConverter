@@ -34,12 +34,12 @@ public class FormatConverter {
         final ItemModelData main = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
 
         final Map<String, Bone> bones = new HashMap<>();
-        final Map<double[], ItemModelData> modelMap = new HashMap<>();
 
         for (Bone bone : geometry.bones()) {
             bones.put(bone.name(), bone);
         }
 
+        final List<ItemModelData> models = new ArrayList<>();
         for (Bone bone : geometry.bones()) {
             final Map<double[], double[]> pivotRotation = new HashMap<>();
             pivotRotation.put(ArrayUtil.clone(bone.pivot()), ArrayUtil.clone(bone.rotation()));
@@ -65,12 +65,12 @@ public class FormatConverter {
                     Element element = new Element(geometry, cube, bone.name(), axisIndex != 2 ? -angle : angle, axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z", origin, from, to);
                     main.elements().add(element);
                 } else {
-                    double[] total = ArrayUtil.add(combinedRotation, cube.rotation());
-                    ItemModelData model = putIfNotExist(geometry, texture, modelMap, total);
-                    from = ArrayUtil.javaOffsetArray(prepareForRotation(cube.origin(), cube.rotation(), total, cube.pivot(), cube.size(), pivotRotation));
-                    to = ArrayUtil.add(from, cube.size());
-
+                    // Have to create one for each so prepareForRotation works properly
+                    // TODO: find a better solution?
+                    ItemModelData model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
+                    model.rotation(ArrayUtil.add(combinedRotation, cube.rotation()));
                     model.elements().add(new Element(geometry, cube, bone.name(), 0, "x", origin, from, to));
+                    models.add(model);
                 }
 
                 if (from[0] < minFrom[0]) minFrom[0] = from[0];
@@ -82,45 +82,37 @@ public class FormatConverter {
             }
         }
 
-        final List<ItemModelData> models = new ArrayList<>();
-        if (!main.elements().isEmpty()) {
-            models.add(main);
+        for (ItemModelData model : models) {
+            prepareForRotation(model);
         }
 
-        for (Map.Entry<double[], ItemModelData> entry : modelMap.entrySet()) {
-            models.add(entry.getValue());
+        if (!main.elements().isEmpty()) {
+            models.add(main);
         }
 
         double scale = getScalingSize(minFrom, maxTo);
         for (ItemModelData model : models) {
             scaleEverything(model.elements(), scale);
             model.scale(1 / scale);
+            model.offset(new double[] { model.offset()[0] * scale, model.offset()[0] * scale, model.offset()[0] * scale });
         }
 
         return Collections.unmodifiableList(models);
     }
 
-    private static ItemModelData putIfNotExist(BedrockGeometry geometry, String texture, Map<double[], ItemModelData> models, double[] rotation) {
-        ItemModelData model = null;
-        for (Map.Entry<double[], ItemModelData> entry : models.entrySet()) {
-            if (Arrays.equals(entry.getKey(), rotation)) {
-                model = entry.getValue();
-            }
+    private static void prepareForRotation(ItemModelData model) {
+        // should only be 1 here, loop through it anyway.
+        for (Element element : model.elements()) {
+            double[] before = ArrayUtil.clone(element.from());
+            element.from(new double[] {
+                    8 - (element.size()[0] / 2),
+                    8 - (element.size()[1] / 2),
+                    8 - (element.size()[2] / 2)
+            });
+            element.to(ArrayUtil.add(element.from(), element.size()));
+
+            model.offset(ArrayUtil.minus(before, ArrayUtil.minus(element.from(), before)));
         }
-
-        if (model == null) {
-            model = new ItemModelData(texture, geometry.textureWidth(), geometry.textureHeight());
-            model.rotation(rotation);
-            models.put(rotation, model);
-        }
-
-        return model;
-    }
-
-    private static double[] prepareForRotation(double[] origin, double[] rotation, double[] total, double[] pivot, double[] size, Map<double[], double[]> map) {
-        double[] fixedFrom = ArrayUtil.clone(origin);
-        fixedFrom[0] = -(fixedFrom[0] + size[0]);
-        return fixedFrom;
     }
 
     public static ItemModelData bedrockToJava(String texture, BedrockGeometry geometry) {

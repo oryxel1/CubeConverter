@@ -19,6 +19,8 @@ package org.oryxel.cube.util;
  */
 public class MathUtil {
 
+    private MathUtil() {}
+
     public static boolean isValidJavaAngle(double rawAngle) {
         return rawAngle % 22.5 == 0D && rawAngle >= -45 && rawAngle <= 45;
     }

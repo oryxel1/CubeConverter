@@ -19,6 +19,8 @@ package org.oryxel.cube.util;
  */
 public class QuaternionUtil {
 
+    private QuaternionUtil() {}
+
     public static double[] toQuaternion(double x, double y, double z, boolean nonRadius) {
         if (nonRadius) {
             x = Math.toRadians(x);

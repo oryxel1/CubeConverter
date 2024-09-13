@@ -22,6 +22,8 @@ import com.google.gson.GsonBuilder;
  */
 public class GsonUtil {
 
+    private GsonUtil() {}
+
     private static final Gson GSON = new GsonBuilder().create();
 
     public static Gson getGson() {

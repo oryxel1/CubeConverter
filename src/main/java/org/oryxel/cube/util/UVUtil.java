@@ -25,6 +25,8 @@ import java.util.Map;
 // Credit goes to https://github.com/JannisX11/blockbench
 public class UVUtil {
 
+    private UVUtil() {}
+
     public static Map<Direction, double[]> portUv(Map<Direction, double[]> cubes, int tW, int tH, boolean boxUv) {
         Map<Direction, double[]> map = new HashMap<>();
 
