@@ -86,8 +86,8 @@ public class BedrockGeometrySerializer {
             JsonObject boneObject = boneElement.getAsJsonObject();
             String name = boneObject.get("name").getAsString();
 
-            double[] pivot = ArrayUtil.getAsArray(boneObject.getAsJsonArray("pivot"));
-            double[] boneRotation = ArrayUtil.getAsArray(boneObject.getAsJsonArray("rotation"));
+            double[] pivot = ArrayUtil.toArray(boneObject.getAsJsonArray("pivot"));
+            double[] boneRotation = ArrayUtil.toArray(boneObject.getAsJsonArray("rotation"));
 
             Bone bone = new Bone(name, pivot, boneRotation);
             pivot[0] = -pivot[0];
@@ -103,10 +103,10 @@ public class BedrockGeometrySerializer {
             JsonArray cubeElements = boneObject.getAsJsonArray("cubes");
             for (JsonElement cubeElement : cubeElements) {
                 JsonObject cubeObject = cubeElement.getAsJsonObject();
-                double[] origin = ArrayUtil.getAsArray(cubeObject.getAsJsonArray("origin"));
-                double[] size = ArrayUtil. getAsArray(cubeObject.getAsJsonArray("size"));
-                double[] cubePivot = ArrayUtil.getAsArray(cubeObject.getAsJsonArray("pivot"));
-                double[] rotation = ArrayUtil.getAsArray(cubeObject.getAsJsonArray("rotation"));
+                double[] origin = ArrayUtil.toArray(cubeObject.getAsJsonArray("origin"));
+                double[] size = ArrayUtil.toArray(cubeObject.getAsJsonArray("size"));
+                double[] cubePivot = ArrayUtil.toArray(cubeObject.getAsJsonArray("pivot"));
+                double[] rotation = ArrayUtil.toArray(cubeObject.getAsJsonArray("rotation"));
                 cubePivot[0] = -cubePivot[0];
 
                 Cube cube;

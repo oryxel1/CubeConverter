@@ -48,14 +48,14 @@ public class FormatConverter {
                 pivotRotation.put(ArrayUtil.clone(parent.pivot()), ArrayUtil.clone(parent.rotation()));
                 parent = bones.get(parent.parent());
             }
-            double[] combinedRotation = ArrayUtil.clone(bone.rotation());
-            for (Map.Entry<double[], double[]> entry : pivotRotation.entrySet()) {
-                combinedRotation = ArrayUtil.combineArray(combinedRotation, ArrayUtil.clone(entry.getValue()));
-            }
+            double[] combinedRotation = new double[3];
+//            for (Map.Entry<double[], double[]> entry : pivotRotation.entrySet()) {
+//                combinedRotation = ArrayUtil.combineArray(combinedRotation, ArrayUtil.clone(entry.getValue()));
+//            }
 
             for (Cube cube : bone.cubes()) {
-                double[] from = getFrom(cube.origin(), cube.size());
-                double[] to = ArrayUtil.combineArray(from, cube.size());
+                double[] from = ArrayUtil.getFrom(cube.origin(), cube.size());
+                double[] to = ArrayUtil.add(from, cube.size());
                 double[] origin = ArrayUtil.clone(cube.pivot());
 
                 if (ArrayUtil.isAllEmpty(combinedRotation) && ArrayUtil.isOneNotEmpty(cube.rotation()) && MathUtil.isValidJavaAngle(cube.rotation()[getAxis(cube.rotation())])) {
@@ -65,9 +65,10 @@ public class FormatConverter {
                     Element element = new Element(geometry, cube, bone.name(), axisIndex != 2 ? -angle : angle, axisIndex == 0 ? "x" : axisIndex == 1 ? "y" : "z", origin, from, to);
                     main.elements().add(element);
                 } else {
-                    ItemModelData model = putIfNotExist(geometry, texture, modelMap, ArrayUtil.combineArray(combinedRotation, ArrayUtil.clone(cube.rotation())));
-                    from = ArrayUtil.getArrayWithOffset(prepareForRotation(cube.origin(), ArrayUtil.clone(cube.rotation()), cube.pivot(), cube.size(), pivotRotation));
-                    to = ArrayUtil.combineArray(from, cube.size());
+                    double[] total = ArrayUtil.add(combinedRotation, cube.rotation());
+                    ItemModelData model = putIfNotExist(geometry, texture, modelMap, total);
+                    from = ArrayUtil.javaOffsetArray(prepareForRotation(cube.origin(), cube.rotation(), total, cube.pivot(), cube.size(), pivotRotation));
+                    to = ArrayUtil.add(from, cube.size());
 
                     model.elements().add(new Element(geometry, cube, bone.name(), 0, "x", origin, from, to));
                 }
@@ -116,18 +117,10 @@ public class FormatConverter {
         return model;
     }
 
-    private static double[] prepareForRotation(double[] origin, double[] rotation, double[] pivot, double[] size, Map<double[], double[]> map) {
+    private static double[] prepareForRotation(double[] origin, double[] rotation, double[] total, double[] pivot, double[] size, Map<double[], double[]> map) {
         double[] fixedFrom = ArrayUtil.clone(origin);
         fixedFrom[0] = -(fixedFrom[0] + size[0]);
-        double[] after000 = RotationUtil.rotate(fixedFrom, new double[3], rotation);
-        double[] offset = new double[] { after000[0] - fixedFrom[0], after000[1] - fixedFrom[1], after000[2] - fixedFrom[2] };
-        double[] fixed = new double[] { fixedFrom[0] - offset[0], fixedFrom[1] - offset[1], fixedFrom[2] - offset[2] };
-
-        for (Map.Entry<double[], double[]> entry : map.entrySet()) {
-            fixed = RotationUtil.rotate(fixedFrom, entry.getKey(), entry.getValue());
-        }
-
-        return RotationUtil.rotate(fixed, pivot, rotation);
+        return fixedFrom;
     }
 
     public static ItemModelData bedrockToJava(String texture, BedrockGeometry geometry) {
@@ -139,11 +132,11 @@ public class FormatConverter {
                 maxTo = new double[3];
 
         for (Bone bone : geometry.bones()) {
-            Group group = new Group(bone.name(), ArrayUtil.getArrayWithOffset(bone.pivot()), 0);
+            Group group = new Group(bone.name(), ArrayUtil.javaOffsetArray(bone.pivot()), 0);
 
             for (Cube cube : bone.cubes()) {
-                double[] from = getFrom(cube.origin(), cube.size());
-                double[] to = ArrayUtil.combineArray(from, cube.size());
+                double[] from = ArrayUtil.getFrom(cube.origin(), cube.size());
+                double[] to = ArrayUtil.add(from, cube.size());
                 double[] origin = ArrayUtil.clone(cube.pivot());
 
                 // from = ArrayUtil.addOffsetToArray(from, -cube.inflate());
@@ -207,7 +200,7 @@ public class FormatConverter {
 
     private static double getScalingSize(double[] minFrom, double[] maxTo) {
         double[] overlapFrom = ArrayUtil.getOverlap(minFrom), overlapTo = ArrayUtil.getOverlap(maxTo);
-        double[] totalOverlap = ArrayUtil.combineArray(overlapFrom, overlapTo);
+        double[] totalOverlap = ArrayUtil.add(overlapFrom, overlapTo);
         double maxSize = Math.max(totalOverlap[1], totalOverlap[0] + totalOverlap[2]);
         double divideValue = 32;
         if ((totalOverlap[1] == maxSize && minFrom[1] < 0 || totalOverlap[1] != maxSize && (minFrom[0] < 0 || minFrom[2] < 0))) {
@@ -215,14 +208,6 @@ public class FormatConverter {
         }
 
         return maxSize == 0 ? 1 : Math.min(1, divideValue / (maxSize + 48));
-    }
-
-    private static double[] getFrom(double[] origin, double[] size) {
-        double[] d = ArrayUtil.clone(origin);
-        d[0] = -(d[0] + size[0]);
-        d = ArrayUtil.getArrayWithOffset(d);
-
-        return d;
     }
 
     // TODO: better implement than this...

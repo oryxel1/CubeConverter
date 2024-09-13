@@ -58,7 +58,8 @@ public class Element {
         if (cube instanceof Cube.PerFaceCube perFace && !perFace.uvMap().isEmpty()) {
             uv = perFace.uvMap();
         } else if (cube instanceof Cube.BoxCube boxCube && boxCube.uvOffset() != null) {
-            uv = UVUtil.rawPortUv(mirror, boxCube.uvOffset(), from, to);
+            double[] from = ArrayUtil.getFrom(cube.origin(), cube.size());
+            uv = UVUtil.rawPortUv(mirror, boxCube.uvOffset(), from, ArrayUtil.add(from, cube.size()));
             boxUv = true;
         }
 
