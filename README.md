@@ -6,7 +6,7 @@ A library for reading and converting minecraft model for Java/Bedrock edition.
 ```java
 // This contains model identifier, model textures, model geometries, variables.
 // ---- For custom entity.
-final BedrockGeneralData data = BedrockGeneralSerializer.deserialize(content);
+final BedrockEntityData data = BedrockEntitySerializer.deserialize(content);
 
 // Convert from bedrock to java model.
 final List<BedrockGeometry> geometries = BedrockGeometrySerializer.deserialize(content);
