@@ -38,6 +38,24 @@ public class Element {
 
     private final Map<Direction, double[]> uvMap = new HashMap<>();
 
+    public Element(BedrockGeometry geometry, Cube cube, String name, float angle, String axis, double[] origin, double[] from, double[] to, boolean hackyRotation) {
+        this.name = name;
+        this.angle = angle;
+        this.axis = axis;
+        this.origin = origin;
+        this.size = cube.size();
+        this.mirror = cube.mirror();
+        this.from = from;
+        this.to = to;
+        this.inflate = cube.inflate();
+
+        autoPortUv(geometry, cube);
+
+        if (hackyRotation) {
+            RotationUtil.rotateIfPossible(this, cube);
+        }
+    }
+
     public Element(BedrockGeometry geometry, Cube cube, String name, float angle, String axis, double[] origin, double[] from, double[] to) {
         this.name = name;
         this.angle = angle;
@@ -87,8 +105,16 @@ public class Element {
         this.to = to;
     }
 
+    public void angle(float angle) {
+        this.angle = angle;
+    }
+
     public float angle() {
         return angle;
+    }
+
+    public void axis(String axis) {
+        this.axis = axis;
     }
 
     public String axis() {

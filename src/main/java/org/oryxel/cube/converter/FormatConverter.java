@@ -1,5 +1,6 @@
 package org.oryxel.cube.converter;
 
+import org.oryxel.cube.converter.enums.RotationFixMode;
 import org.oryxel.cube.model.bedrock.BedrockGeometry;
 import org.oryxel.cube.model.bedrock.model.Bone;
 import org.oryxel.cube.model.bedrock.model.Cube;
@@ -116,6 +117,10 @@ public class FormatConverter {
     }
 
     public static ItemModelData bedrockToJava(String texture, BedrockGeometry geometry) {
+        return bedrockToJava(texture, geometry, RotationFixMode.NONE);
+    }
+
+    public static ItemModelData bedrockToJava(String texture, BedrockGeometry geometry, RotationFixMode fixMode) {
         int childrenCount = 0;
         final List<Group> groups = new ArrayList<>();
         final List<Element> elements = new ArrayList<>();
@@ -141,7 +146,7 @@ public class FormatConverter {
                 if (axisIndex != 2)
                     angle = -angle;
 
-                Element element = new Element(geometry, cube, bone.name(), angle, axis, origin, from, to);
+                Element element = new Element(geometry, cube, bone.name(), angle, axis, origin, from, to, fixMode == RotationFixMode.HACKY);
                 elements.add(element);
 
                 if (element.from()[0] < minFrom[0]) minFrom[0] = element.from()[0];
