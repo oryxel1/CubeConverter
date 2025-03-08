@@ -1,0 +1,27 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = 'https://repo.maven.apache.org/maven2/'
+    }
+}
+
+dependencies {
+    api 'com.google.code.gson:gson:2.11.0'
+}
+
+group = 'org.oryxel.cube'
+version = '1.2'
+description = 'cubeconverter'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc) {
+    options.encoding = 'UTF-8'
+}
