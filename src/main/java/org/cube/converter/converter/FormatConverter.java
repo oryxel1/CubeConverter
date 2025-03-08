@@ -26,6 +26,11 @@ public class FormatConverter {
                     RotationUtil.rotateIfPossible(cube);
                 }
 
+                final Position3V rotation = cube.getRotation();
+                rotation.setX(Math.abs(rotation.getX()) == 180 ? 0 : MathUtil.limitAngle(rotation.getX()));
+                rotation.setY(Math.abs(rotation.getY()) == 180 ? 0 : MathUtil.limitAngle(rotation.getY()));
+                rotation.setZ(Math.abs(rotation.getZ()) == 180 ? 0 : MathUtil.limitAngle(rotation.getZ()));
+
                 final Position3V from = cube.getPosition().asJavaPosition(cube.getSize());
                 final Position3V to = from.add(cube.getSize());
                 min.setX(Math.min(min.getX(), from.getX()));
