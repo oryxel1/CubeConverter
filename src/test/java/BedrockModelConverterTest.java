@@ -1,8 +1,7 @@
-import org.oryxel.cube.converter.FormatConverter;
-import org.oryxel.cube.model.bedrock.BedrockGeometry;
-import org.oryxel.cube.model.java.ItemModelData;
-import org.oryxel.cube.parser.bedrock.BedrockGeometrySerializer;
-import org.oryxel.cube.parser.java.JavaModelSerializer;
+import org.cube.converter.converter.enums.RotationFixMode;
+import org.cube.converter.model.impl.bedrock.BedrockGeometryModel;
+import org.cube.converter.model.impl.java.JavaItemModel;
+import org.cube.converter.parser.bedrock.geometry.BedrockGeometryParser;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -11,12 +10,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
- * Copyright (C) 2023-2024 Oryxel and contributors
+ * Copyright (C) 2025-2026 Oryxel and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,42 +29,55 @@ import java.util.stream.Stream;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 public class BedrockModelConverterTest {
-
     public static void main(String[] args) {
-        if (args.length < 1) return;
-        Path testPath = Paths.get(args[0]);
+        if (args.length < 1) {
+            return;
+        }
 
-        try (Stream<Path> stream = Files.walk(testPath)) {
-            List<File> files = stream.filter(Files::isRegularFile)
-                    .map(Path::toFile)
-                    .collect(Collectors.toList());
+        if (!args[0].endsWith("\\") && !args[0].endsWith("/")) {
+            args[0] = args[0] + "\\";
+        }
 
-            for (File file : files) {
+        final File dir = new File("test");
+        if (!dir.exists() || !dir.isDirectory()) {
+            dir.mkdirs();
+        }
+
+        final Path testPath = Paths.get(args[0]);
+
+        try (final Stream<Path> stream = Files.walk(testPath)) {
+            List<File> files = stream.filter(Files::isRegularFile).map(Path::toFile).toList();
+
+            for (final File file : files) {
                 String path = file.getAbsolutePath().replace(args[0].replace("/", "\\"), "");
 
-                if (path.startsWith("entity\\") || !path.toLowerCase().endsWith(".json"))
+                if (path.startsWith("entity\\") || !path.toLowerCase().endsWith(".json")) {
                     continue;
+                }
 
-                String content = new String(Files.readAllBytes(file.toPath()));
+                final String content = new String(Files.readAllBytes(file.toPath()));
 
                 if (path.startsWith("models\\entity") || path.startsWith("\\models\\entity")) {
-                    List<BedrockGeometry> geometries = BedrockGeometrySerializer.deserialize(content);
-                    if (geometries.isEmpty())
+                    List<BedrockGeometryModel> geometries = BedrockGeometryParser.parse(content);
+                    if (geometries.isEmpty()) {
                         continue;
+                    }
 
                     int i = 0;
-                    for (BedrockGeometry geometry : geometries) {
-                        ItemModelData model = FormatConverter.bedrockToJava("test", geometry);
+                    for (final BedrockGeometryModel geometry : geometries) {
+                        final JavaItemModel model = geometry.toJavaItemModel("test", RotationFixMode.HACKY);
 
-                        String json = JavaModelSerializer.serializeToString(model);
+                        final String json = model.compile().toString();
                         File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + ".json");
 
                         System.out.println(file.getAbsolutePath());
                         System.out.println(newPath.getAbsolutePath());
 
-                        if (!newPath.exists())
+                        if (!newPath.exists()) {
                             newPath.createNewFile();
+                        }
 
                         try (final FileWriter writer = new FileWriter(newPath)) {
                             writer.write(json);
@@ -80,5 +91,4 @@ public class BedrockModelConverterTest {
             e.printStackTrace();
         }
     }
-
 }
