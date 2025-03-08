@@ -19,12 +19,12 @@ public class FormatConverter {
             for (Map.Entry<Integer, Cube> entry : parent.getCubes().entrySet()) {
                 final Cube cube = entry.getValue();
 
+                convertTo1Axis(cube);
+
                 // TODO: inflate.
                 if (fixMode == RotationFixMode.HACKY) {
                     RotationUtil.rotateIfPossible(cube);
                 }
-
-                convertTo1Axis(cube);
 
                 final Position3V from = cube.getPosition().asJavaPosition(cube.getSize());
                 final Position3V to = from.add(cube.getSize());
@@ -69,22 +69,24 @@ public class FormatConverter {
     }
 
     private static void convertTo1Axis(final Cube cube) {
-        double largestAxis = 0, axis = 0;
+        double largestAxis = 0, axis = -1;
         final List<Double> axes = List.of(cube.getRotation().getX(), cube.getRotation().getY(), cube.getRotation().getZ());
+        int index = 0;
         for (double angle : axes) {
-            if (Math.abs(angle) > largestAxis && angle % Math.abs(90) != 0D) {
+            if (Math.abs(angle) > largestAxis && Math.abs(angle) % 45 != 0D) {
                 largestAxis = Math.abs(angle);
-                axis = Math.abs(angle) == 180 ? 0 : MathUtil.limitAngle(angle);
-                if (angle != cube.getRotation().getZ()) {
-                    axis = -angle;
-                }
+                axis = index;
             }
+
+            index++;
         }
 
-        final Position3V rotation = cube.getRotation();
-        cube.getRotation().setX(rotation.getX() != axis ? 0 : rotation.getX());
-        cube.getRotation().setY(rotation.getY() != axis ? 0 : rotation.getY());
-        cube.getRotation().setZ(rotation.getZ() != axis ? 0 : rotation.getZ());
+        if (axis != -1) {
+            final Position3V rotation = cube.getRotation();
+            rotation.setX(axis == 0 ? 0 : MathUtil.limitAngle(rotation.getX()));
+            rotation.setY(axis == 1 ? 0 : MathUtil.limitAngle(rotation.getY()));
+            rotation.setZ(axis == 2 ? 0 : MathUtil.limitAngle(-rotation.getZ()));
+        }
     }
 
     public static int getAxis(double[] axes) {
