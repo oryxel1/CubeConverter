@@ -90,7 +90,7 @@ public class BedrockControllerParser {
                 }
             }
 
-            list.add(new BedrockRenderController(identifier, geometryIndex, textureIndex, arrays));
+            list.add(new BedrockRenderController(identifier, textureIndex, geometryIndex, arrays));
         }
 
         return list;
