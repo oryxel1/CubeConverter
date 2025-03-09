@@ -1,7 +1,7 @@
 import org.cube.converter.data.bedrock.BedrockAttachableData;
 import org.cube.converter.data.bedrock.BedrockEntityData;
-import org.cube.converter.parser.bedrock.data.BedrockAttachableParser;
-import org.cube.converter.parser.bedrock.data.BedrockEntityParser;
+import org.cube.converter.parser.bedrock.data.impl.BedrockAttachableParser;
+import org.cube.converter.parser.bedrock.data.impl.BedrockEntityParser;
 
 import java.io.File;
 import java.io.IOException;

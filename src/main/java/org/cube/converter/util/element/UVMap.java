@@ -84,6 +84,21 @@ public final class UVMap {
         return new Double[] {arrayUv.get(0).getAsDouble(), arrayUv.get(1).getAsDouble(), arrayUvSize.get(0).getAsDouble(), arrayUvSize.get(1).getAsDouble()};
     }
 
+    @Override
+    public UVMap clone() {
+        final UVMap map = new UVMap(uvType);
+
+        for (final Map.Entry<Direction, Double[]> entry : this.map.entrySet()) {
+            if (entry.getValue() == null) {
+                continue;
+            }
+
+            map.getMap().put(entry.getKey(), new Double[] {entry.getValue()[0], entry.getValue()[1], entry.getValue()[2], entry.getValue()[3]});
+        }
+
+        return map;
+    }
+
     public enum UVType {
         PERFACE, BOX
     }

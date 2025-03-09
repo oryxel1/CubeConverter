@@ -17,7 +17,7 @@ dependencies {
 }
 
 group = 'org.oryxel.cube'
-version = '1.2'
+version = '1.2.1'
 description = 'cubeconverter'
 
 tasks.withType(JavaCompile).configureEach {

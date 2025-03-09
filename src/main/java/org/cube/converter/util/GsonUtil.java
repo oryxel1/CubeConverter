@@ -24,5 +24,5 @@ import lombok.Getter;
 public final class GsonUtil {
     private GsonUtil() {}
     @Getter
-    private static final Gson gson = new GsonBuilder().create();
+    private final static Gson gson = new GsonBuilder().create();
 }

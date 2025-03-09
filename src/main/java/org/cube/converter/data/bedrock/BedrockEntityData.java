@@ -29,8 +29,16 @@ import java.util.Map;
 @Getter
 public class BedrockEntityData {
     private final String identifier;
-    private final List<String> controllers;
+    private final List<RenderController> controllers;
     private final Map<String, String> textures;
     private final Map<String, String> geometries;
     private final List<String> variables;
+
+    @RequiredArgsConstructor
+    @ToString
+    @Getter
+    public static class RenderController {
+        private final String identifier;
+        private final String condition;
+    }
 }

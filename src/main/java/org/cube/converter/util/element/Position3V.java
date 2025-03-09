@@ -87,6 +87,11 @@ public final class Position3V {
         return new double[] {this.x, this.y, this.z};
     }
 
+    @Override
+    public Position3V clone() {
+        return this.add(0, 0, 0);
+    }
+
     public JsonArray toJson() {
         final JsonArray array = new JsonArray();
         array.add(this.x);

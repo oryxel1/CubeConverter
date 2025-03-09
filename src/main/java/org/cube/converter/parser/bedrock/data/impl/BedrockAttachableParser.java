@@ -1,3 +1,9 @@
+package org.cube.converter.parser.bedrock.data.impl;
+
+import com.google.gson.JsonObject;
+import org.cube.converter.data.bedrock.BedrockAttachableData;
+import org.cube.converter.parser.bedrock.data.BedrockDataParser;
+
 /*
  * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
  * Copyright (C) 2025-2026 Oryxel and contributors
@@ -15,13 +21,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cube.converter.data.bedrock;
+public class BedrockAttachableParser {
+    public static BedrockAttachableData parse(final String json) {
+        return BedrockDataParser.parseAttachable(json);
+    }
 
-import java.util.List;
-import java.util.Map;
-
-public class BedrockAttachableData extends BedrockEntityData {
-    public BedrockAttachableData(String identifier, List<RenderController> controllers, Map<String, String> textures, Map<String, String> geometries, List<String> variables) {
-        super(identifier, controllers, textures, geometries, variables);
+    public static BedrockAttachableData parse(final JsonObject json) {
+        return BedrockDataParser.parseAttachable(json.toString());
     }
 }

@@ -19,6 +19,11 @@ public class Position2V {
         return new Position2V(this.x + x, this.y + y);
     }
 
+    @Override
+    public Position2V clone() {
+        return this.add(0, 0);
+    }
+
     public final JsonArray toJson() {
         final JsonArray array = new JsonArray();
         array.add(this.x);

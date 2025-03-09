@@ -21,4 +21,13 @@ public final class Cube {
     public String getAxis() {
         return this.rotation.getX() != 0 ? "x" : this.rotation.getY() != 0 ? "y" : "z";
     }
+
+    @Override
+    public Cube clone() {
+        final Cube cube = new Cube(pivot.clone(), position.clone(), size.clone(), rotation.clone(), mirror, uvMap.clone());
+        cube.setParent(parent);
+        cube.setInflate(inflate);
+
+        return cube;
+    }
 }

@@ -9,13 +9,18 @@ import org.cube.converter.util.MathUtil;
 import org.cube.converter.util.element.Position3V;
 import org.cube.converter.util.legacy.RotationUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class FormatConverter {
-    public static JavaItemModel geometryToItemModel(final String texture, final BedrockGeometryModel geometry, RotationFixMode fixMode) {
+    public static JavaItemModel geometryToItemModel(final String texture, final BedrockGeometryModel geometry, final RotationFixMode fixMode) {
         final Position3V min = new Position3V(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE), max = new Position3V(0, 0, 0);
-        for (final Parent parent : geometry.getParents()) {
+
+        final List<Parent> parents = new ArrayList<>();
+        for (final Parent old : geometry.getParents()) {
+            final Parent parent = old.clone();
+
             for (Map.Entry<Integer, Cube> entry : parent.getCubes().entrySet()) {
                 final Cube cube = entry.getValue();
 
@@ -40,14 +45,16 @@ public class FormatConverter {
                 max.setY(Math.max(max.getY(), to.getY()));
                 max.setZ(Math.max(max.getZ(), to.getZ()));
             }
+
+            parents.add(parent);
         }
 
         final double scale = calculateMinSize(min, max);
         final JavaItemModel model = new JavaItemModel(texture, geometry.getTextureSize());
-        model.getParents().addAll(geometry.getParents());
+        model.getParents().addAll(parents);
         model.setScale(1 / scale);
 
-        for (final Parent parent : geometry.getParents()) {
+        for (final Parent parent : parents) {
             for (Map.Entry<Integer, Cube> entry : parent.getCubes().entrySet()) {
                 scale(entry.getValue(), scale);
             }
