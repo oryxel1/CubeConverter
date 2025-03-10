@@ -26,7 +26,9 @@ public class FormatConverter {
 
                 convertTo1Axis(cube);
 
-                // TODO: inflate.
+                cube.getPosition().set(cube.getPosition().add(-cube.getInflate(), -cube.getInflate(), -cube.getInflate()));
+                cube.getSize().set(cube.getSize().add(cube.getInflate(), cube.getInflate(), cube.getInflate()));
+
                 if (fixMode == RotationFixMode.HACKY) {
                     RotationUtil.rotateIfPossible(cube);
                 }
