@@ -8,7 +8,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 @RequiredArgsConstructor
-@ToString
+@ToString(includeFieldNames = false)
 @Getter
 @Setter
 public class Transformation {

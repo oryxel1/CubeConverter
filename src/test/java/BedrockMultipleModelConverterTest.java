@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class BedrockModelConverterTest {
+public class BedrockMultipleModelConverterTest {
     public static void main(String[] args) {
         if (args.length < 1) {
             return;
@@ -25,6 +25,8 @@ public class BedrockModelConverterTest {
         if (!dir.exists() || !dir.isDirectory()) {
             dir.mkdirs();
         }
+
+        long startMs = System.currentTimeMillis();
 
         final Path testPath = Paths.get(args[0]);
 
@@ -46,22 +48,28 @@ public class BedrockModelConverterTest {
                         continue;
                     }
 
+                    System.out.println("File: " + file.getAbsolutePath());
+
                     int i = 0;
                     for (final BedrockGeometryModel geometry : geometries) {
-                        final JavaItemModel model = geometry.toJavaItemModel("test", true);
+                        final List<JavaItemModel> models = geometry.toMultipleJavaItemModel("test");
 
-                        final String json = model.compile().toString();
-                        File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + ".json");
+                        int n = 0;
+                        for (final JavaItemModel model : models) {
+                            final String json = model.compile().toString();
+                            File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + "_" + n + ".json");
 
-                        System.out.println(file.getAbsolutePath());
-                        System.out.println(newPath.getAbsolutePath());
+                            System.out.println(newPath.getAbsolutePath());
 
-                        if (!newPath.exists()) {
-                            newPath.createNewFile();
-                        }
+                            if (!newPath.exists()) {
+                                newPath.createNewFile();
+                            }
 
-                        try (final FileWriter writer = new FileWriter(newPath)) {
-                            writer.write(json);
+                            try (final FileWriter writer = new FileWriter(newPath)) {
+                                writer.write(json);
+                            }
+
+                            n++;
                         }
 
                         i++;
@@ -71,5 +79,7 @@ public class BedrockModelConverterTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println("Took: " + (System.currentTimeMillis() - startMs) + "ms");
     }
 }

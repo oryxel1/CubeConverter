@@ -4,7 +4,6 @@ import lombok.Getter;
 
 import com.google.gson.JsonObject;
 import org.cube.converter.converter.FormatConverter;
-import org.cube.converter.converter.enums.RotationFixMode;
 import org.cube.converter.model.GeneralModel;
 import org.cube.converter.model.impl.java.JavaItemModel;
 import org.cube.converter.parser.bedrock.geometry.BedrockGeometryParser;
@@ -27,8 +26,12 @@ public final class BedrockGeometryModel extends GeneralModel {
         return null;
     }
 
-    public JavaItemModel toJavaItemModel(String texture, RotationFixMode mode) {
-        return FormatConverter.geometryToItemModel(texture, this, mode);
+    public JavaItemModel toJavaItemModel(String texture, boolean workaround) {
+        return FormatConverter.geometryToItemModel(texture, this, workaround);
+    }
+
+    public List<JavaItemModel> toMultipleJavaItemModel(String texture) {
+        return FormatConverter.geometryToMultipleModels(texture, this);
     }
 
     public static List<BedrockGeometryModel> fromJson(String json) {

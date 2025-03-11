@@ -31,6 +31,10 @@ public final class Position3V {
         this.z = array[2];
     }
 
+    public static Position3V zero() {
+        return new Position3V(0, 0, 0);
+    }
+
     public static Position3V fromOrigin(final JsonArray origin, final JsonArray size) {
         double x = -(origin.get(0).getAsDouble() + size.get(0).getAsDouble()),
                 y = origin.get(1).getAsDouble(), z = origin.get(2).getAsDouble();
@@ -81,6 +85,10 @@ public final class Position3V {
 
     public Position3V withJavaOffset() {
         return new Position3V(this.x + 8, this.y, this.z + 8);
+    }
+
+    public boolean isZero() {
+        return this.x + this.y + this.z == 0;
     }
 
     public double[] toArray() {

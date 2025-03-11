@@ -11,6 +11,8 @@ import org.cube.converter.model.GeneralModel;
 import org.cube.converter.util.element.Direction;
 import org.cube.converter.util.element.Position2V;
 import org.cube.converter.util.element.Position3V;
+import org.cube.converter.util.minecraft.Transformation;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Map;
@@ -18,12 +20,20 @@ import java.util.Map;
 @Getter
 @Setter
 public final class JavaItemModel extends GeneralModel {
+    private final Transformation defaultTransformation;
     private final String texture;
     private double scale = 1;
 
     public JavaItemModel(final String texture, final Position2V textureSize) {
         super(textureSize);
         this.texture = texture;
+        this.defaultTransformation = null;
+    }
+
+    public JavaItemModel(final String texture, final Position2V textureSize, final Transformation transformation) {
+        super(textureSize);
+        this.texture = texture;
+        this.defaultTransformation = transformation;
     }
 
     public JsonObject compile() {

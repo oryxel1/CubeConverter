@@ -1,18 +1,41 @@
 package org.cube.converter.util.math.matrix;
 
+import org.cube.converter.model.element.Cube;
 import org.cube.converter.util.Triple;
+import org.cube.converter.util.element.Position3V;
 import org.cube.converter.util.minecraft.Transformation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-// Taken from minecraft src code :tm:
+import java.util.List;
+
+// Taken from minecraft src code :tm: and my own code
 public class MatrixUtil {
+    private static final float DEGREE_TO_RADS = 0.017453292519943295F;
     private static final float COT_PI_OVER_8 = 3.0F + 2.0F * (float) Math.sqrt(2.0F);
     private static final GivensPair SIN_COS_PI_OVER_8 = GivensPair.fromAngle(0.7853982f);
 
     private MatrixUtil() {
+    }
+
+    public static Transformation getTransformation(final List<Position3V> parentRotations, final Cube cube) {
+        float pivotX = (float) (cube.getPivot().getX() / 16.0F), pivotY = (float) (cube.getPivot().getY() / 16.0F), pivotZ = (float) (cube.getPivot().getZ() / 16.0F);
+
+        Matrix4f matrix4f = new Matrix4f().translate(pivotX, pivotY, pivotZ);
+
+        for (final Position3V rotation : parentRotations) {
+            matrix4f = matrix4f.rotate(toQuaternion(rotation));
+        }
+
+        matrix4f.rotate(toQuaternion(cube.getRotation()));
+
+        matrix4f = matrix4f.translate(-pivotX, -pivotY, -pivotZ);
+        matrix4f = matrix4f.translate((float) (cube.getPosition().getX() / 16.0F), (float) (cube.getPosition().getY() / 16.0F), (float) (cube.getPosition().getZ() / 16.0F));
+        matrix4f = matrix4f.transpose();
+
+        return fromMatrix(matrix4f);
     }
 
     public static Transformation fromMatrix(final Matrix4f matrix) {
@@ -28,6 +51,10 @@ public class MatrixUtil {
 
     public static Matrix4f scale(Matrix4f matrix, float scalar) {
         return matrix.set(matrix.m00() * scalar, matrix.m01() * scalar, matrix.m02() * scalar, matrix.m03() * scalar, matrix.m10() * scalar, matrix.m11() * scalar, matrix.m12() * scalar, matrix.m13() * scalar, matrix.m20() * scalar, matrix.m21() * scalar, matrix.m22() * scalar, matrix.m23() * scalar, matrix.m30() * scalar, matrix.m31() * scalar, matrix.m32() * scalar, matrix.m33() * scalar);
+    }
+
+    private static Quaternionf toQuaternion(final Position3V position3V) {
+        return new Quaternionf().rotateXYZ((float) (position3V.getX() * DEGREE_TO_RADS), (float) (position3V.getY() * DEGREE_TO_RADS), (float) (position3V.getZ() * DEGREE_TO_RADS));
     }
 
     private static GivensPair approximateGivensQuaternion(float a11, float a12, float a22) {
