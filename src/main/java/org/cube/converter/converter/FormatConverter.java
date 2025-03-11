@@ -100,7 +100,7 @@ public class FormatConverter {
             model.setDefaultTransformation(MatrixUtil.getTransformation(rotations.get(cube), cube, (float) (1F / scale)));
             cube.getPivot().set(Position3V.zero());
             cube.getRotation().set(Position3V.zero());
-//            cube.getPosition().set(Position3V.zero());
+            // cube.getPosition().set(Position3V.zero());
         }
 
         return models;
@@ -191,9 +191,9 @@ public class FormatConverter {
 
         if (axis != -1) {
             final Position3V rotation = cube.getRotation();
-            rotation.setX(axis == 0 ? 0 : MathUtil.limitAngle(rotation.getX()));
-            rotation.setY(axis == 1 ? 0 : MathUtil.limitAngle(rotation.getY()));
-            rotation.setZ(axis == 2 ? 0 : MathUtil.limitAngle(-rotation.getZ()));
+            rotation.setX(axis == 0 ? 0 : MathUtil.limitAngle(-rotation.getX()));
+            rotation.setY(axis == 1 ? 0 : MathUtil.limitAngle(-rotation.getY()));
+            rotation.setZ(axis == 2 ? 0 : MathUtil.limitAngle(rotation.getZ()));
         }
     }
 

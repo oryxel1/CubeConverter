@@ -48,9 +48,9 @@ public class BedrockMultipleModelConverterTest {
                         continue;
                     }
 
-//                    if (!path.contains("bedwars.teams2.geometry.json")) {
-//                        continue;
-//                    }
+                    if (!path.toLowerCase().contains("minerware.geometry")) {
+                        continue;
+                    }
 
                     System.out.println("File: " + file.getAbsolutePath());
 
