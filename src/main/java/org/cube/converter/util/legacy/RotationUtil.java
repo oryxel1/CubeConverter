@@ -2,29 +2,11 @@ package org.cube.converter.util.legacy;
 
 import org.cube.converter.converter.FormatConverter;
 import org.cube.converter.model.element.Cube;
-import org.cube.converter.util.MathUtil;
+import org.cube.converter.util.math.MathUtil;
 import org.cube.converter.util.element.Direction;
 import org.cube.converter.util.element.Position3V;
 
 import java.util.HashMap;
-
-/*
- * This file is part of CubeConverter - https://github.com/Oryxel/CubeConverter
- * Copyright (C) 2025-2026 Oryxel and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 
 // Credit goes to BlockBench. https://github.com/JannisX11/blockbench
 public class RotationUtil {

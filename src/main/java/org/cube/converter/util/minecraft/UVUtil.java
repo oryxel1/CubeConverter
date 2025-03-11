@@ -1,4 +1,4 @@
-package org.cube.converter.util;
+package org.cube.converter.util.minecraft;
 
 import lombok.Getter;
 import lombok.Setter;

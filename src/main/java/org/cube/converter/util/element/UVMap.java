@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cube.converter.util.UVUtil;
+import org.cube.converter.util.minecraft.UVUtil;
 
 @Getter
 public final class UVMap {

@@ -5,7 +5,7 @@ import org.cube.converter.model.element.Cube;
 import org.cube.converter.model.element.Parent;
 import org.cube.converter.model.impl.bedrock.BedrockGeometryModel;
 import org.cube.converter.model.impl.java.JavaItemModel;
-import org.cube.converter.util.MathUtil;
+import org.cube.converter.util.math.MathUtil;
 import org.cube.converter.util.element.Position3V;
 import org.cube.converter.util.legacy.RotationUtil;
 

@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.cube.converter.util.MathUtil;
+import org.cube.converter.util.math.MathUtil;
 
 @AllArgsConstructor
 @ToString
