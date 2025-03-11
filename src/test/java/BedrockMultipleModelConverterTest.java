@@ -48,6 +48,10 @@ public class BedrockMultipleModelConverterTest {
                         continue;
                     }
 
+//                    if (!path.contains("bedwars.teams2.geometry.json")) {
+//                        continue;
+//                    }
+
                     System.out.println("File: " + file.getAbsolutePath());
 
                     int i = 0;
@@ -59,7 +63,7 @@ public class BedrockMultipleModelConverterTest {
                             final String json = model.compile().toString();
                             File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + "_" + n + ".json");
 
-                            System.out.println(newPath.getAbsolutePath());
+                            // System.out.println(newPath.getAbsolutePath());
 
                             if (!newPath.exists()) {
                                 newPath.createNewFile();

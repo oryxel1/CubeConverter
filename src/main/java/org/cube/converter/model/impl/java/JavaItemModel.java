@@ -20,7 +20,7 @@ import java.util.Map;
 @Getter
 @Setter
 public final class JavaItemModel extends GeneralModel {
-    private final Transformation defaultTransformation;
+    private Transformation defaultTransformation;
     private final String texture;
     private double scale = 1;
 

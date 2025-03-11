@@ -24,14 +24,19 @@ public class FormatConverter {
             parentMap.put(parent.getName(), parent);
         }
 
-        for (final Parent parent : geometry.getParents()) {
-            final List<Position3V> parentRotations = new ArrayList<>();
+        final Map<Cube, List<Map.Entry<Position3V, Position3V>>> rotations = new HashMap<>();
+
+        for (final Parent old : geometry.getParents()) {
+            final Parent parent = old.clone();
+
+            final List<Map.Entry<Position3V, Position3V>> parentRotations = new ArrayList<>();
             Parent currentParent = parent;
-            while (currentParent != null && !currentParent.getParent().isEmpty()) {
+
+            while (currentParent != null) {
                 final Position3V rotation = currentParent.getRotation();
 
                 if (!rotation.isZero()) {
-                    parentRotations.add(rotation);
+                    parentRotations.add(Map.entry(currentParent.getPivot(), rotation));
                 }
 
                 currentParent = parentMap.get(currentParent.getParent());
@@ -41,14 +46,15 @@ public class FormatConverter {
             Collections.reverse(parentRotations);
 
             for (Map.Entry<Integer, Cube> entry : parent.getCubes().entrySet()) {
-                final Cube cube = entry.getValue().clone();
+                final Cube cube = entry.getValue();
 
                 cube.inflate();
                 calculateMinMax(cube, min, max);
 
-                // The rotation is valid and there is no parent rotation either, move it into base model.
+                // This rotation is valid and there is no parent rotation either, move it into base model.
                 if (MathUtil.isValidRotation(cube.getRotation()) && parentRotations.isEmpty()) {
                     convertTo1Axis(cube);
+                    cube.fixRotationIfNeeded();
 
                     final Parent parent1 = new Parent(cube.getParent() + cube.hashCode(), Position3V.zero(), Position3V.zero());
                     parent1.getCubes().put(baseModelCount++, cube);
@@ -56,18 +62,14 @@ public class FormatConverter {
                     continue;
                 }
 
-                final JavaItemModel model = new JavaItemModel(texture, geometry.getTextureSize(), MatrixUtil.getTransformation(parentRotations, cube));
-
-                cube.getPivot().set(Position3V.zero());
-                cube.getRotation().set(Position3V.zero());
-                cube.getPosition().set(Position3V.zero());
+                final JavaItemModel model = new JavaItemModel(texture, geometry.getTextureSize());
 
                 final Parent parent1 = new Parent(cube.getParent() + cube.hashCode(), Position3V.zero(), Position3V.zero());
                 parent1.getCubes().put(0, cube);
-                baseModel.getParents().add(parent1);
-
                 model.getParents().add(parent1);
                 models.add(model);
+
+                rotations.put(cube, parentRotations);
             }
         }
 
@@ -75,9 +77,30 @@ public class FormatConverter {
             models.add(baseModel);
         }
 
+        Collections.reverse(models);
+
         final double scale = calculateMinSize(min, max);
         for (final JavaItemModel model : models) {
             scale(model, scale); // Scale down.
+
+            if (model.getParents().size() > 1) {
+                continue;
+            }
+
+            final Parent parent = model.getParents().get(0);
+            if (!parent.getCubes().containsKey(0)) {
+                continue;
+            }
+
+            final Cube cube = parent.getCubes().get(0);
+            if (!rotations.containsKey(cube)) {
+                continue;
+            }
+
+            model.setDefaultTransformation(MatrixUtil.getTransformation(rotations.get(cube), cube, (float) (1F / scale)));
+            cube.getPivot().set(Position3V.zero());
+            cube.getRotation().set(Position3V.zero());
+//            cube.getPosition().set(Position3V.zero());
         }
 
         return models;

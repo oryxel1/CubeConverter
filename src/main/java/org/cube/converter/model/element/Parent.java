@@ -26,6 +26,7 @@ public class Parent {
         for (final Map.Entry<Integer, Cube> entry : this.cubes.entrySet()) {
             parent.cubes.put(entry.getKey(), entry.getValue().clone());
         }
+        parent.setParent(this.parent);
 
         return parent;
     }

@@ -8,9 +8,10 @@ public class Test {
 
         float offset = 0 / 16.0F;
 
-        Matrix4f matrix4f = new Matrix4f().translate(0, offset, 0);
+        Matrix4f matrix4f = new Matrix4f();
+        matrix4f = matrix4f.scale(1.5F);
+        matrix4f = matrix4f.translate(0, offset, 0);
         matrix4f = matrix4f.rotate(new Quaternionf().rotateAxis(90 * f, new Vector3f(1, 0, 0)));
-
         matrix4f = matrix4f.translate(0, -offset, 0);
         matrix4f = matrix4f.transpose();
 

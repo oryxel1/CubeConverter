@@ -10,6 +10,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.Map;
 
 // Taken from minecraft src code :tm: and my own code
 public class MatrixUtil {
@@ -20,19 +21,29 @@ public class MatrixUtil {
     private MatrixUtil() {
     }
 
-    public static Transformation getTransformation(final List<Position3V> parentRotations, final Cube cube) {
+    public static Transformation getTransformation(final List<Map.Entry<Position3V, Position3V>> rotations, final Cube cube, final float scale) {
         float pivotX = (float) (cube.getPivot().getX() / 16.0F), pivotY = (float) (cube.getPivot().getY() / 16.0F), pivotZ = (float) (cube.getPivot().getZ() / 16.0F);
 
-        Matrix4f matrix4f = new Matrix4f().translate(pivotX, pivotY, pivotZ);
+        Matrix4f matrix4f = new Matrix4f();
+        matrix4f = matrix4f.scale(scale);
 
-        for (final Position3V rotation : parentRotations) {
+        for (final Map.Entry<Position3V, Position3V> entry : rotations) {
+            final Position3V rotation = entry.getValue();
+            final Position3V pivot = entry.getKey();
+
+            matrix4f = matrix4f.translate((float) (pivot.getX() / 16.0F), (float) (pivot.getY() / 16.0F), (float) (pivot.getZ() / 16.0F));
             matrix4f = matrix4f.rotate(toQuaternion(rotation));
+            matrix4f = matrix4f.translate((float) -(pivot.getX() / 16.0F), (float) -(pivot.getY() / 16.0F), (float) -(pivot.getZ() / 16.0F));
         }
 
-        matrix4f.rotate(toQuaternion(cube.getRotation()));
+        if (!cube.getRotation().isZero()) {
+            matrix4f = matrix4f.translate(pivotX, pivotY, pivotZ);
+            matrix4f = matrix4f.rotate(toQuaternion(cube.getRotation()));
+            matrix4f = matrix4f.translate(-pivotX, -pivotY, -pivotZ);
+        }
 
-        matrix4f = matrix4f.translate(-pivotX, -pivotY, -pivotZ);
-        matrix4f = matrix4f.translate((float) (cube.getPosition().getX() / 16.0F), (float) (cube.getPosition().getY() / 16.0F), (float) (cube.getPosition().getZ() / 16.0F));
+        final Position3V position = cube.getPosition();
+//        matrix4f = matrix4f.translate((float) (position.getX() / 16.0F), (float) (position.getY() / 16.0F), (float) (position.getZ() / 16.0F));
         matrix4f = matrix4f.transpose();
 
         return fromMatrix(matrix4f);
