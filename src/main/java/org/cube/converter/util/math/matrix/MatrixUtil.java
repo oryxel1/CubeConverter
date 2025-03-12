@@ -25,6 +25,7 @@ public class MatrixUtil {
         Matrix4f matrix4f = new Matrix4f();
         matrix4f = matrix4f.scale(scale);
 
+
         for (final Map.Entry<Position3V, Position3V> entry : rotations) {
             final Position3V rotation = entry.getValue();
             final Position3V pivot = entry.getKey();
