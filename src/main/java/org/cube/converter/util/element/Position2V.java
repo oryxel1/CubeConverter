@@ -9,13 +9,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Position2V {
-    private double x, y;
+    private float x, y;
 
     public final Position2V add(final Position2V position2V) {
         return this.add(position2V.x, position2V.y);
     }
 
-    public final Position2V add(double x, double y) {
+    public final Position2V add(float x, float y) {
         return new Position2V(this.x + x, this.y + y);
     }
 

@@ -22,7 +22,7 @@ import java.util.Map;
 public final class JavaItemModel extends GeneralModel {
     private Transformation defaultTransformation;
     private final String texture;
-    private double scale = 1;
+    private float scale = 1;
 
     public JavaItemModel(final String texture, final Position2V textureSize) {
         super(textureSize);
@@ -95,10 +95,10 @@ public final class JavaItemModel extends GeneralModel {
         return object;
     }
 
-    private JsonObject compileUV(final double textureWidth, final double textureHeight, final Cube element) {
+    private JsonObject compileUV(final float textureWidth, final float textureHeight, final Cube element) {
         JsonObject faces = new JsonObject();
 
-        for (Map.Entry<Direction, Double[]> entry : element.getUvMap().toJavaPerfaceUV(textureWidth, textureHeight).getMap().entrySet()) {
+        for (Map.Entry<Direction, Float[]> entry : element.getUvMap().toJavaPerfaceUV(textureWidth, textureHeight).getMap().entrySet()) {
             if (entry.getValue() == null) {
                 continue;
             }

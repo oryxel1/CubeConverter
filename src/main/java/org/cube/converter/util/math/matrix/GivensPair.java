@@ -32,11 +32,11 @@ public record GivensPair(float sinHalf, float cosHalf) {
         return quaternionf.set(0.0f, 0.0f, this.sinHalf, this.cosHalf);
     }
 
-    public float cosDouble() {
+    public float cosFloat() {
         return this.cosHalf * this.cosHalf - this.sinHalf * this.sinHalf;
     }
 
-    public float sinDouble() {
+    public float sinFloat() {
         return 2.0f * this.sinHalf * this.cosHalf;
     }
 
@@ -45,8 +45,8 @@ public record GivensPair(float sinHalf, float cosHalf) {
         matrix3f.m02 = 0.0f;
         matrix3f.m10 = 0.0f;
         matrix3f.m20 = 0.0f;
-        float f = this.cosDouble();
-        float g = this.sinDouble();
+        float f = this.cosFloat();
+        float g = this.sinFloat();
         matrix3f.m11 = f;
         matrix3f.m22 = f;
         matrix3f.m12 = g;
@@ -60,8 +60,8 @@ public record GivensPair(float sinHalf, float cosHalf) {
         matrix3f.m10 = 0.0f;
         matrix3f.m12 = 0.0f;
         matrix3f.m21 = 0.0f;
-        float f = this.cosDouble();
-        float g = this.sinDouble();
+        float f = this.cosFloat();
+        float g = this.sinFloat();
         matrix3f.m00 = f;
         matrix3f.m22 = f;
         matrix3f.m02 = -g;
@@ -75,8 +75,8 @@ public record GivensPair(float sinHalf, float cosHalf) {
         matrix3f.m12 = 0.0f;
         matrix3f.m20 = 0.0f;
         matrix3f.m21 = 0.0f;
-        float f = this.cosDouble();
-        float g = this.sinDouble();
+        float f = this.cosFloat();
+        float g = this.sinFloat();
         matrix3f.m00 = f;
         matrix3f.m11 = f;
         matrix3f.m01 = g;

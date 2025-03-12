@@ -14,7 +14,7 @@ import java.util.*;
 public class FormatConverter {
     public static List<JavaItemModel> geometryToMultipleModels(final String texture, final BedrockGeometryModel geometry) {
         final List<JavaItemModel> models = new ArrayList<>();
-        final Position3V min = new Position3V(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE), max = new Position3V(0, 0, 0);
+        final Position3V min = new Position3V(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE), max = new Position3V(0, 0, 0);
 
         final JavaItemModel baseModel = new JavaItemModel(texture, geometry.getTextureSize());
         int baseModelCount = 0;
@@ -79,7 +79,7 @@ public class FormatConverter {
 
         Collections.reverse(models);
 
-        final double scale = calculateMinSize(min, max);
+        final float scale = calculateMinSize(min, max);
         for (final JavaItemModel model : models) {
             scale(model, scale); // Scale down.
 
@@ -107,7 +107,7 @@ public class FormatConverter {
     }
 
     public static JavaItemModel geometryToItemModel(final String texture, final BedrockGeometryModel geometry, final boolean workaround) {
-        final Position3V min = new Position3V(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE), max = new Position3V(0, 0, 0);
+        final Position3V min = new Position3V(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE), max = new Position3V(0, 0, 0);
 
         final List<Parent> parents = new ArrayList<>();
         for (final Parent old : geometry.getParents()) {
@@ -130,7 +130,7 @@ public class FormatConverter {
             parents.add(parent);
         }
 
-        final double scale = calculateMinSize(min, max);
+        final float scale = calculateMinSize(min, max);
         final JavaItemModel model = new JavaItemModel(texture, geometry.getTextureSize());
         model.getParents().addAll(parents);
 
@@ -138,7 +138,7 @@ public class FormatConverter {
         return model;
     }
 
-    private static void scale(final JavaItemModel model, final double scale) {
+    private static void scale(final JavaItemModel model, final float scale) {
         model.setScale(1 / scale);
 
         for (final Parent parent : model.getParents()) {
@@ -148,7 +148,7 @@ public class FormatConverter {
         }
     }
 
-    private static void scale(final Cube cube, final double scale) {
+    private static void scale(final Cube cube, final float scale) {
         cube.getPosition().scale(scale);
         cube.getSize().scale(scale);
     }
@@ -164,11 +164,11 @@ public class FormatConverter {
         max.setZ(Math.max(max.getZ(), to.getZ()));
     }
 
-    private static double calculateMinSize(final Position3V min, final Position3V max) {
+    private static float calculateMinSize(final Position3V min, final Position3V max) {
         final Position3V overlapMin = min.getJavaOverlap(), overlapMax = max.getJavaOverlap();
         final Position3V totalOverlap = overlapMin.add(overlapMax);
-        final double maxSize = Math.max(totalOverlap.getY(), totalOverlap.getX() + totalOverlap.getZ());
-        double division = 32;
+        final float maxSize = Math.max(totalOverlap.getY(), totalOverlap.getX() + totalOverlap.getZ());
+        float division = 32;
         if ((totalOverlap.getY() == maxSize && min.getY() < 0 || totalOverlap.getY() != maxSize && (min.getX() < 0 || min.getZ() < 0))) {
             division = 16;
         }
@@ -177,10 +177,10 @@ public class FormatConverter {
     }
 
     private static void convertTo1Axis(final Cube cube) {
-        double largestAxis = 0, axis = -1;
-        final List<Double> axes = List.of(cube.getRotation().getX(), cube.getRotation().getY(), cube.getRotation().getZ());
+        float largestAxis = 0, axis = -1;
+        final List<Float> axes = List.of(cube.getRotation().getX(), cube.getRotation().getY(), cube.getRotation().getZ());
         int index = 0;
-        for (double angle : axes) {
+        for (float angle : axes) {
             if (Math.abs(angle) > largestAxis && Math.abs(angle) % 45 != 0D) {
                 largestAxis = Math.abs(angle);
                 axis = index;
@@ -197,8 +197,8 @@ public class FormatConverter {
         }
     }
 
-    public static int getAxis(double[] axes) {
-        double largestAxes = 0;
+    public static int getAxis(float[] axes) {
+        float largestAxes = 0;
         int axis = 0;
         for (int i = 0; i < axes.length; i++) {
             if (Math.abs(axes[i]) > largestAxes && axes[i] % Math.abs(90) != 0D) {

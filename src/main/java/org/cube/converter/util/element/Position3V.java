@@ -12,7 +12,7 @@ import org.cube.converter.util.math.MathUtil;
 @Getter
 @Setter
 public final class Position3V {
-    private double x, y, z;
+    private float x, y, z;
 
     public Position3V(final JsonArray array) {
         if (array == null) {
@@ -20,12 +20,12 @@ public final class Position3V {
             return;
         }
 
-        this.x = array.get(0).getAsDouble();
-        this.y = array.get(1).getAsDouble();
-        this.z = array.get(2).getAsDouble();
+        this.x = array.get(0).getAsFloat();
+        this.y = array.get(1).getAsFloat();
+        this.z = array.get(2).getAsFloat();
     }
 
-    public Position3V(final double[] array) {
+    public Position3V(final float[] array) {
         this.x = array[0];
         this.y = array[1];
         this.z = array[2];
@@ -36,8 +36,8 @@ public final class Position3V {
     }
 
     public static Position3V fromOrigin(final JsonArray origin, final JsonArray size) {
-        double x = -(origin.get(0).getAsDouble() + size.get(0).getAsDouble()),
-                y = origin.get(1).getAsDouble(), z = origin.get(2).getAsDouble();
+        float x = -(origin.get(0).getAsFloat() + size.get(0).getAsFloat()),
+                y = origin.get(1).getAsFloat(), z = origin.get(2).getAsFloat();
         return new Position3V(x, y, z);
     }
 
@@ -49,7 +49,7 @@ public final class Position3V {
         return overlap;
     }
 
-    public void scale(double scale) {
+    public void scale(float scale) {
         this.x = this.x * scale;
         this.y = this.y * scale;
         this.z = this.z * scale;
@@ -59,7 +59,7 @@ public final class Position3V {
         this.set(position3V.x, position3V.y, position3V.z);
     }
 
-    public void set(double x, double y, double z) {
+    public void set(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -69,8 +69,16 @@ public final class Position3V {
         return this.add(position3V.x, position3V.y, position3V.z);
     }
 
-    public Position3V add(double x, double y, double z) {
+    public Position3V add(float x, float y, float z) {
         return new Position3V(this.x + x, this.y + y, this.z + z);
+    }
+
+    public Position3V subtract(final Position3V position3V) {
+        return this.subtract(position3V.x, position3V.y, position3V.z);
+    }
+
+    public Position3V subtract(float x, float y, float z) {
+        return new Position3V(this.x - x, this.y - y, this.z - z);
     }
 
     public Position3V asJavaPosition(final Position3V size) {
@@ -78,7 +86,7 @@ public final class Position3V {
     }
 
     public Position3V asBedrockPosition(final Position3V size) {
-        final double newX = this.x - 8;
+        final float newX = this.x - 8;
 
         return new Position3V(-newX - size.x, this.y, this.z - 8);
     }
@@ -88,11 +96,11 @@ public final class Position3V {
     }
 
     public boolean isZero() {
-        return this.x + this.y + this.z == 0;
+        return this.x == 0 && this.y == 0 && this.z == 0;
     }
 
-    public double[] toArray() {
-        return new double[] {this.x, this.y, this.z};
+    public float[] toArray() {
+        return new float[] {this.x, this.y, this.z};
     }
 
     @Override

@@ -22,8 +22,6 @@ public class MatrixUtil {
     }
 
     public static Transformation getTransformation(final List<Map.Entry<Position3V, Position3V>> rotations, final Cube cube, final float scale) {
-        float pivotX = (float) (cube.getPivot().getX() / 16.0F), pivotY = (float) (cube.getPivot().getY() / 16.0F), pivotZ = (float) (cube.getPivot().getZ() / 16.0F);
-
         Matrix4f matrix4f = new Matrix4f();
         matrix4f = matrix4f.scale(scale);
 
@@ -31,15 +29,15 @@ public class MatrixUtil {
             final Position3V rotation = entry.getValue();
             final Position3V pivot = entry.getKey();
 
-            matrix4f = matrix4f.translate((float) (pivot.getX() / 16.0F), (float) (pivot.getY() / 16.0F), (float) (pivot.getZ() / 16.0F));
+            matrix4f = matrix4f.translate(pivot.getX() / 16.0F, pivot.getY() / 16.0F, pivot.getZ() / 16.0F);
             matrix4f = matrix4f.rotate(toQuaternion(rotation));
-            matrix4f = matrix4f.translate((float) -(pivot.getX() / 16.0F), (float) -(pivot.getY() / 16.0F), (float) -(pivot.getZ() / 16.0F));
         }
 
         if (!cube.getRotation().isZero()) {
+            float pivotX = cube.getPivot().getX() / 16.0F, pivotY = cube.getPivot().getY() / 16.0F, pivotZ = cube.getPivot().getZ() / 16.0F;
+
             matrix4f = matrix4f.translate(pivotX, pivotY, pivotZ);
             matrix4f = matrix4f.rotate(toQuaternion(cube.getRotation()));
-            matrix4f = matrix4f.translate(-pivotX, -pivotY, -pivotZ);
         }
 
         // matrix4f = matrix4f.translate((float) (position.getX() / 16.0F), (float) (position.getY() / 16.0F), (float) (position.getZ() / 16.0F));
@@ -138,8 +136,8 @@ public class MatrixUtil {
         Quaternionf quaternionf = MatrixUtil.applyJacobiIterations(matrix3f2, 5);
         float f = matrix3f2.m00;
         float g = matrix3f2.m11;
-        boolean bl = (double)f < 1.0E-6;
-        boolean bl2 = (double)g < 1.0E-6;
+        boolean bl = (float)f < 1.0E-6;
+        boolean bl2 = (float)g < 1.0E-6;
         Matrix3f matrix3f3 = matrix3f2;
         Matrix3f matrix3f4 = A.rotate(quaternionf);
         Quaternionf quaternionf2 = new Quaternionf();

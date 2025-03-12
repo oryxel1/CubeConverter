@@ -12,7 +12,7 @@ import org.cube.converter.util.math.MathUtil;
 @Setter
 public final class Cube {
     private String parent = "";
-    private double inflate = 0.0;
+    private float inflate = 0;
 
     private final Position3V pivot, position, size;
     private final Position3V rotation;

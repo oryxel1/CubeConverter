@@ -122,7 +122,7 @@ public class BedrockGeometryParser {
                 Cube cube;
                 if (cubeObject.get("uv") instanceof JsonArray) {
                     JsonArray array = cubeObject.getAsJsonArray("uv");
-                    Double[] offset = new Double[] { array.get(0).getAsDouble(), array.get(1).getAsDouble() };
+                    Float[] offset = new Float[] { array.get(0).getAsFloat(), array.get(1).getAsFloat() };
                     cube = new Cube(pivot, position, size, rotation, mirror, UVMap.fromBoxUV(size, offset, mirror));
                 } else {
                     cube = new Cube(pivot, position, size, rotation, mirror, UVMap.fromPerfaceUV(cubeObject));
@@ -130,7 +130,7 @@ public class BedrockGeometryParser {
 
                 cube.setParent(bone.getParent());
                 if (cubeObject.has("inflate")) {
-                    cube.setInflate(cubeObject.get("inflate").getAsDouble());
+                    cube.setInflate(cubeObject.get("inflate").getAsFloat());
                 }
 
                 bone.getCubes().put(i, cube);

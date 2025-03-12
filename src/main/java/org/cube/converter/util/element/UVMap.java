@@ -13,24 +13,24 @@ import org.cube.converter.util.minecraft.UVUtil;
 @Getter
 public final class UVMap {
     private final UVType uvType;
-    private final Map<Direction, Double[]> map = new HashMap<>();
+    private final Map<Direction, Float[]> map = new HashMap<>();
 
     private UVMap(UVType uvType) {
         this.uvType = uvType;
     }
 
-    public UVMap toJavaPerfaceUV(final double textureWidth, final double textureHeight) {
+    public UVMap toJavaPerfaceUV(final float textureWidth, final float textureHeight) {
         final UVMap map = new UVMap(UVType.PERFACE);
 
-        for (final Map.Entry<Direction, Double[]> entry : this.map.entrySet()) {
+        for (final Map.Entry<Direction, Float[]> entry : this.map.entrySet()) {
             if (entry.getValue() == null) {
                 continue;
             }
 
-            Double[] uv = entry.getValue();
+            Float[] uv = entry.getValue();
 
             if (this.uvType != UVType.BOX) {
-                uv = new Double[] {entry.getValue()[0], entry.getValue()[1], entry.getValue()[0] + entry.getValue()[2], entry.getValue()[1] + entry.getValue()[3]};
+                uv = new Float[] {entry.getValue()[0], entry.getValue()[1], entry.getValue()[0] + entry.getValue()[2], entry.getValue()[1] + entry.getValue()[3]};
             }
 
             for (int i = 0; i < uv.length; i++) {
@@ -43,12 +43,12 @@ public final class UVMap {
         return map;
     }
 
-    public static UVMap fromBoxUV(final Position3V size, final Double[] offset, final boolean mirror) {
+    public static UVMap fromBoxUV(final Position3V size, final Float[] offset, final boolean mirror) {
         final UVMap map = new UVMap(UVType.BOX);
         final List<UVUtil.Face> faces = UVUtil.toUvFaces(size, mirror);
 
         for (UVUtil.Face face : faces) {
-            map.getMap().put(face.getDirection(), new Double[] { face.getStart().getX() + offset[0], face.getStart().getY() + offset[1], face.getEnd().getX() + offset[0], face.getEnd().getY() + offset[1] });
+            map.getMap().put(face.getDirection(), new Float[] { face.getStart().getX() + offset[0], face.getStart().getY() + offset[1], face.getEnd().getX() + offset[0], face.getEnd().getY() + offset[1] });
         }
         return map;
     }
@@ -66,34 +66,34 @@ public final class UVMap {
         return map;
     }
 
-    private static void putIfExist(final Direction direction, final JsonObject object, final Map<Direction, Double[]> map) {
+    private static void putIfExist(final Direction direction, final JsonObject object, final Map<Direction, Float[]> map) {
         String name = direction.name().toLowerCase();
         if (object.has(name)) {
             map.put(direction, getUVDirection(object.getAsJsonObject(name)));
         }
     }
 
-    private static Double[] getUVDirection(JsonObject object) {
+    private static Float[] getUVDirection(JsonObject object) {
         if (object == null) {
-            return new Double[] { 0D, 0D, 0D };
+            return new Float[] { 0F, 0F, 0F };
         }
 
         final JsonArray arrayUv = object.getAsJsonArray("uv");
         final JsonArray arrayUvSize = object.getAsJsonArray("uv_size");
 
-        return new Double[] {arrayUv.get(0).getAsDouble(), arrayUv.get(1).getAsDouble(), arrayUvSize.get(0).getAsDouble(), arrayUvSize.get(1).getAsDouble()};
+        return new Float[] {arrayUv.get(0).getAsFloat(), arrayUv.get(1).getAsFloat(), arrayUvSize.get(0).getAsFloat(), arrayUvSize.get(1).getAsFloat()};
     }
 
     @Override
     public UVMap clone() {
         final UVMap map = new UVMap(uvType);
 
-        for (final Map.Entry<Direction, Double[]> entry : this.map.entrySet()) {
+        for (final Map.Entry<Direction, Float[]> entry : this.map.entrySet()) {
             if (entry.getValue() == null) {
                 continue;
             }
 
-            map.getMap().put(entry.getKey(), new Double[] {entry.getValue()[0], entry.getValue()[1], entry.getValue()[2], entry.getValue()[3]});
+            map.getMap().put(entry.getKey(), new Float[] {entry.getValue()[0], entry.getValue()[1], entry.getValue()[2], entry.getValue()[3]});
         }
 
         return map;
