@@ -45,7 +45,7 @@ public class BedrockControllerParser {
 
             final JsonObject arrays = object.getAsJsonObject("arrays");
             if (arrays == null) {
-                list.add(new BedrockRenderController(identifier, geometryPath, texturePaths, List.of(), null));
+                list.add(new BedrockRenderController(identifier, geometryPath, texturePaths, List.of(), List.of()));
                 continue;
             }
 
