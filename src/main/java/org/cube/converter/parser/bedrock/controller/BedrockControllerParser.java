@@ -28,57 +28,63 @@ public class BedrockControllerParser {
                 continue;
             }
 
-            final Map<String, List<String>> arrays = new HashMap<>();
-
             final JsonObject object = controllers.getAsJsonObject(identifier);
-            final JsonObject arrayJson = object.getAsJsonObject("arrays");
 
-            List<String> textureIndex = new ArrayList<>(), geometryIndex = new ArrayList<>();
+            List<String> texturePaths = new ArrayList<>();
             if (object.has("textures")) {
-                textureIndex = getListFromJson(object.getAsJsonArray("textures"));
+                texturePaths = arrayToList(object.getAsJsonArray("textures"));
             }
 
+            String geometryPath = "";
             if (object.has("geometry")) {
                 JsonElement element = object.get("geometry");
                 if (element.isJsonPrimitive()) {
-                    geometryIndex.add(element.getAsString());
-                } else {
-                    geometryIndex = getListFromJson(element.getAsJsonArray());
+                    geometryPath = element.getAsString();
                 }
             }
 
-            if (arrayJson != null) {
-                for (final String arrayObject : arrayJson.keySet()) {
-                    final JsonElement element = arrayJson.get(arrayObject);
-                    if (!element.isJsonObject()) {
+            final JsonObject arrays = object.getAsJsonObject("arrays");
+            if (arrays == null) {
+                list.add(new BedrockRenderController(identifier, geometryPath, texturePaths, List.of(), null));
+                continue;
+            }
+
+            final List<BedrockRenderController.Array> textures = new ArrayList<>();
+
+            if (arrays.has("textures")) {
+                final JsonObject textureArray = arrays.getAsJsonObject("textures");
+                for (final String textureArrayKey : textureArray.keySet()) {
+                    final JsonElement textureElement = textureArray.get(textureArrayKey);
+                    if (!textureElement.isJsonArray()) {
                         continue;
                     }
 
-                    for (final String elementObject : element.getAsJsonObject().keySet()) {
-                        final List<String> arrayObjectList = new ArrayList<>();
-                        final JsonElement element1 = element.getAsJsonObject().get(elementObject);
-                        if (!element1.isJsonArray()) {
-                            continue;
-                        }
-
-                        for (final JsonElement element2 : element1.getAsJsonArray()) {
-                            arrayObjectList.add(element2.getAsString());
-                        }
-
-                        if (!arrayObjectList.isEmpty()) {
-                            arrays.put(elementObject, arrayObjectList);
-                        }
-                    }
+                    textures.add(new BedrockRenderController.Array(textureArrayKey, arrayToList(textureElement.getAsJsonArray())));
                 }
             }
 
-            list.add(new BedrockRenderController(identifier, textureIndex, geometryIndex, arrays));
+            final List<BedrockRenderController.Array> geometries = new ArrayList<>();
+
+            if (arrays.has("geometries")) {
+                final JsonObject geometriesArray = arrays.getAsJsonObject("geometries");
+
+                for (final String geometryArrayKey : geometriesArray.keySet()) {
+                    final JsonElement geometryElement = geometriesArray.get(geometryArrayKey);
+                    if (!geometryElement.isJsonArray()) {
+                        continue;
+                    }
+
+                    geometries.add(new BedrockRenderController.Array(geometryArrayKey, arrayToList(geometryElement.getAsJsonArray())));
+                }
+            }
+
+            list.add(new BedrockRenderController(identifier, geometryPath, texturePaths, textures, geometries));
         }
 
         return list;
     }
 
-    private static List<String> getListFromJson(JsonArray array) {
+    private static List<String> arrayToList(JsonArray array) {
         List<String> list = new ArrayList<>();
 
         for (JsonElement element : array) {

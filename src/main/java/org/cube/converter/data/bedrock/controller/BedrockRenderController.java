@@ -5,14 +5,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
-@Getter
 @ToString
+@Getter
 public final class BedrockRenderController {
     private final String identifier;
-    private final List<String> textureIndex;
-    private final List<String> geometryIndex;
-    private final Map<String, List<String>> arrays;
+    private final String geometryPath;
+    private final List<String> texturePaths;
+    private final List<Array> textures, geometries;
+
+    @RequiredArgsConstructor
+    @ToString
+    @Getter
+    public static class Array {
+        private final String name;
+        private final List<String> values;
+    }
 }

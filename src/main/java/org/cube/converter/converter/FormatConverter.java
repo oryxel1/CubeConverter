@@ -97,7 +97,7 @@ public class FormatConverter {
                 continue;
             }
 
-            model.setDefaultTransformation(MatrixUtil.getTransformation(rotations.get(cube), cube, (float) (1F / scale)));
+            model.setDefaultTransformation(MatrixUtil.getTransformation(rotations.get(cube), cube, 1F / scale));
             cube.getPivot().set(Position3V.zero());
             cube.getRotation().set(Position3V.zero());
             // cube.getPosition().set(Position3V.zero());
