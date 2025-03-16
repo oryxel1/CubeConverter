@@ -151,6 +151,7 @@ public class FormatConverter {
     private static void scale(final Cube cube, final float scale) {
         cube.getPosition().scale(scale);
         cube.getSize().scale(scale);
+        cube.getPivot().scale(scale);
     }
 
     private static void calculateMinMax(final Cube cube, final Position3V min, final Position3V max) {

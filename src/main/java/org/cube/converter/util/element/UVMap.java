@@ -27,11 +27,7 @@ public final class UVMap {
                 continue;
             }
 
-            Float[] uv = entry.getValue();
-
-            if (this.uvType != UVType.BOX) {
-                uv = new Float[] {entry.getValue()[0], entry.getValue()[1], entry.getValue()[0] + entry.getValue()[2], entry.getValue()[1] + entry.getValue()[3]};
-            }
+            final Float[] uv = entry.getValue();
 
             for (int i = 0; i < uv.length; i++) {
                 uv[i] = uv[i] * 16 / (i % 2 == 0 ? textureWidth : textureHeight);
@@ -81,7 +77,7 @@ public final class UVMap {
         final JsonArray arrayUv = object.getAsJsonArray("uv");
         final JsonArray arrayUvSize = object.getAsJsonArray("uv_size");
 
-        return new Float[] {arrayUv.get(0).getAsFloat(), arrayUv.get(1).getAsFloat(), arrayUvSize.get(0).getAsFloat(), arrayUvSize.get(1).getAsFloat()};
+        return new Float[] {arrayUv.get(0).getAsFloat(), arrayUv.get(1).getAsFloat(), arrayUv.get(0).getAsFloat() +  arrayUvSize.get(0).getAsFloat(), arrayUv.get(1).getAsFloat() + arrayUvSize.get(1).getAsFloat()};
     }
 
     @Override
