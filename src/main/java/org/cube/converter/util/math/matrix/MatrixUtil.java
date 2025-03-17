@@ -45,7 +45,7 @@ public class MatrixUtil {
 
         matrix4f = matrix4f.scale(scale);
         // matrix4f = matrix4f.translate((float) (position.getX() / 16.0F), (float) (position.getY() / 16.0F), (float) (position.getZ() / 16.0F));
-        matrix4f = matrix4f.transpose();
+        // matrix4f = matrix4f.transpose();
 
         return fromMatrix(matrix4f);
     }
