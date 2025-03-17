@@ -37,6 +37,10 @@ public final class Cube {
         return this.rotation.getX() != 0 ? "x" : this.rotation.getY() != 0 ? "y" : "z";
     }
 
+    public int getAxisIndex() {
+        return this.rotation.getX() != 0 ? 0 : this.rotation.getY() != 0 ? 1 : 2;
+    }
+
     @Override
     public Cube clone() {
         final Cube cube = new Cube(pivot.clone(), position.clone(), size.clone(), rotation.clone(), mirror, uvMap.clone());

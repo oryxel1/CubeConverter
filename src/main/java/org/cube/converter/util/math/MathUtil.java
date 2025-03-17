@@ -11,11 +11,19 @@ public class MathUtil {
     }
 
     public static boolean isValidJavaAngle(float rawAngle) {
-        return rawAngle % 22.5 == 0D && rawAngle >= -45 && rawAngle <= 45;
+        return MathUtil.limitAngle(rawAngle) == rawAngle;
     }
 
     public static float limitAngle(float rawAngle) {
-        return MathUtil.clamp(Math.round(rawAngle / 22.5F) * 22.5F, -45, 45);
+        return MathUtil.clamp(toHackyAngle(rawAngle), -45, 45);
+    }
+
+    public static float toHackyAngle(float rawAngle) {
+        return Math.round(rawAngle / 22.5F) * 22.5F;
+    }
+
+    public static boolean canDoHacky(float angle) {
+        return Math.abs(angle) % 22.5 != 0D || Math.abs(MathUtil.toHackyAngle(angle) - angle) < Math.abs(MathUtil.limitAngle(angle) - angle);
     }
 
     public static float clamp(float num, float min, float max) {

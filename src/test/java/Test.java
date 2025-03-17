@@ -1,6 +1,5 @@
+import org.cube.converter.util.math.MathUtil;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 public class Test {
     public static void main(String[] args) {
@@ -18,5 +17,7 @@ public class Test {
         + matrix4f.m10() + "," + matrix4f.m11() + "," + matrix4f.m12() + "," + matrix4f.m13() + "," + matrix4f.m20() + ","
         + matrix4f.m21() + "," + matrix4f.m22() + "," + matrix4f.m23() + "," + matrix4f.m30() + "," + matrix4f.m31() + ","
         + matrix4f.m32() + "," + matrix4f.m33());
+
+        System.out.println(MathUtil.toHackyAngle(85F));
     }
 }

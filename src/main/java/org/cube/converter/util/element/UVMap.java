@@ -19,6 +19,27 @@ public final class UVMap {
         this.uvType = uvType;
     }
 
+    public void rotate(final Direction direction, final int roll) {
+        final Float[] uvAddSize = this.map.get(direction);
+        if (uvAddSize == null) {
+            return;
+        }
+
+        final Float[] uv = new Float[] { uvAddSize[0], uvAddSize[1], uvAddSize[2] - uvAddSize[0], uvAddSize[3] - uvAddSize[1] };
+
+        float rotation = (roll * 90) % 360;
+        while (rotation > 0) {
+            float a = uv[0];
+            uv[0] = uv[2];
+            uv[2] = uv[3];
+            uv[3] = uv[1];
+            uv[1] = a;
+            rotation -= 90;
+        }
+
+        this.map.put(direction, new Float[] { uv[0], uv[1], uv[0] + uv[2], uv[1] + uv[3] });
+    }
+
     public UVMap toJavaPerfaceUV(final float textureWidth, final float textureHeight) {
         final UVMap map = new UVMap(UVType.PERFACE);
 
@@ -77,7 +98,7 @@ public final class UVMap {
         final JsonArray arrayUv = object.getAsJsonArray("uv");
         final JsonArray arrayUvSize = object.getAsJsonArray("uv_size");
 
-        return new Float[] {arrayUv.get(0).getAsFloat(), arrayUv.get(1).getAsFloat(), arrayUv.get(0).getAsFloat() +  arrayUvSize.get(0).getAsFloat(), arrayUv.get(1).getAsFloat() + arrayUvSize.get(1).getAsFloat()};
+        return new Float[] {arrayUv.get(0).getAsFloat(), arrayUv.get(1).getAsFloat(), arrayUv.get(0).getAsFloat() + arrayUvSize.get(0).getAsFloat(), arrayUv.get(1).getAsFloat() + arrayUvSize.get(1).getAsFloat()};
     }
 
     @Override
