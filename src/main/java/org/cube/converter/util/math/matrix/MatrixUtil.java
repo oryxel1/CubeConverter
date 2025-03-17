@@ -23,24 +23,27 @@ public class MatrixUtil {
 
     public static Transformation getTransformation(final List<Map.Entry<Position3V, Position3V>> rotations, final Cube cube, final float scale) {
         Matrix4f matrix4f = new Matrix4f();
-        matrix4f = matrix4f.scale(scale);
-
 
         for (final Map.Entry<Position3V, Position3V> entry : rotations) {
-            final Position3V rotation = entry.getValue();
             final Position3V pivot = entry.getKey();
+            final Position3V rotation = entry.getValue();
 
-            matrix4f = matrix4f.translate(pivot.getX() / 16.0F, pivot.getY() / 16.0F, pivot.getZ() / 16.0F);
+            float pivotX = pivot.getX() / 16.0F, pivotY = -(pivot.getY() / 16.0F) + 24, pivotZ = pivot.getZ() / 16.0F;
+
+            matrix4f = matrix4f.translate(pivotX, pivotY, pivotZ);
             matrix4f = matrix4f.rotate(toQuaternion(rotation));
+            matrix4f = matrix4f.translate(-pivotX, -pivotY, -pivotZ);
         }
 
         if (!cube.getRotation().isZero()) {
-            float pivotX = cube.getPivot().getX() / 16.0F, pivotY = cube.getPivot().getY() / 16.0F, pivotZ = cube.getPivot().getZ() / 16.0F;
+            float pivotX = cube.getPivot().getX() / 16.0F, pivotY = -(cube.getPivot().getY() / 16.0F) + 24, pivotZ = cube.getPivot().getZ() / 16.0F;
 
             matrix4f = matrix4f.translate(pivotX, pivotY, pivotZ);
             matrix4f = matrix4f.rotate(toQuaternion(cube.getRotation()));
+            matrix4f = matrix4f.translate(-pivotX, -pivotY, -pivotZ);
         }
 
+        matrix4f = matrix4f.scale(scale);
         // matrix4f = matrix4f.translate((float) (position.getX() / 16.0F), (float) (position.getY() / 16.0F), (float) (position.getZ() / 16.0F));
         matrix4f = matrix4f.transpose();
 

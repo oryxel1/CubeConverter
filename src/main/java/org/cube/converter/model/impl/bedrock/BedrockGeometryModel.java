@@ -30,6 +30,10 @@ public final class BedrockGeometryModel extends GeneralModel {
         return FormatConverter.geometryToItemModel(texture, this, workaround);
     }
 
+    public List<JavaItemModel> toJavaItemModels(String texture) {
+        return FormatConverter.geometryToMultipleModels(texture, this);
+    }
+
     public static List<BedrockGeometryModel> fromJson(String json) {
         return fromJson(GsonUtil.getGson().fromJson(json.trim(), JsonObject.class));
     }
