@@ -86,9 +86,9 @@ public class BedrockGeometryParser {
             final Position3V parentPivot = new Position3V(boneObject.getAsJsonArray("pivot"));
             final Position3V boneRotation = new Position3V(boneObject.getAsJsonArray("rotation"));
 
-            parentPivot.setX(-parentPivot.getX());
-            boneRotation.setX(-boneRotation.getX());
-            boneRotation.setY(-boneRotation.getY());
+            // parentPivot.setX(-parentPivot.getX());
+            // boneRotation.setX(-boneRotation.getX());
+            // boneRotation.setY(-boneRotation.getY());
 
             Parent bone = new Parent(name, parentPivot, boneRotation);
 
@@ -109,10 +109,10 @@ public class BedrockGeometryParser {
                 final Position3V size = new Position3V(cubeObject.getAsJsonArray("size"));
                 final Position3V pivot = new Position3V(cubeObject.getAsJsonArray("pivot"));
                 final Position3V rotation = new Position3V(cubeObject.getAsJsonArray("rotation"));
-                pivot.setX(-pivot.getX());
+                // pivot.setX(-pivot.getX());
 
-                rotation.setX(-rotation.getX());
-                rotation.setY(-rotation.getY());
+                // rotation.setX(-rotation.getX());
+                // rotation.setY(-rotation.getY());
 
                 boolean mirror = false;
                 if (cubeObject.has("mirror")) {

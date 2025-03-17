@@ -48,6 +48,8 @@ public class FormatConverter {
             for (Map.Entry<Integer, Cube> entry : parent.getCubes().entrySet()) {
                 final Cube cube = entry.getValue();
 
+                cube.getPivot().setX(-cube.getPivot().getX());
+
                 cube.inflate();
                 calculateMinMax(cube, min, max);
 
@@ -116,12 +118,14 @@ public class FormatConverter {
             for (Map.Entry<Integer, Cube> entry : parent.getCubes().entrySet()) {
                 final Cube cube = entry.getValue();
 
-                convertTo1Axis(cube);
                 cube.inflate();
+                cube.getPivot().setX(-cube.getPivot().getX());
 
                 if (workaround) {
                     RotationUtil.rotateIfPossible(cube);
                 }
+
+                convertTo1Axis(cube);
 
                 cube.fixRotationIfNeeded();
                 calculateMinMax(cube, min, max);
@@ -182,7 +186,7 @@ public class FormatConverter {
         final List<Float> axes = List.of(cube.getRotation().getX(), cube.getRotation().getY(), cube.getRotation().getZ());
         int index = 0;
         for (float angle : axes) {
-            if (Math.abs(angle) > largestAxis && Math.abs(angle) % 45 != 0D) {
+            if (Math.abs(angle) > largestAxis && Math.abs(angle) % 22.5 != 0D) {
                 largestAxis = Math.abs(angle);
                 axis = index;
             }
@@ -192,9 +196,9 @@ public class FormatConverter {
 
         if (axis != -1) {
             final Position3V rotation = cube.getRotation();
-            rotation.setX(axis == 0 ? 0 : MathUtil.limitAngle(-rotation.getX()));
-            rotation.setY(axis == 1 ? 0 : MathUtil.limitAngle(-rotation.getY()));
-            rotation.setZ(axis == 2 ? 0 : MathUtil.limitAngle(rotation.getZ()));
+            rotation.setX(axis != 0 ? 0 : -MathUtil.limitAngle(rotation.getX()));
+            rotation.setY(axis != 1 ? 0 : -MathUtil.limitAngle(rotation.getY()));
+            rotation.setZ(axis != 2 ? 0 : MathUtil.limitAngle(rotation.getZ()));
         }
     }
 
