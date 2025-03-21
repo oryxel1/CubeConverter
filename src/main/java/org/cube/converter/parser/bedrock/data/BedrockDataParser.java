@@ -1,6 +1,5 @@
 package org.cube.converter.parser.bedrock.data;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
@@ -8,10 +7,10 @@ import org.cube.converter.data.bedrock.BedrockAttachableData;
 import org.cube.converter.data.bedrock.BedrockEntityData;
 import org.cube.converter.util.GsonUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.cube.converter.util.GsonUtil.*;
 
 @RequiredArgsConstructor
 public class BedrockDataParser {
@@ -32,86 +31,33 @@ public class BedrockDataParser {
     }
 
     private static BedrockAttachableData parseAttachable(final JsonObject json) {
-        if (!json.has("minecraft:attachable")) {
-            return null;
-        }
-
-        final JsonObject description = json.getAsJsonObject("minecraft:attachable").getAsJsonObject("description");
-        final String identifier = description.getAsJsonPrimitive("identifier").getAsString();
-        final Map<String, String> textures = convertJsonToMap(description.getAsJsonObject("textures"));
-        final Map<String, String> geometries = convertJsonToMap(description.getAsJsonObject("geometry"));
-        final List<BedrockEntityData.RenderController> controllers = description.has("render_controllers") ? parseRenderController(description.getAsJsonArray("render_controllers")) : new ArrayList<>();
-        List<String> variables = new ArrayList<>();
-        if (description.has("scripts")) {
-            final JsonObject scripts = description.getAsJsonObject("scripts");
-            if (scripts.has("initialize")) {
-                variables = convertJsonToList(scripts.getAsJsonArray("initialize"));
-            }
-        }
-
-        return new BedrockAttachableData(identifier, controllers, textures, geometries, variables);
+        return (BedrockAttachableData) parse(json, "minecraft:attachable", true);
     }
 
     private static BedrockEntityData parseEntity(final JsonObject json) {
-        if (!json.has("minecraft:client_entity")) {
+        return parse(json, "minecraft:client_entity", false);
+    }
+
+    private static BedrockEntityData parse(final JsonObject json, final String identifierName, boolean attachable) {
+        if (!json.has(identifierName)) {
             return null;
         }
 
-        final JsonObject description = json.getAsJsonObject("minecraft:client_entity").getAsJsonObject("description");
+        final JsonObject description = json.getAsJsonObject(identifierName).getAsJsonObject("description");
         final String identifier = description.getAsJsonPrimitive("identifier").getAsString();
-        final Map<String, String> textures = convertJsonToMap(description.getAsJsonObject("textures"));
-        final Map<String, String> geometries = convertJsonToMap(description.getAsJsonObject("geometry"));
-        final List<BedrockEntityData.RenderController> controllers = description.has("render_controllers") ? parseRenderController(description.getAsJsonArray("render_controllers")) : new ArrayList<>();
-        List<String> variables = new ArrayList<>();
+        final Map<String, String> materials = objectToMap(description.getAsJsonObject("materials"));
+        final Map<String, String> textures = objectToMap(description.getAsJsonObject("textures"));
+        final Map<String, String> geometries = objectToMap(description.getAsJsonObject("geometry"));
+        final Map<String, String> animations = objectToMap(description.getAsJsonObject("animations"));
+        final List<BedrockEntityData.RenderController> controllers = BedrockEntityData.RenderController.parse(description.getAsJsonArray("render_controllers"));
+        final BedrockEntityData.Scripts scripts;
         if (description.has("scripts")) {
-            final JsonObject scripts = description.getAsJsonObject("scripts");
-            if (scripts.has("initialize")) {
-                variables = convertJsonToList(scripts.getAsJsonArray("initialize"));
-            }
+            scripts = BedrockEntityData.Scripts.parse(description.getAsJsonObject("scripts"));
+        } else {
+            scripts = BedrockEntityData.Scripts.emptyScript();
         }
 
-        return new BedrockEntityData(identifier, controllers, textures, geometries, variables);
-    }
-
-    private static List<BedrockEntityData.RenderController> parseRenderController(final JsonArray array) {
-        List<BedrockEntityData.RenderController> list = new ArrayList<>();
-        for (JsonElement element : array) {
-            if (element.isJsonObject()) {
-                for (final String elementName : element.getAsJsonObject().keySet()) {
-                    final JsonElement element1 = element.getAsJsonObject().get(elementName);
-                    if (!element1.isJsonPrimitive()) {
-                        continue;
-                    }
-
-                    list.add(new BedrockEntityData.RenderController(elementName, element1.getAsString()));
-                }
-            } else {
-                list.add(new BedrockEntityData.RenderController(element.getAsString(), ""));
-            }
-        }
-
-        return list;
-    }
-
-    private static List<String> convertJsonToList(final JsonArray array) {
-        List<String> strings = new ArrayList<>();
-        for (JsonElement element : array) {
-            if (!element.isJsonObject()) {
-                strings.add(element.getAsString());
-            }
-        }
-
-        return strings;
-    }
-
-    private static Map<String, String> convertJsonToMap(final JsonObject object) {
-        Map<String, String> map = new HashMap<>();
-        for (String name : object.keySet()) {
-            JsonElement element = object.get(name);
-
-            map.put(name, element.getAsString());
-        }
-
-        return map;
+        return attachable ? new BedrockAttachableData(identifier, scripts, controllers, materials, animations, textures, geometries) :
+                new BedrockEntityData(identifier, scripts, controllers, materials, animations, textures, geometries);
     }
 }
