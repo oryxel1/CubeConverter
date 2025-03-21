@@ -4,110 +4,12 @@ import org.cube.converter.model.element.Cube;
 import org.cube.converter.model.element.Parent;
 import org.cube.converter.model.impl.bedrock.BedrockGeometryModel;
 import org.cube.converter.model.impl.java.JavaItemModel;
-import org.cube.converter.util.math.MathUtil;
 import org.cube.converter.util.element.Position3V;
 import org.cube.converter.util.legacy.RotationUtil;
-import org.cube.converter.util.math.matrix.MatrixUtil;
 
 import java.util.*;
 
 public class FormatConverter {
-    public static List<JavaItemModel> geometryToMultipleModels(final String texture, final BedrockGeometryModel geometry) {
-        final List<JavaItemModel> models = new ArrayList<>();
-        final Position3V min = new Position3V(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE), max = new Position3V(0, 0, 0);
-
-        final JavaItemModel baseModel = new JavaItemModel(texture, geometry.getTextureSize());
-        int baseModelCount = 0;
-
-        final Map<String, Parent> parentMap = new HashMap<>();
-        for (final Parent parent : geometry.getParents()) {
-            parentMap.put(parent.getName(), parent);
-        }
-
-        final Map<Cube, List<Map.Entry<Position3V, Position3V>>> rotations = new HashMap<>();
-
-        for (final Parent old : geometry.getParents()) {
-            final Parent parent = old.clone();
-
-            final List<Map.Entry<Position3V, Position3V>> parentRotations = new ArrayList<>();
-            Parent currentParent = parent;
-
-            while (currentParent != null) {
-                final Position3V rotation = currentParent.getRotation();
-
-                if (!rotation.isZero()) {
-                    parentRotations.add(Map.entry(currentParent.getPivot(), rotation));
-                }
-
-                currentParent = parentMap.get(currentParent.getParent());
-            }
-
-            // Correct order.
-            Collections.reverse(parentRotations);
-
-            for (Map.Entry<Integer, Cube> entry : parent.getCubes().entrySet()) {
-                final Cube cube = entry.getValue();
-
-                cube.getPivot().setX(-cube.getPivot().getX());
-
-                cube.inflate();
-                calculateMinMax(cube, min, max);
-
-                // This rotation is valid and there is no parent rotation either, move it into base model.
-                if (MathUtil.isValidRotation(cube.getRotation()) && parentRotations.isEmpty()) {
-                    convertTo1Axis(cube);
-                    cube.fixRotationIfNeeded();
-
-                    final Parent parent1 = new Parent(cube.getParent() + cube.hashCode(), Position3V.zero(), Position3V.zero());
-                    parent1.getCubes().put(baseModelCount++, cube);
-                    baseModel.getParents().add(parent1);
-                    continue;
-                }
-
-                final JavaItemModel model = new JavaItemModel(texture, geometry.getTextureSize());
-
-                final Parent parent1 = new Parent(cube.getParent() + cube.hashCode(), Position3V.zero(), Position3V.zero());
-                parent1.getCubes().put(0, cube);
-                model.getParents().add(parent1);
-                models.add(model);
-
-                rotations.put(cube, parentRotations);
-            }
-        }
-
-        if (!baseModel.getParents().isEmpty()) {
-            models.add(baseModel);
-        }
-
-        Collections.reverse(models);
-
-        final float scale = calculateMinSize(min, max);
-        for (final JavaItemModel model : models) {
-            scale(model, scale); // Scale down.
-
-            if (model.getParents().size() > 1) {
-                continue;
-            }
-
-            final Parent parent = model.getParents().get(0);
-            if (!parent.getCubes().containsKey(0)) {
-                continue;
-            }
-
-            final Cube cube = parent.getCubes().get(0);
-            if (!rotations.containsKey(cube)) {
-                continue;
-            }
-
-            model.setDefaultTransformation(MatrixUtil.getTransformation(rotations.get(cube), cube, 1F / scale));
-            cube.getPivot().set(Position3V.zero());
-            cube.getRotation().set(Position3V.zero());
-            // cube.getPosition().set(Position3V.zero());
-        }
-
-        return models;
-    }
-
     public static JavaItemModel geometryToItemModel(final String texture, final BedrockGeometryModel geometry, final boolean workaround) {
         final Position3V min = new Position3V(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE), max = new Position3V(0, 0, 0);
 
