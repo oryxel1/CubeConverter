@@ -1,25 +1,36 @@
 package org.cube.converter.data.bedrock.controller;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-@RequiredArgsConstructor
-@ToString
-@Getter
-public final class BedrockRenderController {
-    private final String identifier;
-    private final String geometryPath;
-    private final List<String> texturePaths;
-    private final List<Array> textures, geometries;
+import static org.cube.converter.util.GsonUtil.*;
 
-    @RequiredArgsConstructor
-    @ToString
-    @Getter
-    public static class Array {
-        private final String name;
-        private final List<String> values;
+// TODO: hurt color, overlay color, etc....
+public record BedrockRenderController(String identifier, Map<String, String> materialsMap,
+                                      String geometryExpression, List<String> textureExpressions,
+                                      List<Array> materials, List<Array> textures, List<Array> geometries) {
+    public record Array(String name, List<String> values) {
+        public static List<Array> parse(final JsonObject object) {
+            if (object == null) {
+                return List.of();
+            }
+
+            final List<Array> list = new ArrayList<>();
+            for (final String arrayKey : object.keySet()) {
+                final JsonElement element = object.get(arrayKey);
+                if (!element.isJsonArray()) {
+                    continue;
+                }
+
+                list.add(new BedrockRenderController.Array(arrayKey, arrayToList(element.getAsJsonArray())));
+            }
+
+            return list;
+        }
     }
 }

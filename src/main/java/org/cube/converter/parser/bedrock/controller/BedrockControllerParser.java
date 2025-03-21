@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.cube.converter.util.GsonUtil.objectToMap;
+
 public class BedrockControllerParser {
     public static List<BedrockRenderController> parse(final String json) {
         return parse(GsonUtil.getGson().fromJson(json.trim(), JsonObject.class));
@@ -30,55 +32,40 @@ public class BedrockControllerParser {
 
             final JsonObject object = controllers.getAsJsonObject(identifier);
 
-            List<String> texturePaths = new ArrayList<>();
+            List<String> textureExpressions = new ArrayList<>();
             if (object.has("textures")) {
-                texturePaths = arrayToList(object.getAsJsonArray("textures"));
+                textureExpressions = arrayToList(object.getAsJsonArray("textures"));
             }
 
-            String geometryPath = "";
+            String geometryExpression = "";
             if (object.has("geometry")) {
                 JsonElement element = object.get("geometry");
                 if (element.isJsonPrimitive()) {
-                    geometryPath = element.getAsString();
+                    geometryExpression = element.getAsString();
+                }
+            }
+
+            final Map<String, String> materialsMap = new HashMap<>();
+            if (object.has("materials")) {
+                for (final JsonElement element : object.getAsJsonArray("materials")) {
+                    if (!element.isJsonObject()) {
+                        continue;
+                    }
+                    materialsMap.putAll(objectToMap(element.getAsJsonObject()));
                 }
             }
 
             final JsonObject arrays = object.getAsJsonObject("arrays");
             if (arrays == null) {
-                list.add(new BedrockRenderController(identifier, geometryPath, texturePaths, List.of(), List.of()));
+                list.add(new BedrockRenderController(identifier, materialsMap, geometryExpression, textureExpressions, List.of(), List.of(), List.of()));
                 continue;
             }
 
-            final List<BedrockRenderController.Array> textures = new ArrayList<>();
+            final List<BedrockRenderController.Array> textures = BedrockRenderController.Array.parse(arrays.getAsJsonObject("textures"));
+            final List<BedrockRenderController.Array> geometries = BedrockRenderController.Array.parse(arrays.getAsJsonObject("geometries"));
+            final List<BedrockRenderController.Array> materials = BedrockRenderController.Array.parse(arrays.getAsJsonObject("materials"));
 
-            if (arrays.has("textures")) {
-                final JsonObject textureArray = arrays.getAsJsonObject("textures");
-                for (final String textureArrayKey : textureArray.keySet()) {
-                    final JsonElement textureElement = textureArray.get(textureArrayKey);
-                    if (!textureElement.isJsonArray()) {
-                        continue;
-                    }
-
-                    textures.add(new BedrockRenderController.Array(textureArrayKey, arrayToList(textureElement.getAsJsonArray())));
-                }
-            }
-
-            final List<BedrockRenderController.Array> geometries = new ArrayList<>();
-
-            if (arrays.has("geometries")) {
-                final JsonObject geometriesArray = arrays.getAsJsonObject("geometries");
-
-                for (final String geometryArrayKey : geometriesArray.keySet()) {
-                    final JsonElement geometryElement = geometriesArray.get(geometryArrayKey);
-                    if (!geometryElement.isJsonArray()) {
-                        continue;
-                    }
-
-                    geometries.add(new BedrockRenderController.Array(geometryArrayKey, arrayToList(geometryElement.getAsJsonArray())));
-                }
-            }
-
-            list.add(new BedrockRenderController(identifier, geometryPath, texturePaths, textures, geometries));
+            list.add(new BedrockRenderController(identifier, materialsMap, geometryExpression, textureExpressions, materials, textures, geometries));
         }
 
         return list;
