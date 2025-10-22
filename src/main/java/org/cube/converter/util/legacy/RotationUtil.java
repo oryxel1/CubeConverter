@@ -10,7 +10,11 @@ import java.util.Map;
 
 // Credit goes to BlockBench. https://github.com/JannisX11/blockbench
 public class RotationUtil {
-    public static void doHackyRotationIfPossible(final Cube cube) {
+    public static void doHackyRotationIfPossiblePost1_21_60(final Cube cube) {
+
+    }
+
+    public static void doHackyRotationIfPossiblePre1_21_60(final Cube cube) {
         final Position3V rotation = cube.getRotation();
         // Since there only 1 angle now, this should be correct.
         float angle = rotation.getX() + rotation.getY() + rotation.getZ();
@@ -90,43 +94,26 @@ public class RotationUtil {
             element.getSize().set(new Position3V(size));
             element.getPosition().set(new Position3V(from).asBedrockPosition(element.getSize()));
 
-            final Map<Direction, Float[]> old = new HashMap<>(element.getUvMap().getMap());
-
             switch (axis) {
                 case 0 -> {
                     element.getUvMap().rotate(Direction.WEST, 1);
                     element.getUvMap().rotate(Direction.EAST, 3);
                     element.getUvMap().rotate(Direction.NORTH, 2);
                     element.getUvMap().rotate(Direction.DOWN, 2);
-
-                    element.getUvMap().getMap().put(Direction.NORTH, old.get(Direction.DOWN));
-                    element.getUvMap().getMap().put(Direction.DOWN, old.get(Direction.SOUTH));
-                    element.getUvMap().getMap().put(Direction.SOUTH, old.get(Direction.UP));
-                    element.getUvMap().getMap().put(Direction.UP, old.get(Direction.NORTH));
                 }
 
                 case 1 -> {
                     element.getUvMap().rotate(Direction.UP, 1);
                     element.getUvMap().rotate(Direction.DOWN, 3);
-
-                    element.getUvMap().getMap().put(Direction.NORTH, old.get(Direction.WEST));
-                    element.getUvMap().getMap().put(Direction.WEST, old.get(Direction.SOUTH));
-                    element.getUvMap().getMap().put(Direction.SOUTH, old.get(Direction.EAST));
-                    element.getUvMap().getMap().put(Direction.EAST, old.get(Direction.NORTH));
                 }
 
                 case 2 -> {
-//                    element.getUvMap().rotate(Direction.NORTH, 1);
-//                    element.getUvMap().rotate(Direction.SOUTH, 3);
-//                    element.getUvMap().rotate(Direction.UP, 3);
-//                    element.getUvMap().rotate(Direction.EAST, 3);
-//                    element.getUvMap().rotate(Direction.WEST, 3);
-//                    element.getUvMap().rotate(Direction.DOWN, 3);
-
-                    element.getUvMap().getMap().put(Direction.EAST, old.get(Direction.DOWN));
-                    element.getUvMap().getMap().put(Direction.DOWN, old.get(Direction.WEST));
-                    element.getUvMap().getMap().put(Direction.WEST, old.get(Direction.UP));
-                    element.getUvMap().getMap().put(Direction.UP, old.get(Direction.EAST));
+                    element.getUvMap().rotate(Direction.NORTH, 1);
+                    element.getUvMap().rotate(Direction.SOUTH, 3);
+                    element.getUvMap().rotate(Direction.UP, 3);
+                    element.getUvMap().rotate(Direction.EAST, 3);
+                    element.getUvMap().rotate(Direction.WEST, 3);
+                    element.getUvMap().rotate(Direction.DOWN, 3);
                 }
             }
         }

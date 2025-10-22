@@ -26,7 +26,7 @@ public final class Cube {
     }
 
     // Java Only.
-    public void fixRotationIfNeeded() {
+    public void clampToJavaLimitedAngle() {
         final Position3V rotation = this.getRotation();
         rotation.setX(Math.abs(rotation.getX()) == 180 ? 0 : MathUtil.limitAngle(rotation.getX()));
         rotation.setY(Math.abs(rotation.getY()) == 180 ? 0 : MathUtil.limitAngle(rotation.getY()));

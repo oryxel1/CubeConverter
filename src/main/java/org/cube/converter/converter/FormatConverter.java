@@ -1,5 +1,6 @@
 package org.cube.converter.converter;
 
+import org.cube.converter.converter.enums.RotationType;
 import org.cube.converter.model.element.Cube;
 import org.cube.converter.model.element.Parent;
 import org.cube.converter.model.impl.bedrock.BedrockGeometryModel;
@@ -10,7 +11,7 @@ import org.cube.converter.util.legacy.RotationUtil;
 import java.util.*;
 
 public class FormatConverter {
-    public static JavaItemModel geometryToItemModel(final String texture, final BedrockGeometryModel geometry, final boolean workaround) {
+    public static JavaItemModel geometryToItemModel(final String texture, final BedrockGeometryModel geometry, final RotationType type) {
         final Position3V min = new Position3V(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE), max = new Position3V(0, 0, 0);
 
         final List<Parent> parents = new ArrayList<>();
@@ -23,13 +24,19 @@ public class FormatConverter {
                 cube.inflate();
                 cube.getPivot().setX(-cube.getPivot().getX());
 
-                convertTo1Axis(cube);
-
-                if (workaround) {
-                    RotationUtil.doHackyRotationIfPossible(cube);
+                if (type != RotationType.HACKY_POST_1_21_60) {
+                    convertTo1Axis(cube);
                 }
 
-                cube.fixRotationIfNeeded();
+                if (type == RotationType.HACKY_PRE_1_21_60) {
+                    RotationUtil.doHackyRotationIfPossiblePre1_21_60(cube);
+                } else if (type == RotationType.HACKY_POST_1_21_60) {
+                    RotationUtil.doHackyRotationIfPossiblePost1_21_60(cube);
+                }
+
+                if (type == RotationType.PRE_1_21_60 || type == RotationType.HACKY_PRE_1_21_60) {
+                    cube.clampToJavaLimitedAngle();
+                }
                 calculateMinMax(cube, min, max);
             }
 
@@ -103,18 +110,5 @@ public class FormatConverter {
             rotation.setY(axis != 1 ? 0 : -rotation.getY());
             rotation.setZ(axis != 2 ? 0 : rotation.getZ());
         }
-    }
-
-    public static int getAxis(float[] axes) {
-        float largestAxes = 0;
-        int axis = 0;
-        for (int i = 0; i < axes.length; i++) {
-            if (Math.abs(axes[i]) > largestAxes && axes[i] % Math.abs(90) != 0D) {
-                largestAxes = Math.abs(axes[i]);
-                axis = i;
-            }
-        }
-
-        return axis;
     }
 }

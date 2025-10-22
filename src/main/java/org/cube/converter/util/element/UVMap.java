@@ -13,37 +13,27 @@ import org.cube.converter.util.minecraft.UVUtil;
 @Getter
 public final class UVMap {
     private final UVType uvType;
-    private final Map<Direction, Float[]> map = new HashMap<>();
+    private final Map<Direction, Float[]> uvMap = new HashMap<>();
+    private final Map<Direction, Float> uvRotation = new HashMap<>();
 
     private UVMap(UVType uvType) {
         this.uvType = uvType;
     }
 
     public void rotate(final Direction direction, final int roll) {
-        final Float[] uvAddSize = this.map.get(direction);
-        if (uvAddSize == null) {
+        final Float[] uv = this.uvMap.get(direction);
+        if (uv == null) {
             return;
         }
 
-        final Float[] uv = new Float[] { uvAddSize[0], uvAddSize[1], uvAddSize[2] - uvAddSize[0], uvAddSize[3] - uvAddSize[1] };
-
         float rotation = (roll * 90) % 360;
-        while (rotation > 0) {
-            float a = uv[0];
-            uv[0] = uv[2];
-            uv[2] = uv[3];
-            uv[3] = uv[1];
-            uv[1] = a;
-            rotation -= 90;
-        }
-
-        this.map.put(direction, new Float[] { uv[0], uv[1], uv[0] + uv[2], uv[1] + uv[3] });
+        this.uvRotation.put(direction, rotation);
     }
 
     public UVMap toJavaPerfaceUV(final float textureWidth, final float textureHeight) {
         final UVMap map = new UVMap(UVType.PERFACE);
 
-        for (final Map.Entry<Direction, Float[]> entry : this.map.entrySet()) {
+        for (final Map.Entry<Direction, Float[]> entry : this.uvMap.entrySet()) {
             if (entry.getValue() == null) {
                 continue;
             }
@@ -54,7 +44,7 @@ public final class UVMap {
                 uv[i] = uv[i] * 16 / (i % 2 == 0 ? textureWidth : textureHeight);
             }
 
-            map.getMap().put(entry.getKey(), uv);
+            map.getUvMap().put(entry.getKey(), uv);
         }
 
         return map;
@@ -65,7 +55,7 @@ public final class UVMap {
         final List<UVUtil.Face> faces = UVUtil.toUvFaces(size, mirror);
 
         for (UVUtil.Face face : faces) {
-            map.getMap().put(face.getDirection(), new Float[] { face.getStart().getX() + offset[0], face.getStart().getY() + offset[1], face.getEnd().getX() + offset[0], face.getEnd().getY() + offset[1] });
+            map.getUvMap().put(face.getDirection(), new Float[] { face.getStart().getX() + offset[0], face.getStart().getY() + offset[1], face.getEnd().getX() + offset[0], face.getEnd().getY() + offset[1] });
         }
         return map;
     }
@@ -74,12 +64,12 @@ public final class UVMap {
         final JsonObject uv = object.getAsJsonObject("uv");
         final UVMap map = new UVMap(UVType.PERFACE);
         
-        putIfExist(Direction.NORTH, uv, map.getMap());
-        putIfExist(Direction.EAST, uv, map.getMap());
-        putIfExist(Direction.SOUTH, uv, map.getMap());
-        putIfExist(Direction.WEST, uv, map.getMap());
-        putIfExist(Direction.UP, uv, map.getMap());
-        putIfExist(Direction.DOWN, uv, map.getMap());
+        putIfExist(Direction.NORTH, uv, map.getUvMap());
+        putIfExist(Direction.EAST, uv, map.getUvMap());
+        putIfExist(Direction.SOUTH, uv, map.getUvMap());
+        putIfExist(Direction.WEST, uv, map.getUvMap());
+        putIfExist(Direction.UP, uv, map.getUvMap());
+        putIfExist(Direction.DOWN, uv, map.getUvMap());
         return map;
     }
 
@@ -103,15 +93,17 @@ public final class UVMap {
 
     @Override
     public UVMap clone() {
-        final UVMap map = new UVMap(uvType);
+        final UVMap map = new UVMap(this.uvType);
 
-        for (final Map.Entry<Direction, Float[]> entry : this.map.entrySet()) {
+        for (final Map.Entry<Direction, Float[]> entry : this.uvMap.entrySet()) {
             if (entry.getValue() == null) {
                 continue;
             }
 
-            map.getMap().put(entry.getKey(), new Float[] {entry.getValue()[0], entry.getValue()[1], entry.getValue()[2], entry.getValue()[3]});
+            map.getUvMap().put(entry.getKey(), new Float[] {entry.getValue()[0], entry.getValue()[1], entry.getValue()[2], entry.getValue()[3]});
         }
+
+        map.getUvRotation().putAll(this.uvRotation);
 
         return map;
     }

@@ -12,7 +12,6 @@ import org.cube.converter.util.element.Direction;
 import org.cube.converter.util.element.Position2V;
 import org.cube.converter.util.element.Position3V;
 import org.cube.converter.util.minecraft.Transformation;
-import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Map;
@@ -98,7 +97,7 @@ public final class JavaItemModel extends GeneralModel {
     private JsonObject compileUV(final float textureWidth, final float textureHeight, final Cube element) {
         JsonObject faces = new JsonObject();
 
-        for (Map.Entry<Direction, Float[]> entry : element.getUvMap().toJavaPerfaceUV(textureWidth, textureHeight).getMap().entrySet()) {
+        for (Map.Entry<Direction, Float[]> entry : element.getUvMap().toJavaPerfaceUV(textureWidth, textureHeight).getUvMap().entrySet()) {
             if (entry.getValue() == null) {
                 continue;
             }
@@ -112,6 +111,10 @@ public final class JavaItemModel extends GeneralModel {
 
             faceDirection.add("uv", array);
             faceDirection.addProperty("texture", "#0");
+            Float uvRotation = element.getUvMap().getUvRotation().get(entry.getKey());
+            if (uvRotation != null) {
+                faceDirection.addProperty("rotation", uvRotation);
+            }
 
             faces.add(entry.getKey().name().toLowerCase(), faceDirection);
         }
