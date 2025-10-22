@@ -1,3 +1,4 @@
+import org.cube.converter.converter.enums.RotationType;
 import org.cube.converter.model.impl.bedrock.BedrockGeometryModel;
 import org.cube.converter.model.impl.java.JavaItemModel;
 import org.cube.converter.parser.bedrock.geometry.BedrockGeometryParser;
@@ -48,7 +49,7 @@ public class BedrockModelConverterTest {
 
                     int i = 0;
                     for (final BedrockGeometryModel geometry : geometries) {
-                        final JavaItemModel model = geometry.toJavaItemModel("test", true);
+                        final JavaItemModel model = geometry.toJavaItemModel("test", RotationType.HACKY_POST_1_21_60);
 
                         final String json = model.compile().toString();
                         File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + ".json");

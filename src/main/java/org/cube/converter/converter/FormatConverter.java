@@ -32,6 +32,7 @@ public class FormatConverter {
                     RotationUtil.doHackyRotationIfPossiblePre1_21_60(cube);
                 } else if (type == RotationType.HACKY_POST_1_21_60) {
                     RotationUtil.doHackyRotationIfPossiblePost1_21_60(cube);
+                    convertTo1Axis(cube);
                 }
 
                 if (type == RotationType.PRE_1_21_60 || type == RotationType.HACKY_PRE_1_21_60) {
@@ -78,6 +79,7 @@ public class FormatConverter {
         max.setZ(Math.max(max.getZ(), to.getZ()));
     }
 
+    // I can't remember how the fuck this size calculation even works, but it works.
     private static float calculateMinSize(final Position3V min, final Position3V max) {
         final Position3V overlapMin = min.getJavaOverlap(), overlapMax = max.getJavaOverlap();
         final Position3V totalOverlap = overlapMin.add(overlapMax);

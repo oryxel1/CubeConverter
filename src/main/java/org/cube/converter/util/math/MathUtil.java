@@ -29,4 +29,8 @@ public class MathUtil {
     public static float clamp(float num, float min, float max) {
         return num < min ? min : Math.min(num, max);
     }
+
+    public static boolean closeEnoughAbs(float angle, float target) {
+        return Math.abs(Math.abs(angle) - Math.abs(target)) < 5;
+    }
 }

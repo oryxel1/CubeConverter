@@ -41,6 +41,13 @@ public final class Cube {
         return this.rotation.getX() != 0 ? 0 : this.rotation.getY() != 0 ? 1 : 2;
     }
 
+    public boolean isThereOneAngleOnly() {
+        boolean xOnly = this.rotation.getX() != 0 && this.rotation.getY() == 0 && this.rotation.getZ() == 0;
+        boolean yOnly = this.rotation.getY() != 0 && this.rotation.getX() == 0 && this.rotation.getZ() == 0;
+        boolean zOnly = this.rotation.getZ() != 0 && this.rotation.getX() == 0 && this.rotation.getY() == 0;
+        return xOnly || yOnly || zOnly;
+    }
+
     @Override
     public Cube clone() {
         final Cube cube = new Cube(pivot.clone(), position.clone(), size.clone(), rotation.clone(), mirror, uvMap.clone());

@@ -5,13 +5,41 @@ import org.cube.converter.util.math.MathUtil;
 import org.cube.converter.util.element.Direction;
 import org.cube.converter.util.element.Position3V;
 
-import java.util.HashMap;
-import java.util.Map;
-
 // Credit goes to BlockBench. https://github.com/JannisX11/blockbench
 public class RotationUtil {
     public static void doHackyRotationIfPossiblePost1_21_60(final Cube cube) {
+        if (cube.isThereOneAngleOnly()) {
+            return;
+        }
 
+        final Position3V rotation = cube.getRotation();
+
+        if (MathUtil.closeEnoughAbs(rotation.getX(), 90)) {
+            rotation.setX(0);
+            roll(cube, rotation.getX(), 0);
+        } else if (MathUtil.closeEnoughAbs(rotation.getX(), 90)) {
+            rotation.setX(0);
+            roll(cube, Math.signum(rotation.getX()) * 90, 0);
+            roll(cube, Math.signum(rotation.getX()) * 90, 0);
+        }
+
+        if (MathUtil.closeEnoughAbs(rotation.getY(), 90)) {
+            rotation.setY(0);
+            roll(cube, rotation.getY(), 1);
+        } else if (MathUtil.closeEnoughAbs(rotation.getY(), 180)) {
+            rotation.setY(0);
+            roll(cube, Math.signum(rotation.getY()) * 90, 1);
+            roll(cube, Math.signum(rotation.getY()) * 90, 1);
+        }
+
+        if (MathUtil.closeEnoughAbs(rotation.getZ(), 90)) {
+            rotation.setZ(0);
+            roll(cube, rotation.getZ(), 1);
+        } else if (MathUtil.closeEnoughAbs(rotation.getZ(), 90)) {
+            rotation.setZ(0);
+            roll(cube, Math.signum(rotation.getZ()) * 90, 2);
+            roll(cube, Math.signum(rotation.getZ()) * 90, 2);
+        }
     }
 
     public static void doHackyRotationIfPossiblePre1_21_60(final Cube cube) {
