@@ -24,20 +24,19 @@ public class FormatConverter {
                 cube.inflate();
                 cube.getPivot().setX(-cube.getPivot().getX());
 
-                if (type != RotationType.HACKY_POST_1_21_60) {
-                    convertTo1Axis(cube);
+                if (type != RotationType.POST_1_21_60 && type != RotationType.PRE_1_21_60) {
+                    RotationUtil.rotateBy90r180DegreesIfPossible(cube);
+
+                    boolean pre12160 = type == RotationType.HACKY_PRE_1_21_60;
+                    if (!cube.isThereOneAngleOnly()) {
+                        RotationUtil.priorityBestAngle(cube, pre12160);
+                    }
+                    RotationUtil.doHackyRotationIfPossible(cube, pre12160);
                 }
 
-                if (type == RotationType.HACKY_PRE_1_21_60) {
-                    RotationUtil.doHackyRotationIfPossiblePre1_21_60(cube);
-                } else if (type == RotationType.HACKY_POST_1_21_60) {
-                    RotationUtil.doHackyRotationIfPossiblePost1_21_60(cube);
-                    convertTo1Axis(cube);
-                }
+                convertTo1Axis(cube);
 
-                if (type == RotationType.PRE_1_21_60 || type == RotationType.HACKY_PRE_1_21_60) {
-                    cube.clampToJavaLimitedAngle();
-                }
+                cube.clampToJavaLimitedAngle(type == RotationType.PRE_1_21_60 || type == RotationType.HACKY_PRE_1_21_60);
                 calculateMinMax(cube, min, max);
             }
 
@@ -93,7 +92,7 @@ public class FormatConverter {
     }
 
     // Find the largest angle and use that one.
-    private static void convertTo1Axis(final Cube cube) {
+    public static void convertTo1Axis(final Cube cube) {
         float largestAxis = 0, axis = -1;
         final List<Float> axes = List.of(cube.getRotation().getX(), cube.getRotation().getY(), cube.getRotation().getZ());
         int index = 0;

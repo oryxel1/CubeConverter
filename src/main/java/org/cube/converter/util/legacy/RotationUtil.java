@@ -1,13 +1,16 @@
 package org.cube.converter.util.legacy;
 
+import org.cube.converter.converter.FormatConverter;
 import org.cube.converter.model.element.Cube;
 import org.cube.converter.util.math.MathUtil;
 import org.cube.converter.util.element.Direction;
 import org.cube.converter.util.element.Position3V;
 
+import java.util.List;
+
 // Credit goes to BlockBench. https://github.com/JannisX11/blockbench
 public class RotationUtil {
-    public static void doHackyRotationIfPossiblePost1_21_60(final Cube cube) {
+    public static void rotateBy90r180DegreesIfPossible(final Cube cube) {
         if (cube.isThereOneAngleOnly()) {
             return;
         }
@@ -17,7 +20,7 @@ public class RotationUtil {
         if (MathUtil.closeEnoughAbs(rotation.getX(), 90)) {
             rotation.setX(0);
             roll(cube, rotation.getX(), 0);
-        } else if (MathUtil.closeEnoughAbs(rotation.getX(), 90)) {
+        } else if (MathUtil.closeEnoughAbs(rotation.getX(), 180)) {
             rotation.setX(0);
             roll(cube, Math.signum(rotation.getX()) * 90, 0);
             roll(cube, Math.signum(rotation.getX()) * 90, 0);
@@ -35,44 +38,48 @@ public class RotationUtil {
         if (MathUtil.closeEnoughAbs(rotation.getZ(), 90)) {
             rotation.setZ(0);
             roll(cube, rotation.getZ(), 1);
-        } else if (MathUtil.closeEnoughAbs(rotation.getZ(), 90)) {
+        } else if (MathUtil.closeEnoughAbs(rotation.getZ(), 180)) {
             rotation.setZ(0);
             roll(cube, Math.signum(rotation.getZ()) * 90, 2);
             roll(cube, Math.signum(rotation.getZ()) * 90, 2);
         }
     }
 
-    public static void doHackyRotationIfPossiblePre1_21_60(final Cube cube) {
+    public static void priorityBestAngle(final Cube cube, boolean pre1_21_60) {
+        float largestAxis = 0, axis = -1;
+        final List<Float> axes = List.of(cube.getRotation().getX(), cube.getRotation().getY(), cube.getRotation().getZ());
+        int index = 0;
+        for (float angle : axes) {
+            if (Math.abs(angle) > largestAxis && !(!MathUtil.canDoHacky(angle, pre1_21_60) || angle == 0)) {
+                largestAxis = Math.abs(angle);
+                axis = index;
+            }
+
+            index++;
+        }
+
+        if (axis != -1) {
+            final Position3V rotation = cube.getRotation();
+            rotation.setX(axis != 0 ? 0 : -rotation.getX());
+            rotation.setY(axis != 1 ? 0 : -rotation.getY());
+            rotation.setZ(axis != 2 ? 0 : rotation.getZ());
+        } else {
+            FormatConverter.convertTo1Axis(cube);
+        }
+    }
+
+    public static void doHackyRotationIfPossible(final Cube cube, boolean pre1_21_60) {
         final Position3V rotation = cube.getRotation();
         // Since there only 1 angle now, this should be correct.
         float angle = rotation.getX() + rotation.getY() + rotation.getZ();
-        if (!MathUtil.canDoHacky(angle)) {
+        if (!MathUtil.canDoHacky(angle, pre1_21_60) || angle == 0) {
             return;
         }
-        angle = MathUtil.toHackyAngle(angle);
+        if (pre1_21_60) {
+            angle = MathUtil.toHackyAngle(angle);
+        }
 
         final int axis = cube.getAxisIndex();
-        if (Math.abs(angle) == 180) { // Hardcoded
-            if (angle == -180) {
-                roll(cube, -90, axis);
-                roll(cube, -90, axis);
-            } else {
-                roll(cube, 90, axis);
-                roll(cube, 90, axis);
-            }
-
-            return;
-        }
-
-        if (!MathUtil.isValidJavaAngle(90 - Math.abs(angle)) || angle == 0) {
-            return;
-        }
-
-        if (Math.abs(angle) == 90) {
-            roll(cube, angle, axis);
-            cube.getRotation().set(Position3V.zero());
-            return;
-        }
 
         if (angle < 0) {
             angle = 90 + angle;

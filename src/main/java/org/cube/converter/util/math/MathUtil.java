@@ -10,20 +10,35 @@ public class MathUtil {
         return addUp == 22.5 || addUp == 45 || addUp == 0;
     }
 
-    public static boolean isValidJavaAngle(float rawAngle) {
-        return MathUtil.limitAngle(rawAngle) == rawAngle;
+    public static boolean isValidJavaAngle(float rawAngle, boolean old) {
+        return MathUtil.limitAngle(rawAngle, old) == rawAngle;
     }
 
-    public static float limitAngle(float rawAngle) {
-        return MathUtil.clamp(toHackyAngle(rawAngle), -45, 45);
+    public static float limitAngle(float rawAngle, boolean old) {
+        return MathUtil.clamp(old ? toHackyAngle(rawAngle) : rawAngle, -45, 45);
     }
 
     public static float toHackyAngle(float rawAngle) {
         return Math.round(rawAngle / 22.5F) * 22.5F;
     }
 
-    public static boolean canDoHacky(float angle) {
-        return Math.abs(angle) % 22.5 != 0D || Math.abs(MathUtil.toHackyAngle(angle) - angle) < Math.abs(MathUtil.limitAngle(angle) - angle);
+    public static boolean canDoHacky(float angle, boolean old) {
+        if (old) {
+            return Math.abs(angle) % 22.5 != 0D || Math.abs(MathUtil.toHackyAngle(angle) - angle) < Math.abs(MathUtil.limitAngle(angle, false) - angle);
+        }
+
+        if (MathUtil.isValidJavaAngle(angle, false)) {
+            return false;
+        }
+
+        float absAngle = Math.abs(angle);
+        float newAngle;
+        if (absAngle > 90) {
+            newAngle = absAngle - 90;
+        } else {
+            newAngle = 90 - absAngle;
+        }
+        return MathUtil.isValidJavaAngle(newAngle, false);
     }
 
     public static float clamp(float num, float min, float max) {

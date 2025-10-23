@@ -26,11 +26,11 @@ public final class Cube {
     }
 
     // Java Only.
-    public void clampToJavaLimitedAngle() {
+    public void clampToJavaLimitedAngle(boolean old) {
         final Position3V rotation = this.getRotation();
-        rotation.setX(Math.abs(rotation.getX()) == 180 ? 0 : MathUtil.limitAngle(rotation.getX()));
-        rotation.setY(Math.abs(rotation.getY()) == 180 ? 0 : MathUtil.limitAngle(rotation.getY()));
-        rotation.setZ(Math.abs(rotation.getZ()) == 180 ? 0 : MathUtil.limitAngle(rotation.getZ()));
+        rotation.setX(Math.abs(rotation.getX()) == 180 ? 0 : MathUtil.limitAngle(rotation.getX(), old));
+        rotation.setY(Math.abs(rotation.getY()) == 180 ? 0 : MathUtil.limitAngle(rotation.getY(), old));
+        rotation.setZ(Math.abs(rotation.getZ()) == 180 ? 0 : MathUtil.limitAngle(rotation.getZ(), old));
     }
 
     public String getAxis() {
