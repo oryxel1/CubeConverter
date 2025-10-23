@@ -24,10 +24,10 @@ public class FormatConverter {
                 cube.inflate();
                 cube.getPivot().setX(-cube.getPivot().getX());
 
-                if (type != RotationType.POST_1_21_60 && type != RotationType.PRE_1_21_60) {
+                if (type != RotationType.POST_1_21_6 && type != RotationType.PRE_1_21_6) {
                     RotationUtil.rotateBy90r180DegreesIfPossible(cube);
 
-                    boolean pre12160 = type == RotationType.HACKY_PRE_1_21_60;
+                    boolean pre12160 = type == RotationType.HACKY_PRE_1_21_6;
                     if (!cube.isThereOneAngleOnly()) {
                         RotationUtil.priorityBestAngle(cube, pre12160);
                     }
@@ -36,7 +36,7 @@ public class FormatConverter {
 
                 convertTo1Axis(cube);
 
-                cube.clampToJavaLimitedAngle(type == RotationType.PRE_1_21_60 || type == RotationType.HACKY_PRE_1_21_60);
+                cube.clampToJavaLimitedAngle(type == RotationType.PRE_1_21_6 || type == RotationType.HACKY_PRE_1_21_6);
                 calculateMinMax(cube, min, max);
             }
 
