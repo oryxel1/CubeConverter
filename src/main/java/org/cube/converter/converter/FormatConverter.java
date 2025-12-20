@@ -23,26 +23,26 @@ public class FormatConverter {
             final Parent parent = old.clone();
 
 //            parent.getPivot().setX(-parent.getPivot().getX());
-            final List<Pair<Position3V, Position3V>> rotations = new ArrayList<>();
-            Parent next = parent;
-            while (next != null) {
-                rotations.add(new Pair<>(next.getRotation(), next.getPivot()));
-
-                final String name = next.getParent();
-                next = null;
-                if (name != null && !name.isEmpty()) {
-                    for (final Parent other : geometry.getParents()) {
-                        if (other.getName().equals(name)) {
-                            next = other;
-                            break;
-                        }
-                    }
-                } else {
-                    break;
-                }
-            }
-
-            Collections.reverse(rotations);
+//            final List<Pair<Position3V, Position3V>> rotations = new ArrayList<>();
+//            Parent next = parent;
+//            while (next != null) {
+//                rotations.add(new Pair<>(next.getRotation(), next.getPivot()));
+//
+//                final String name = next.getParent();
+//                next = null;
+//                if (name != null && !name.isEmpty()) {
+//                    for (final Parent other : geometry.getParents()) {
+//                        if (other.getName().equals(name)) {
+//                            next = other;
+//                            break;
+//                        }
+//                    }
+//                } else {
+//                    break;
+//                }
+//            }
+//
+//            Collections.reverse(rotations);
 
             for (Map.Entry<Integer, Cube> entry : parent.getCubes().entrySet()) {
                 final Cube cube = entry.getValue();
@@ -64,13 +64,6 @@ public class FormatConverter {
                     convertTo1Axis(cube);
                     cube.clampToJavaLimitedAngle(type == RotationType.PRE_1_21_6 || type == RotationType.HACKY_PRE_1_21_6);
                 } else {
-//                    if (cube.getRotation().isZero()) {
-//                        for (Pair<Position3V, Position3V> pair : rotations) {
-//                            cube.getPivot().set(pair.right());
-//                            cube.getRotation().set(pair.left());
-//                        }
-//                    }
-
 //                    final List<Pair<Position3V, Position3V>> total = new ArrayList<>(rotations);
 //                    total.add(new Pair<>(cube.getRotation(), cube.getPivot()));
 //

@@ -55,6 +55,14 @@ public final class Position3V {
         this.z = this.z * scale;
     }
 
+    public Position3V multiply(float x, float y, float z) {
+        Position3V position3V = clone();
+        position3V.x = this.x * x;
+        position3V.y = this.y * y;
+        position3V.z = this.z * z;
+        return position3V;
+    }
+
     public void set(final Position3V position3V) {
         this.set(position3V.x, position3V.y, position3V.z);
     }
