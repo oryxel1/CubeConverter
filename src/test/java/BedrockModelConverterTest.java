@@ -49,7 +49,7 @@ public class BedrockModelConverterTest {
 
                     int i = 0;
                     for (final BedrockGeometryModel geometry : geometries) {
-                        final JavaItemModel model = geometry.toJavaItemModel("test", RotationType.HACKY_POST_1_21_6);
+                        final JavaItemModel model = geometry.toJavaItemModel("test", RotationType.POST_1_21_11);
 
                         final String json = model.compile().toString();
                         File newPath = new File("test\\" + file.getName().replace(".json", "") + file.getAbsolutePath().hashCode() + "_" + i + ".json");

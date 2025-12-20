@@ -69,7 +69,11 @@ public final class JavaItemModel extends GeneralModel {
                 final Position3V from = cube.getPosition().asJavaPosition(cube.getSize());
                 element.add("from", from.toJson());
                 element.add("to", from.add(cube.getSize()).toJson());
-                element.add("rotation", compileAxis(cube));
+                if (cube.isThereOneAngleOnly()) {
+                    element.add("rotation", compileAxis(cube));
+                } else {
+                    element.add("rotation", compileRotation(cube));
+                }
                 element.add("faces", compileUV(this.textureSize.getX(), this.textureSize.getY(), cube));
                 elements.add(element);
             }
@@ -81,6 +85,18 @@ public final class JavaItemModel extends GeneralModel {
         json.add("groups", groups);
 
         return json;
+    }
+
+    private JsonObject compileRotation(final Cube cube) {
+        final Position3V rotation = cube.getRotation();
+
+        final JsonObject object = new JsonObject();
+        object.addProperty("x", rotation.getX());
+        object.addProperty("y", rotation.getY());
+        object.addProperty("z", rotation.getZ());
+        object.add("origin", cube.getPivot().withJavaOffset().toJson());
+
+        return object;
     }
 
     private JsonObject compileAxis(final Cube cube) {
