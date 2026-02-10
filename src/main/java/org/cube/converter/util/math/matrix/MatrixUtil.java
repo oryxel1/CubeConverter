@@ -47,7 +47,6 @@ public class MatrixUtil {
         Quaternionf leftRotation = new Quaternionf(triple.left());
         Vector3f scale = new Vector3f(triple.middle());
         Quaternionf rightRotation = new Quaternionf(triple.right());
-
         return new Transformation(translation, leftRotation, scale, rightRotation);
     }
 

@@ -72,28 +72,6 @@ public class FormatConverter {
         for (final Parent old : geometry.getParents()) {
             final Parent parent = old.clone();
 
-//            parent.getPivot().setX(-parent.getPivot().getX());
-//            final List<Pair<Position3V, Position3V>> rotations = new ArrayList<>();
-//            Parent next = parent;
-//            while (next != null) {
-//                rotations.add(new Pair<>(next.getRotation(), next.getPivot()));
-//
-//                final String name = next.getParent();
-//                next = null;
-//                if (name != null && !name.isEmpty()) {
-//                    for (final Parent other : geometry.getParents()) {
-//                        if (other.getName().equals(name)) {
-//                            next = other;
-//                            break;
-//                        }
-//                    }
-//                } else {
-//                    break;
-//                }
-//            }
-//
-//            Collections.reverse(rotations);
-
             for (Map.Entry<Integer, Cube> entry : parent.getCubes().entrySet()) {
                 final Cube cube = entry.getValue();
 
@@ -113,32 +91,6 @@ public class FormatConverter {
                 if (type != RotationType.POST_1_21_11) {
                     convertTo1Axis(cube);
                     cube.clampToJavaLimitedAngle(type == RotationType.PRE_1_21_6 || type == RotationType.HACKY_PRE_1_21_6);
-                } else {
-//                    final List<Pair<Position3V, Position3V>> total = new ArrayList<>(rotations);
-//                    total.add(new Pair<>(cube.getRotation(), cube.getPivot()));
-//
-//                    Matrix4f matrix4f = new Matrix4f();
-//                    for (Pair<Position3V, Position3V> pair : total) {
-//                        matrix4f = matrix4f.translate(pair.right().getX(), pair.right().getY(), pair.right().getZ());
-//                        matrix4f = matrix4f.rotateX(-pair.left().getX() * 0.017453292519943295F);
-//                        matrix4f = matrix4f.rotateY(-pair.left().getY() * 0.017453292519943295F);
-//                        matrix4f = matrix4f.rotateZ(pair.left().getZ() * 0.017453292519943295F);
-//                        matrix4f = matrix4f.translate(-pair.right().getX(), -pair.right().getY(), -pair.right().getZ());
-//                    }
-//                    matrix4f = matrix4f.translate(cube.getPosition().getX(), cube.getPosition().getY(), cube.getPosition().getZ());
-//
-//                    final Vector3f vector3f = new Vector3f();
-//                    vector3f.mulPositionGeneric(matrix4f);
-//                    cube.getPosition().set(vector3f.x, vector3f.y, vector3f.z);
-//                    cube.getPivot().set(cube.getPosition().asJavaPosition(cube.getSize()).subtract(8, 0, 8));
-//
-//                    matrix4f.transpose();
-//
-//                    Quaternionf q = new Quaternionf().setFromUnnormalized(matrix4f); // Get quaternion
-//                    Vector3f euler = new Vector3f();
-//                    matrix4f.getUnnormalizedRotation(q).getEulerAnglesXYZ(euler);
-//
-//                    cube.getRotation().set(euler.x / 0.017453292519943295F, euler.y / 0.017453292519943295F, euler.z / 0.017453292519943295F);
                 }
 
                 calculateMinMax(cube, min, max);
@@ -151,7 +103,7 @@ public class FormatConverter {
         final JavaItemModel model = new JavaItemModel(texture, geometry.getTextureSize());
         model.getParents().addAll(parents);
 
-//        scale(model, scale);
+        scale(model, scale);
         return model;
     }
 
