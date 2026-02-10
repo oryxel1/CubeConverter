@@ -3,12 +3,14 @@ package org.cube.converter.util.math.matrix;
 import org.cube.converter.model.element.Cube;
 import org.cube.converter.util.Triple;
 import org.cube.converter.util.element.Position3V;
+import org.cube.converter.util.math.Pair;
 import org.cube.converter.util.minecraft.Transformation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,31 +23,19 @@ public class MatrixUtil {
     private MatrixUtil() {
     }
 
-    public static Transformation getTransformation(final List<Map.Entry<Position3V, Position3V>> rotations, final Cube cube, final float scale) {
+    public static Transformation toTransform(final List<Pair<Position3V, Position3V>> rotations, final Cube cube) {
         Matrix4f matrix4f = new Matrix4f();
 
-        for (final Map.Entry<Position3V, Position3V> entry : rotations) {
-            final Position3V pivot = entry.getKey();
-            final Position3V rotation = entry.getValue();
+        final List<Pair<Position3V, Position3V>> rots = new ArrayList<>(rotations);
+        rots.add(new Pair<>(cube.getPivot(), cube.getRotation()));
+        for (final Pair<Position3V, Position3V> entry : rots) {
+            final Position3V pivot = entry.left();
+            final Position3V rotation = entry.right();
 
-            float pivotX = pivot.getX() / 16.0F, pivotY = -(pivot.getY() / 16.0F) + 24, pivotZ = pivot.getZ() / 16.0F;
-
-            matrix4f = matrix4f.translate(pivotX, pivotY, pivotZ);
+            matrix4f = matrix4f.translate(pivot.getX(), pivot.getY(), pivot.getZ());
             matrix4f = matrix4f.rotate(toQuaternion(rotation));
-            matrix4f = matrix4f.translate(-pivotX, -pivotY, -pivotZ);
+            matrix4f = matrix4f.translate(-pivot.getX(), -pivot.getY(), -pivot.getZ());
         }
-
-        if (!cube.getRotation().isZero()) {
-            float pivotX = cube.getPivot().getX() / 16.0F, pivotY = -(cube.getPivot().getY() / 16.0F) + 24, pivotZ = cube.getPivot().getZ() / 16.0F;
-
-            matrix4f = matrix4f.translate(pivotX, pivotY, pivotZ);
-            matrix4f = matrix4f.rotate(toQuaternion(cube.getRotation()));
-            matrix4f = matrix4f.translate(-pivotX, -pivotY, -pivotZ);
-        }
-
-        matrix4f = matrix4f.scale(scale);
-        // matrix4f = matrix4f.translate((float) (position.getX() / 16.0F), (float) (position.getY() / 16.0F), (float) (position.getZ() / 16.0F));
-        // matrix4f = matrix4f.transpose();
 
         return fromMatrix(matrix4f);
     }
@@ -66,7 +56,7 @@ public class MatrixUtil {
     }
 
     private static Quaternionf toQuaternion(final Position3V position3V) {
-        return new Quaternionf().rotateXYZ((float) (position3V.getX() * DEGREE_TO_RADS), (float) (position3V.getY() * DEGREE_TO_RADS), (float) (position3V.getZ() * DEGREE_TO_RADS));
+        return new Quaternionf().rotateXYZ(position3V.getX() * DEGREE_TO_RADS, position3V.getY() * DEGREE_TO_RADS, position3V.getZ() * DEGREE_TO_RADS);
     }
 
     private static GivensPair approximateGivensQuaternion(float a11, float a12, float a22) {
