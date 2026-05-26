@@ -1,6 +1,6 @@
 package org.cube.converter.util.element;
 
-import com.google.gson.JsonArray;
+import com.alibaba.fastjson2.JSONArray;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,8 +24,8 @@ public class Position2V {
         return this.add(0, 0);
     }
 
-    public final JsonArray toJson() {
-        final JsonArray array = new JsonArray();
+    public final JSONArray toJson() {
+        final JSONArray array = new JSONArray();
         array.add(this.x);
         array.add(this.y);
         return array;

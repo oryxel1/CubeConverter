@@ -1,6 +1,6 @@
 package org.cube.converter.util.legacy;
 
-import com.google.gson.JsonArray;
+import com.alibaba.fastjson2.JSONArray;
 import org.cube.converter.util.math.MathUtil;
 public class ArrayUtil {
 
@@ -32,11 +32,11 @@ public class ArrayUtil {
         return new float[] { x, y, z };
     }
 
-    public static float[] toArray(JsonArray array) {
+    public static float[] toArray(JSONArray array) {
         if (array == null)
             return new float[] { 0F, 0f, 0F };
 
-        return new float[] { array.get(0).getAsFloat(), array.get(1).getAsFloat(), array.get(2).getAsFloat() };
+        return new float[] { array.getFloat(0), array.getFloat(1), array.getFloat(2) };
     }
 
     public static float[] javaOffsetArray(float[] array) {

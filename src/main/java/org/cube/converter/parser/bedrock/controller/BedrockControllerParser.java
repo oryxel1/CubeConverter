@@ -1,69 +1,70 @@
 package org.cube.converter.parser.bedrock.controller;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import org.cube.converter.data.bedrock.controller.BedrockRenderController;
-import org.cube.converter.util.GsonUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.cube.converter.util.GsonUtil.objectToMap;
+import static org.cube.converter.util.FastJson2Util.objectToMap;
 
 public class BedrockControllerParser {
     public static List<BedrockRenderController> parse(final String json) {
-        return parse(GsonUtil.getGson().fromJson(json.trim(), JsonObject.class));
+        return parse(JSON.parseObject(json.trim()));
     }
 
-    public static List<BedrockRenderController> parse(final JsonObject json) {
-        if (!json.has("render_controllers")) {
+    public static List<BedrockRenderController> parse(final JSONObject json) {
+        if (!json.containsKey("render_controllers")) {
             return new ArrayList<>();
         }
 
         final List<BedrockRenderController> list = new ArrayList<>();
-        final JsonObject controllers = json.getAsJsonObject("render_controllers");
+        final JSONObject controllers = json.getJSONObject("render_controllers");
         for (final String identifier : controllers.keySet()) {
-            if (!controllers.get(identifier).isJsonObject() || !identifier.startsWith("controller.render")) {
+            if (!identifier.startsWith("controller.render")) {
                 continue;
             }
 
-            final JsonObject object = controllers.getAsJsonObject(identifier);
+            if (!(controllers.get(identifier) instanceof JSONObject object)) {
+                continue;
+            }
 
             List<String> textureExpressions = new ArrayList<>();
-            if (object.has("textures")) {
-                textureExpressions = arrayToList(object.getAsJsonArray("textures"));
+            if (object.containsKey("textures")) {
+                textureExpressions = arrayToList(object.getJSONArray("textures"));
             }
 
             String geometryExpression = "";
-            if (object.has("geometry")) {
-                JsonElement element = object.get("geometry");
-                if (element.isJsonPrimitive()) {
-                    geometryExpression = element.getAsString();
+            if (object.containsKey("geometry")) {
+                String element = object.getString("geometry");
+                if (element != null) {
+                    geometryExpression = element;
                 }
             }
 
             final Map<String, String> materialsMap = new HashMap<>();
-            if (object.has("materials")) {
-                for (final JsonElement element : object.getAsJsonArray("materials")) {
-                    if (!element.isJsonObject()) {
+            if (object.containsKey("materials")) {
+                for (final Object element : object.getJSONArray("materials")) {
+                    if (!(element instanceof JSONObject jo)) {
                         continue;
                     }
-                    materialsMap.putAll(objectToMap(element.getAsJsonObject()));
+                    materialsMap.putAll(objectToMap(jo));
                 }
             }
 
-            final JsonObject arrays = object.getAsJsonObject("arrays");
+            final JSONObject arrays = object.getJSONObject("arrays");
             if (arrays == null) {
                 list.add(new BedrockRenderController(identifier, materialsMap, geometryExpression, textureExpressions, List.of(), List.of(), List.of()));
                 continue;
             }
 
-            final List<BedrockRenderController.Array> textures = BedrockRenderController.Array.parse(arrays.getAsJsonObject("textures"));
-            final List<BedrockRenderController.Array> geometries = BedrockRenderController.Array.parse(arrays.getAsJsonObject("geometries"));
-            final List<BedrockRenderController.Array> materials = BedrockRenderController.Array.parse(arrays.getAsJsonObject("materials"));
+            final List<BedrockRenderController.Array> textures = BedrockRenderController.Array.parse(arrays.getJSONObject("textures"));
+            final List<BedrockRenderController.Array> geometries = BedrockRenderController.Array.parse(arrays.getJSONObject("geometries"));
+            final List<BedrockRenderController.Array> materials = BedrockRenderController.Array.parse(arrays.getJSONObject("materials"));
 
             list.add(new BedrockRenderController(identifier, materialsMap, geometryExpression, textureExpressions, materials, textures, geometries));
         }
@@ -71,11 +72,11 @@ public class BedrockControllerParser {
         return list;
     }
 
-    private static List<String> arrayToList(JsonArray array) {
+    private static List<String> arrayToList(JSONArray array) {
         List<String> list = new ArrayList<>();
 
-        for (JsonElement element : array) {
-            list.add(element.getAsString());
+        for (Object element : array) {
+            list.add(element.toString());
         }
 
         return list;

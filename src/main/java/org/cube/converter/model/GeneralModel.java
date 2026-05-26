@@ -1,6 +1,6 @@
 package org.cube.converter.model;
 
-import com.google.gson.JsonObject;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -17,5 +17,5 @@ public abstract class GeneralModel {
     protected final List<Parent> parents = new ArrayList<>();
     protected final Position2V textureSize;
 
-    public abstract JsonObject compile();
+    public abstract JSONObject compile();
 }

@@ -1,14 +1,13 @@
 package org.cube.converter.model.impl.bedrock;
 
+import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 
-import com.google.gson.JsonObject;
 import org.cube.converter.converter.FormatConverter;
 import org.cube.converter.converter.enums.RotationType;
 import org.cube.converter.model.GeneralModel;
 import org.cube.converter.model.impl.java.JavaItemModel;
 import org.cube.converter.parser.bedrock.geometry.BedrockGeometryParser;
-import org.cube.converter.util.GsonUtil;
 import org.cube.converter.util.element.Direction;
 import org.cube.converter.util.element.Position2V;
 
@@ -25,7 +24,7 @@ public final class BedrockGeometryModel extends GeneralModel {
     }
 
     @Override
-    public JsonObject compile() {
+    public JSONObject compile() {
         return null;
     }
 
@@ -42,10 +41,10 @@ public final class BedrockGeometryModel extends GeneralModel {
     }
 
     public static List<BedrockGeometryModel> fromJson(String json) {
-        return fromJson(GsonUtil.getGson().fromJson(json.trim(), JsonObject.class));
+        return BedrockGeometryParser.parse(json);
     }
 
-    public static List<BedrockGeometryModel> fromJson(JsonObject object) {
+    public static List<BedrockGeometryModel> fromJson(JSONObject object) {
         return BedrockGeometryParser.parse(object);
     }
 }

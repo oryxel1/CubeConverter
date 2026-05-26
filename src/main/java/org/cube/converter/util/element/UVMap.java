@@ -1,7 +1,7 @@
 package org.cube.converter.util.element;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -60,8 +60,8 @@ public final class UVMap {
         return map;
     }
 
-    public static UVMap fromPerfaceUV(final JsonObject object) {
-        final JsonObject uv = object.getAsJsonObject("uv");
+    public static UVMap fromPerfaceUV(final JSONObject object) {
+        final JSONObject uv = object.getJSONObject("uv");
         final UVMap map = new UVMap(UVType.PERFACE);
         
         putIfExist(Direction.NORTH, uv, map.getUvMap());
@@ -73,22 +73,22 @@ public final class UVMap {
         return map;
     }
 
-    private static void putIfExist(final Direction direction, final JsonObject object, final Map<Direction, Float[]> map) {
+    private static void putIfExist(final Direction direction, final JSONObject object, final Map<Direction, Float[]> map) {
         String name = direction.name().toLowerCase();
-        if (object.has(name)) {
-            map.put(direction, getUVDirection(object.getAsJsonObject(name)));
+        if (object.containsKey(name)) {
+            map.put(direction, getUVDirection(object.getJSONObject(name)));
         }
     }
 
-    private static Float[] getUVDirection(JsonObject object) {
+    private static Float[] getUVDirection(JSONObject object) {
         if (object == null) {
             return new Float[] { 0F, 0F, 0F };
         }
 
-        final JsonArray arrayUv = object.getAsJsonArray("uv");
-        final JsonArray arrayUvSize = object.getAsJsonArray("uv_size");
+        final JSONArray arrayUv = object.getJSONArray("uv");
+        final JSONArray arrayUvSize = object.getJSONArray("uv_size");
 
-        return new Float[] {arrayUv.get(0).getAsFloat(), arrayUv.get(1).getAsFloat(), arrayUv.get(0).getAsFloat() + arrayUvSize.get(0).getAsFloat(), arrayUv.get(1).getAsFloat() + arrayUvSize.get(1).getAsFloat()};
+        return new Float[] {arrayUv.getFloat(0), arrayUv.getFloat(1), arrayUv.getFloat(0) + arrayUvSize.getFloat(0), arrayUv.getFloat(1) + arrayUvSize.getFloat(1)};
     }
 
     @Override

@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'com.alibaba.fastjson2:fastjson2:2.0.61'
     implementation 'org.projectlombok:lombok:1.18.36'
     implementation "org.joml:joml:1.10.8"
     annotationProcessor 'org.projectlombok:lombok:1.18.36'

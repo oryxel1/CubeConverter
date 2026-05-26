@@ -1,6 +1,6 @@
 package org.cube.converter.util.element;
 
-import com.google.gson.JsonArray;
+import com.alibaba.fastjson2.JSONArray;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,15 +14,15 @@ import org.cube.converter.util.math.MathUtil;
 public final class Position3V {
     private float x, y, z;
 
-    public Position3V(final JsonArray array) {
+    public Position3V(final JSONArray array) {
         if (array == null) {
             this.x = this.y = this.z = 0;
             return;
         }
 
-        this.x = array.get(0).getAsFloat();
-        this.y = array.get(1).getAsFloat();
-        this.z = array.get(2).getAsFloat();
+        this.x = array.getFloat(0);
+        this.y = array.getFloat(1);
+        this.z = array.getFloat(2);
     }
 
     public Position3V(final float[] array) {
@@ -35,9 +35,8 @@ public final class Position3V {
         return new Position3V(0, 0, 0);
     }
 
-    public static Position3V fromOrigin(final JsonArray origin, final JsonArray size) {
-        float x = -(origin.get(0).getAsFloat() + size.get(0).getAsFloat()),
-                y = origin.get(1).getAsFloat(), z = origin.get(2).getAsFloat();
+    public static Position3V fromOrigin(final JSONArray origin, final JSONArray size) {
+        float x = -(origin.getFloat(0) + size.getFloat(0)), y = origin.getFloat(1), z = origin.getFloat(2);
         return new Position3V(x, y, z);
     }
 
@@ -116,8 +115,8 @@ public final class Position3V {
         return this.add(0, 0, 0);
     }
 
-    public JsonArray toJson() {
-        final JsonArray array = new JsonArray();
+    public JSONArray toJson() {
+        final JSONArray array = new JSONArray();
         array.add(this.x);
         array.add(this.y);
         array.add(this.z);
