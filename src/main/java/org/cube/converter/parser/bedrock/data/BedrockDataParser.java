@@ -50,6 +50,7 @@ public class BedrockDataParser {
         final Map<String, String> geometries = objectToMap(description.getAsJsonObject("geometry"));
         final Map<String, String> animations = objectToMap(description.getAsJsonObject("animations"));
         final List<BedrockEntityData.RenderController> controllers = BedrockEntityData.RenderController.parse(description.getAsJsonArray("render_controllers"));
+        final List<BedrockEntityData.AnimationController> animationControllers = BedrockEntityData.AnimationController.parse(description.getAsJsonArray("animation_controllers"));
         final BedrockEntityData.Scripts scripts;
         if (description.has("scripts")) {
             scripts = BedrockEntityData.Scripts.parse(description.getAsJsonObject("scripts"));
@@ -57,7 +58,7 @@ public class BedrockDataParser {
             scripts = BedrockEntityData.Scripts.emptyScript();
         }
 
-        return attachable ? new BedrockAttachableData(identifier, scripts, controllers, materials, animations, textures, geometries) :
-                new BedrockEntityData(identifier, scripts, controllers, materials, animations, textures, geometries);
+        return attachable ? new BedrockAttachableData(identifier, scripts, controllers, materials, animations, textures, geometries, animationControllers) :
+                new BedrockEntityData(identifier, scripts, controllers, materials, animations, textures, geometries, animationControllers);
     }
 }
