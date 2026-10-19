@@ -63,32 +63,41 @@ public final class UVMap {
     public static UVMap fromPerfaceUV(final JsonObject object) {
         final JsonObject uv = object.getAsJsonObject("uv");
         final UVMap map = new UVMap(UVType.PERFACE);
-        
-        putIfExist(Direction.NORTH, uv, map.getUvMap());
-        putIfExist(Direction.EAST, uv, map.getUvMap());
-        putIfExist(Direction.SOUTH, uv, map.getUvMap());
-        putIfExist(Direction.WEST, uv, map.getUvMap());
-        putIfExist(Direction.UP, uv, map.getUvMap());
-        putIfExist(Direction.DOWN, uv, map.getUvMap());
+        if (uv == null) {
+            return map;
+        }
+
+        final Position3V size = new Position3V(object.getAsJsonArray("size"));
+        putIfExist(Direction.NORTH, uv, size, map.getUvMap());
+        putIfExist(Direction.EAST, uv, size, map.getUvMap());
+        putIfExist(Direction.SOUTH, uv, size, map.getUvMap());
+        putIfExist(Direction.WEST, uv, size, map.getUvMap());
+        putIfExist(Direction.UP, uv, size, map.getUvMap());
+        putIfExist(Direction.DOWN, uv, size, map.getUvMap());
         return map;
     }
 
-    private static void putIfExist(final Direction direction, final JsonObject object, final Map<Direction, Float[]> map) {
+    private static void putIfExist(final Direction direction, final JsonObject object, final Position3V size, final Map<Direction, Float[]> map) {
         String name = direction.name().toLowerCase();
         if (object.has(name)) {
-            map.put(direction, getUVDirection(object.getAsJsonObject(name)));
+            map.put(direction, getUVDirection(object.getAsJsonObject(name), direction, size));
         }
     }
 
-    private static Float[] getUVDirection(JsonObject object) {
+    private static Float[] getUVDirection(final JsonObject object, final Direction direction, final Position3V size) {
         if (object == null) {
-            return new Float[] { 0F, 0F, 0F };
+            return new Float[] { 0F, 0F, 0F, 0F };
         }
 
         final JsonArray arrayUv = object.getAsJsonArray("uv");
         final JsonArray arrayUvSize = object.getAsJsonArray("uv_size");
 
-        return new Float[] {arrayUv.get(0).getAsFloat(), arrayUv.get(1).getAsFloat(), arrayUv.get(0).getAsFloat() + arrayUvSize.get(0).getAsFloat(), arrayUv.get(1).getAsFloat() + arrayUvSize.get(1).getAsFloat()};
+        final float width = arrayUvSize != null ? arrayUvSize.get(0).getAsFloat()
+                : direction == Direction.EAST || direction == Direction.WEST ? size.getZ() : size.getX();
+        final float height = arrayUvSize != null ? arrayUvSize.get(1).getAsFloat()
+                : direction == Direction.UP || direction == Direction.DOWN ? size.getZ() : size.getY();
+        final float u = arrayUv.get(0).getAsFloat(), v = arrayUv.get(1).getAsFloat();
+        return new Float[] {u, v, u + width, v + height};
     }
 
     @Override

@@ -15,7 +15,6 @@ import org.cube.converter.util.math.MathUtil;
 import org.cube.converter.util.minecraft.Transformation;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -70,11 +69,14 @@ public final class JavaItemModel extends GeneralModel {
 
             // Children.
             final JsonArray children = new JsonArray();
-            group.getCubes().forEach((k, v) -> children.add(k));
             parent.add("children", children);
 
             for (Map.Entry<Integer, Cube> entry : group.getCubes().entrySet()) {
                 final Cube cube = entry.getValue();
+                final JsonObject faces = compileUV(this.textureSize.getX(), this.textureSize.getY(), cube);
+                if (faces.isEmpty()) {
+                    continue;
+                }
 
                 final JsonObject element = new JsonObject();
                 // TODO: name, well it is that important? I don't care enough.
@@ -88,7 +90,8 @@ public final class JavaItemModel extends GeneralModel {
                 } else {
                     element.add("rotation", compileRotation(cube));
                 }
-                element.add("faces", compileUV(this.textureSize.getX(), this.textureSize.getY(), cube));
+                element.add("faces", faces);
+                children.add(elements.size());
                 elements.add(element);
             }
 
@@ -127,7 +130,7 @@ public final class JavaItemModel extends GeneralModel {
     private JsonObject compileUV(final float textureWidth, final float textureHeight, final Cube element) {
         JsonObject faces = new JsonObject();
 
-        for (Map.Entry<Direction, Float[]> entry : element.getUvMap().toJavaPerfaceUV(textureWidth, textureHeight).getUvMap().entrySet()) {
+        for (Map.Entry<Direction, Float[]> entry : element.getUvMap().clone().toJavaPerfaceUV(textureWidth, textureHeight).getUvMap().entrySet()) {
             if (entry.getValue() == null) {
                 continue;
             }
@@ -147,16 +150,6 @@ public final class JavaItemModel extends GeneralModel {
             }
 
             faces.add(entry.getKey().name().toLowerCase(), faceDirection);
-        }
-
-        if (faces.isEmpty()) {
-            final JsonObject face = new JsonObject();
-            final JsonArray array = new JsonArray();
-            List.of(0, 0, 0, 0).forEach(array::add);
-
-            face.add("uv", array);
-            face.addProperty("texture", "#0");
-            faces.add("down", face);
         }
 
         return faces;
