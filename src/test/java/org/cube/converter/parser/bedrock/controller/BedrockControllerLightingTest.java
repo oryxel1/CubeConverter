@@ -20,8 +20,23 @@ class BedrockControllerLightingTest {
             """).get(0);
         assertTrue(controller.ignoreLighting());
         assertEquals("query.variant * 0.5", controller.lightColorMultiplierExpression());
-        assertEquals(List.of("*", "Light*"), List.copyOf(controller.materialsMap().keySet()));
+        assertEquals(List.of("*", "Light*"), controller.materialAssignments().stream().map(BedrockRenderController.MaterialAssignment::pattern).toList());
         assertEquals(2, controller.materials().get(0).values().size());
+    }
+
+    @Test
+    void retainsRepeatedMaterialPatternsInTheirDeclaredPositions() {
+        final var controller = BedrockControllerParser.parse("""
+            {"render_controllers":{"controller.render.repeated":{
+                "materials":[{"*":"Material.base"},{"Arm*":"Material.glow"},{"*":"Material.final"}]
+            }}}
+            """).get(0);
+        assertEquals(List.of(
+            new BedrockRenderController.MaterialAssignment("*", "Material.base"),
+            new BedrockRenderController.MaterialAssignment("Arm*", "Material.glow"),
+            new BedrockRenderController.MaterialAssignment("*", "Material.final")
+        ), controller.materialAssignments());
+        assertThrows(UnsupportedOperationException.class, () -> controller.materialAssignments().clear());
     }
 
     @Test

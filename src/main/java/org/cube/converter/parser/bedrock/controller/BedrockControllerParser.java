@@ -7,11 +7,8 @@ import org.cube.converter.data.bedrock.controller.BedrockRenderController;
 import org.cube.converter.util.GsonUtil;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import static org.cube.converter.util.GsonUtil.objectToMap;
 
 public class BedrockControllerParser {
     public static List<BedrockRenderController> parse(final String json) {
@@ -45,13 +42,15 @@ public class BedrockControllerParser {
                 }
             }
 
-            final Map<String, String> materialsMap = new LinkedHashMap<>();
+            final List<BedrockRenderController.MaterialAssignment> materialAssignments = new ArrayList<>();
             if (object.has("materials")) {
                 for (final JsonElement element : object.getAsJsonArray("materials")) {
                     if (!element.isJsonObject()) {
                         continue;
                     }
-                    materialsMap.putAll(objectToMap(element.getAsJsonObject()));
+                    for (final var entry : element.getAsJsonObject().entrySet()) {
+                        materialAssignments.add(new BedrockRenderController.MaterialAssignment(entry.getKey(), entry.getValue().getAsString()));
+                    }
                 }
             }
 
@@ -61,7 +60,7 @@ public class BedrockControllerParser {
             final List<BedrockRenderController.BoneVisibility> partVisibility = partVisibility(object.get("part_visibility"));
             final JsonObject arrays = object.getAsJsonObject("arrays");
             if (arrays == null) {
-                list.add(new BedrockRenderController(identifier, materialsMap, geometryExpression, textureExpressions, List.of(), List.of(), List.of(), ignoreLighting, lightColorMultiplier, uvAnimation, partVisibility));
+                list.add(new BedrockRenderController(identifier, materialAssignments, geometryExpression, textureExpressions, List.of(), List.of(), List.of(), ignoreLighting, lightColorMultiplier, uvAnimation, partVisibility));
                 continue;
             }
 
@@ -69,7 +68,7 @@ public class BedrockControllerParser {
             final List<BedrockRenderController.Array> geometries = BedrockRenderController.Array.parse(arrays.getAsJsonObject("geometries"));
             final List<BedrockRenderController.Array> materials = BedrockRenderController.Array.parse(arrays.getAsJsonObject("materials"));
 
-            list.add(new BedrockRenderController(identifier, materialsMap, geometryExpression, textureExpressions, materials, textures, geometries, ignoreLighting, lightColorMultiplier, uvAnimation, partVisibility));
+            list.add(new BedrockRenderController(identifier, materialAssignments, geometryExpression, textureExpressions, materials, textures, geometries, ignoreLighting, lightColorMultiplier, uvAnimation, partVisibility));
         }
 
         return list;
