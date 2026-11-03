@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -89,9 +88,9 @@ class BedrockAttachableRenderingTest {
     }
 
     @Test
-    void recordsDefensivelyCopyNewDeclarationsAndKeepExistingConstructors() {
+    void recordsDefensivelyCopyDeclarationsAndApplyConstructorDefaults() {
         final var visibility = new ArrayList<>(List.of(new BedrockRenderController.BoneVisibility("*", "1")));
-        final var controller = new BedrockRenderController("controller.render.worn", Map.of(), "", List.of(),
+        final var controller = new BedrockRenderController("controller.render.worn", List.of(), "", List.of(),
             List.of(), List.of(), List.of(), false, "1", BedrockRenderController.UvAnimation.IDENTITY, visibility);
         visibility.clear();
         assertEquals(1, controller.partVisibility().size());
@@ -103,11 +102,11 @@ class BedrockAttachableRenderingTest {
         assertEquals(1, scripts.parentSetup().size());
 
         assertTrue(new BedrockEntityData.Scripts(List.of(), List.of(), scale, List.of()).parentSetup().isEmpty());
-        assertTrue(new BedrockRenderController("controller.render.worn", Map.of(), "", List.of(),
+        assertTrue(new BedrockRenderController("controller.render.worn", List.of(), "", List.of(),
             List.of(), List.of(), List.of(), false, "1", BedrockRenderController.UvAnimation.IDENTITY)
             .partVisibility().isEmpty());
 
-        final var legacyController = new BedrockRenderController("controller.render.worn", Map.of(), "", List.of(),
+        final var legacyController = new BedrockRenderController("controller.render.worn", List.of(), "", List.of(),
             List.of(), List.of(), List.of());
         assertFalse(legacyController.ignoreLighting());
         assertEquals(1F, Float.parseFloat(legacyController.lightColorMultiplierExpression()));
