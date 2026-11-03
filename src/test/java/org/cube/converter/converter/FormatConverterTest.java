@@ -1,5 +1,7 @@
 package org.cube.converter.converter;
 
+import com.viaversion.viaversion.libs.gson.JsonArray;
+import com.viaversion.viaversion.libs.gson.JsonNull;
 import com.viaversion.viaversion.libs.gson.JsonObject;
 import org.cube.converter.converter.enums.RotationType;
 import org.cube.converter.model.impl.java.JavaItemModel;
@@ -10,6 +12,44 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FormatConverterTest {
+
+    @Test
+    void preservesOptionalGeometryFieldsAndNativeTextureDefaults() {
+        for (final boolean modern : new boolean[]{false, true}) {
+            for (final boolean bones : new boolean[]{false, true}) {
+                final JsonObject document = modern ? geometryJson("[]")
+                        : GsonUtil.getGson().fromJson("{\"geometry.example\":{}}", JsonObject.class);
+                final JsonObject geometry = modern ? document.getAsJsonArray("minecraft:geometry").get(0).getAsJsonObject()
+                        : document.getAsJsonObject("geometry.example");
+                final JsonObject description = modern ? geometry.getAsJsonObject("description") : geometry;
+                final String width = modern ? "texture_width" : "texturewidth";
+                final String height = modern ? "texture_height" : "textureheight";
+                description.remove(width);
+                description.remove(height);
+                if (bones) geometry.add("bones", new JsonArray());
+                else geometry.remove("bones");
+                for (int overrides = 0; overrides < 4; overrides++) {
+                    if ((overrides & 1) != 0) description.addProperty(width, 32);
+                    else description.add(width, JsonNull.INSTANCE);
+                    if ((overrides & 2) != 0) description.addProperty(height, 16);
+                    else description.remove(height);
+                    final JsonObject original = document.deepCopy();
+                    final var models = BedrockGeometryParser.parse(document);
+                    assertEquals(1, models.size());
+                    final var parsed = models.get(0);
+                    assertEquals((overrides & 1) != 0 ? 32 : 64, parsed.getTextureSize().getX());
+                    assertEquals((overrides & 2) != 0 ? 16 : 64, parsed.getTextureSize().getY());
+                    assertTrue(parsed.getParents().isEmpty());
+                    for (final RotationType rotation : RotationType.values()) {
+                        final var model = parsed.toJavaItemModel("example:item/actor", rotation);
+                        assertEquals(1, model.getScale());
+                        assertTrue(finiteExport(model).getAsJsonArray("elements").isEmpty());
+                    }
+                    assertEquals(original, document);
+                }
+            }
+        }
+    }
 
     @Test
     void exportsGeometryWithoutBonesAtUnitScaleForEveryRotationMode() {
