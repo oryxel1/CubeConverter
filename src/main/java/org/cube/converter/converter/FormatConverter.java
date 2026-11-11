@@ -74,6 +74,7 @@ public class FormatConverter {
 
     public static JavaItemModel geometryToItemModel(final Map<Direction, String> textureMap, final BedrockGeometryModel geometry, final RotationType type) {
         final Position3V min = new Position3V(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE), max = new Position3V(0, 0, 0);
+        boolean hasBounds = false;
 
         final List<Parent> parents = new ArrayList<>();
         for (final Parent old : geometry.getParents()) {
@@ -104,12 +105,13 @@ public class FormatConverter {
                 }
 
                 calculateMinMax(cube, min, max);
+                hasBounds = true;
             }
 
             parents.add(parent);
         }
 
-        final float scale = calculateMinSize(min, max);
+        final float scale = hasBounds ? calculateMinSize(min, max) : 1;
         final JavaItemModel model = new JavaItemModel(textureMap, geometry.getTextureSize());
         model.getParents().addAll(parents);
 

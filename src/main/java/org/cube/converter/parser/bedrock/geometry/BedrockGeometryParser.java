@@ -16,6 +16,8 @@ import java.util.List;
 
 // I am NOT cleaning this up lmao...
 public class BedrockGeometryParser {
+    private static final int DEFAULT_TEXTURE_SIZE = 64;
+
     public static List<BedrockGeometryModel> parse(String json) {
         return parse(GsonUtil.getGson().fromJson(json.trim(), JsonObject.class));
     }
@@ -50,7 +52,7 @@ public class BedrockGeometryParser {
                 continue;
             }
             JsonObject object = element.getAsJsonObject();
-            if (!object.has("texturewidth")) {
+            if (!elementName.startsWith("geometry.")) {
                 continue;
             }
             final BedrockGeometryModel geometry = getGeometry(object, elementName, "texturewidth", "textureheight");
@@ -67,19 +69,14 @@ public class BedrockGeometryParser {
         JsonObject description = geometry.has("description") ? geometry.getAsJsonObject("description") : geometry;
         String identifier = description.has("identifier") ? description.get("identifier").getAsString() : elementName;
 
-        if (!description.has(textureHeightName) || !description.has(textureWidthName)) {
-            return null;
-        }
-
-        int textureWidth = description.get(textureWidthName).getAsInt();
-        int textureHeight = description.get(textureHeightName).getAsInt();
-
-        if (!geometry.has("bones")) {
-            return null;
-        }
+        final int textureWidth = description.has(textureWidthName) && !description.get(textureWidthName).isJsonNull()
+                ? description.get(textureWidthName).getAsInt() : DEFAULT_TEXTURE_SIZE;
+        final int textureHeight = description.has(textureHeightName) && !description.get(textureHeightName).isJsonNull()
+                ? description.get(textureHeightName).getAsInt() : DEFAULT_TEXTURE_SIZE;
+        final JsonArray boneElements = geometry.has("bones") ? geometry.getAsJsonArray("bones") : new JsonArray();
 
         final List<Parent> bones = new ArrayList<>();
-        for (JsonElement boneElement : geometry.getAsJsonArray("bones")) {
+        for (JsonElement boneElement : boneElements) {
             final JsonObject boneObject = boneElement.getAsJsonObject();
             final String name = boneObject.get("name").getAsString();
 
