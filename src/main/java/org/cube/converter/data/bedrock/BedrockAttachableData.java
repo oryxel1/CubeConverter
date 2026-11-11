@@ -7,4 +7,11 @@ public class BedrockAttachableData extends BedrockEntityData {
     public BedrockAttachableData(String identifier, Scripts scripts, List<RenderController> controllers, Map<String, String> materials, Map<String, String> animations, Map<String, String> textures, Map<String, String> geometries) {
         super(identifier, scripts, controllers, materials, animations, textures, geometries);
     }
+
+    public BedrockAttachableData(String identifier, Scripts scripts, List<RenderController> controllers,
+                                Map<String, String> materials, Map<String, String> animations,
+                                Map<String, String> textures, Map<String, String> geometries,
+                                List<AnimationController> animationControllers) {
+        super(identifier, scripts, controllers, materials, animations, textures, geometries, animationControllers);
+    }
 }

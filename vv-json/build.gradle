@@ -1,0 +1,39 @@
+group = rootProject.group
+version = rootProject.version
+description = 'CubeConverter with ViaVersion Gson types'
+
+repositories {
+    maven { url = 'https://repo.viaversion.com' }
+}
+
+dependencies {
+    api('com.viaversion:viaversion-common:5.9.1') {
+        transitive = false
+    }
+}
+
+// Generate both source sets so fixes and regression tests have one owner.
+def generateMainSources = tasks.register('generateMainSources', Sync) {
+    from rootProject.layout.projectDirectory.dir('src/main/java')
+    into layout.buildDirectory.dir('generated/sources/main/java')
+    filteringCharset = 'UTF-8'
+    filter { line -> line.replace('com.google.gson', 'com.viaversion.viaversion.libs.gson') }
+}
+
+def generateTestSources = tasks.register('generateTestSources', Sync) {
+    from rootProject.layout.projectDirectory.dir('src/test/java')
+    into layout.buildDirectory.dir('generated/sources/test/java')
+    filteringCharset = 'UTF-8'
+    filter { line -> line.replace('com.google.gson', 'com.viaversion.viaversion.libs.gson') }
+}
+
+sourceSets {
+    main {
+        java.setSrcDirs([generateMainSources])
+        resources.setSrcDirs([rootProject.layout.projectDirectory.dir('src/main/resources')])
+    }
+    test {
+        java.setSrcDirs([generateTestSources])
+        resources.setSrcDirs([rootProject.layout.projectDirectory.dir('src/test/resources')])
+    }
+}
