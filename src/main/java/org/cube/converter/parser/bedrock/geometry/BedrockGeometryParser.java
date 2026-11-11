@@ -89,7 +89,7 @@ public class BedrockGeometryParser {
 
             Parent bone = new Parent(name, parentPivot, boneRotation);
 
-            if (boneObject.has("parent")) {
+            if (boneObject.has("parent") && !boneObject.get("parent").isJsonNull()) {
                 bone.setParent(boneObject.get("parent").getAsString());
             }
 
